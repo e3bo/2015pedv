@@ -1,3 +1,5 @@
+#!/usr/bin/Rscript
+
 stateShipments <- read.csv('../data/StateShipments.csv', skip=2, na.strings="")
 desel <- c("Origin", "Total", "X")
 test <- !(colnames(stateShipments) %in% desel)

@@ -10,4 +10,10 @@ RUN install2.r --error \
   vegan \
   && rm -rf /tmp/download_packages/ /tmp/*.rds
 
+RUN apt-get update && apt-get install -y -q --no-install-recommends \
+  poppler-utils \
+  python3-lxml \
+  python3-pkg-resources \
+  python3-pandas
+
 CMD ["bash"]
