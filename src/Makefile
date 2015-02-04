@@ -2,5 +2,11 @@ RS = '/usr/bin/Rscript'
 WD = /root/work
 SD = /root/src
 
+all: $(WD)/state-hogBalanceSheetDec2000Dec2001.csv $(WD)/shipment-flows-origins-on-rows-dests-on-columns.csv
+
+$(WD)/state-hogBalanceSheetDec2000Dec2001.csv: $(SD)/get-balance-sheet-csv.sh
+	cd $(WD) && $<
+
 $(WD)/shipment-flows-origins-on-rows-dests-on-columns.csv: $(SD)/clean-shipment-matrix.r
 	cd $(WD) && $(RS) $< 
+
