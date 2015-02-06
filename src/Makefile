@@ -2,7 +2,8 @@ RS = '/usr/bin/Rscript'
 WD = /root/work
 SD = /root/src
 
-all: $(WD)/state-hogBalanceSheetDec2000Dec2001.csv $(WD)/shipment-flows-origins-on-rows-dests-on-columns.csv $(WD)/PEDvweeklyreport-state-ts-01-08-14.csv
+flows.html: $(WD)/state-hogBalanceSheetDec2000Dec2001.csv $(WD)/shipment-flows-origins-on-rows-dests-on-columns.csv $(WD)/PEDvweeklyreport-state-ts-01-08-14.csv | data
+	cd $(WD) && cp $(SD)/flows.r . && $(RS) --vanilla -e "library(knitr); spin(\"flows.r\")"
 
 $(WD)/state-hogBalanceSheetDec2000Dec2001.csv: $(SD)/get-balance-sheet-csv.sh
 	cd $(WD) && $<
@@ -12,3 +13,6 @@ $(WD)/shipment-flows-origins-on-rows-dests-on-columns.csv: $(SD)/clean-shipment-
 
 $(WD)/PEDvweeklyreport-state-ts-01-08-14.csv: $(SD)/ped-weekly-report-scraper-py3.py
 	cd $(WD) && $<
+
+data:
+	cd $(WD) && cp -p ../data/* .
