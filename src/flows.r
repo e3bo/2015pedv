@@ -884,7 +884,7 @@ m$glmedirhmax <- glmer.nb(f$glmedirhmax, data=om)
 sapply(m[c('glmehmax', 'glmeundirhmax', 'glmedirhmax')], logLik)
 abs(unname(diff(sapply(m[c('glmehmax', 'glmeundirhmax')], AIC))))
 
-#' We have a difference of about 6 in the AIC now, with the undirected
+#' We have a difference of about 11 in the AIC now, with the undirected
 #' flow model preferred.
 
 save.image('flows-checkpoint3.RData')
