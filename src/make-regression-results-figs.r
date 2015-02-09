@@ -101,32 +101,34 @@ resd <- sapply(modList, getSD)
 df <- sapply(modList, getdf)
 int <- sapply(modList, getintercept)
 
-tab <- data.frame(baseline=I('no'), int=unname(int), disp, resd, df, llik)
-rownames(tab) <- names(modList)
-tab[c('glmeundirhmax', 'glmedirhmax', 'glmehmax'), 'baseline'] <- 'yes'
-tab[, 'df'] <- tab[, 'df'] + ifelse(tab[, 'baseline'] == 'yes', 1, 0)
-aic <- 2*-tab[, 'llik'] + 2*tab[, 'df']
-tab <- cbind(tab, deltaAIC = aic - min(aic))
-flowTerm <- c(glmeundirhmax='undirected', glmedirhmax='directed', glmehmax='internal',
-              nbme='internal', nbmeN='none')
-tab <- data.frame(flowTerm=flowTerm[rownames(tab)], tab)
-tf <- format.df(tab)
-align <- paste(attr(tf, "col.just"), collapse="|")
-align <- paste('|', align, '|', sep='')
-longnames <- c(flowTerm='\\bf Flow term', baseline='\\bf Fit $\\eta$',
-               disp='\\bf Intercept', df='\\bf d.f.', llik='\\bf Log lik.',
-               deltaAIC='\\bf $\\Delta$ AIC', resd='\\bf $\\hat{\\sigma}$',
-               int='{\\bf Intercept}')
-colnames(tab) <- longnames[colnames(tf)]
-tab <- latexTabular(tab, helvetica=FALSE, align=align, translate=FALSE,
-                 cdec=c(0,0,1,2,2,0,1,1))
-tab <- gsub('\\\\multicolumn\\{1\\}\\{c\\}', '', tab)
+tmpf <- function() {
+  tab <- data.frame(baseline=I('no'), int=unname(int), disp, resd, df, llik)
+  rownames(tab) <- names(modList)
+  tab[c('glmeundirhmax', 'glmedirhmax', 'glmehmax'), 'baseline'] <- 'yes'
+  tab[, 'df'] <- tab[, 'df'] + ifelse(tab[, 'baseline'] == 'yes', 1, 0)
+  aic <- 2*-tab[, 'llik'] + 2*tab[, 'df']
+  tab <- cbind(tab, deltaAIC = aic - min(aic))
+  flowTerm <- c(glmeundirhmax='undirected', glmedirhmax='directed', glmehmax='internal',
+                nbme='internal', nbmeN='none')
+  tab <- data.frame(flowTerm=flowTerm[rownames(tab)], tab)
+  tf <- format.df(tab)
+  align <- paste(attr(tf, "col.just"), collapse="|")
+  align <- paste('|', align, '|', sep='')
+  longnames <- c(flowTerm='\\bf Flow term', baseline='\\bf Fit $\\eta$',
+                 disp='\\bf Intercept', df='\\bf d.f.', llik='\\bf Log lik.',
+                 deltaAIC='\\bf $\\Delta$ AIC', resd='\\bf $\\hat{\\sigma}$',
+                 int='{\\bf Intercept}')
+  colnames(tab) <- longnames[colnames(tf)]
+  tab <- latexTabular(tab, helvetica=FALSE, align=align, translate=FALSE,
+                   cdec=c(0,0,1,2,2,0,1,1))
+  tab <- gsub('\\\\multicolumn\\{1\\}\\{c\\}', '', tab)
+  tab <- gsub('(\\\\)\\s?(\n)', '\\1\\\\hline\\2', tab)
+  tab <- gsub('(\\n)(\\{\\\\bf Flow term\\})', '\\1\\\\hline\\2', tab)
+  cat(tab, file='tab.tex')
+}
+tmpf()
 
-tab <- gsub('(\\\\)\\s?(\n)', '\\1\\\\hline\\2', tab)
-cat(tab, file='tab.tex')
-
-
-scales <- c(week=iqr(om$weekCent),
+Scales <- C(week=iqr(om$weekCent),
             internal=iqr(log(om$internalFlow)),
             cmedDense=iqr(log(om$cmedDense*om$nFarms*om$nFarms)),
             undirected=iqr(log(om$undirectedFlow)),
