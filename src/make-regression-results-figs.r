@@ -30,8 +30,9 @@ g <- g + geom_smooth(method='loess', alpha=0, size=2)
 g <- g + geom_point(aes(x=I(runif(nrow(fund), min=-.1,max=.1) + exp(logUndirectedFlowScaled)),
                         y=cases), col='red', alpha=0.5)
 g <- g + labs(x='Flow (swine / pairs / year)', y='Cases')
-g <- g + coord_trans(y="log1p")
+g <- g + coord_trans(y="log1p") + ylim(0,100)
 ggsave('flows-prediction.eps', width=4, height=4, pointsize=18, device=cairo_ps)
+ggsave('flows-prediction.pdf', width=4, height=4, pointsize=18, device=cairo_pdf)
 
 ## Plots of fixed effects
 
