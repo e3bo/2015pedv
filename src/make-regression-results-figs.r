@@ -26,9 +26,9 @@ fund <- fortify(m$glmeundirhmax, data=model.frame(m$glmeundirhmax))
 theme_set(new=theme_classic())
 
 g <- ggplot(data=fund, aes(x=exp(logUndirectedFlowScaled), y=exp(.fitted)))
-g <- g + geom_smooth(method='loess', alpha=0, size=2)
+g <- g + geom_smooth(method='loess', alpha=0, size=2, color='black')
 g <- g + geom_point(aes(x=I(runif(nrow(fund), min=-.1,max=.1) + exp(logUndirectedFlowScaled)),
-                        y=cases), col='red', alpha=0.5)
+                        y=cases), col='black', alpha=0.5)
 g <- g + labs(x='Flow (swine / pairs / year)', y='Cases')
 g <- g + coord_trans(y="log1p") + ylim(0,100)
 ggsave('flows-prediction.eps', width=4, height=4, pointsize=18, device=cairo_ps)
@@ -110,15 +110,21 @@ tab <- cbind(tab, deltaAIC = aic - min(aic))
 flowTerm <- c(glmeundirhmax='undirected', glmedirhmax='directed', glmehmax='internal',
               nbme='internal', nbmeN='none')
 tab <- data.frame(flowTerm=flowTerm[rownames(tab)], tab)
-
-tf <- format.df(tab, cdec=c(0,0,1,2,2,0,1,1))
+tf <- format.df(tab)
 align <- paste(attr(tf, "col.just"), collapse="|")
 align <- paste('|', align, '|', sep='')
-longnames <- c(flowTerm='Flow term', baseline='Fit eta', disp='hat theta',
-               df='d.f.', llik='log lik.', deltaAIC='Delta AIC', resd='hat sigma',
-               int='Intercept')
-colnames(tf) <- longnames[colnames(tf)]
-cat(latexTabular(tf, helvetica=FALSE, align=align, translate=FALSE), file='tab.tex')
+longnames <- c(flowTerm='\\bf Flow term', baseline='\\bf Fit $\\eta$',
+               disp='\\bf Intercept', df='\\bf d.f.', llik='\\bf Log lik.',
+               deltaAIC='\\bf $\\Delta$ AIC', resd='\\bf $\\hat{\\sigma}$',
+               int='{\\bf Intercept}')
+colnames(tab) <- longnames[colnames(tf)]
+tab <- latexTabular(tab, helvetica=FALSE, align=align, translate=FALSE,
+                 cdec=c(0,0,1,2,2,0,1,1))
+tab <- gsub('\\\\multicolumn\\{1\\}\\{c\\}', '', tab)
+
+tab <- gsub('(\\\\)\\s?(\n)', '\\1\\\\hline\\2', tab)
+cat(tab, file='tab.tex')
+
 
 scales <- c(week=iqr(om$weekCent),
             internal=iqr(log(om$internalFlow)),
