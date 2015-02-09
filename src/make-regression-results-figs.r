@@ -1,9 +1,12 @@
+#!/usr/bin/Rscript
+
 library(lme4)
 library(coefplot2)
 library(glmmADMB)
 library(Hmisc)
+library(ggplot2)
 
-load('checkpoint3.RData')
+load('flows-checkpoint3.RData')
 
 ## Refit with glmmadmb due to warnings about gradients above tolerance with lme4 fits
 
@@ -17,8 +20,20 @@ tmpf <- function(x) {
 }
 mFin <- lapply(fFin, tmpf)
 
-## Plots of fixed effects
+## Plot of predicted cases vs flow
 
+fund <- fortify(m$glmeundirhmax, data=model.frame(m$glmeundirhmax))
+theme_set(new=theme_classic())
+
+g <- ggplot(data=fund, aes(x=exp(logUndirectedFlowScaled), y=exp(.fitted)))
+g <- g + geom_smooth(method='loess', alpha=0, size=2)
+g <- g + geom_point(aes(x=I(runif(nrow(fund), min=-.1,max=.1) + exp(logUndirectedFlowScaled)),
+                        y=cases), col='red', alpha=0.5)
+g <- g + labs(x='Flow (swine / pairs / year)', y='Cases')
+g <- g + coord_trans(y="log1p")
+ggsave('flows-prediction.eps', width=4, height=4, pointsize=18, device=cairo_ps)
+
+## Plots of fixed effects
 
 ct <- lapply(mFin, function(x) coeftab(x)[, 1:2])
 
@@ -41,7 +56,7 @@ ests <- cbind(ests, baseline=c(hund$maximum, hdir$maximum, hint$maximum))
 sds <- cbind(sds, baseline=0)
 
 tmpf <- function() {
-    longnames <- c(flow='Scaled swine flow', inf='Cases last week', week='Scaled week', dense='Scaled farm density', baseline='Baseline risk') 
+    longnames <- c(flow='Scaled transport flow', inf='Cases last week', week='Scaled week', dense='Scaled farm density', baseline='Baseline risk') 
     pal <- c('black', 'orange', 'blue')
     pch <- 15:17
     for(i in seq_len(nrow(ests))){
@@ -51,11 +66,11 @@ tmpf <- function() {
     }
     legend('topright', legend=c('undirected', 'directed', 'none'), col=pal, pch=pch, title='Interstate flow')
 }
-#tmpf()
 
 pdf('coefplot.pdf', width=5,height=4)
 tmpf()
 dev.off()
+## This works better than making the ps with R for some reason
 system('pdftops coefplot.pdf')
 
 res <- 100
@@ -113,6 +128,8 @@ sink(file='scales.txt')
 print(scales)
 sink()
 
+## Dotplot of AICs
+
 flowTerm <- c(glmeundirhmax='Within-state + undirected between state',
               glmedirhmax='Within-state + directed between state',
               glmehmax='Within-state only',
@@ -123,19 +140,6 @@ png('aic.png', width=7*res, height=4*res, res=res)
 dotchart2(aic, labels=flowTerm[rownames(tab)], xlab='AIC (i.e., Estimated information loss)', dotsize=2)
 dev.off()
 
-library(ggplot2)
-fund <- fortify(m$glmeundirhmax, data=model.frame(m$glmeundirhmax))
-theme_set(new=theme_classic())
-
-g <- ggplot(data=fund, aes(x=exp(logUndirectedFlowScaled), y=exp(.fitted)))
-g <- g + geom_smooth(method='loess', alpha=0, size=2)
-g <- g + geom_point(aes(x=I(runif(nrow(fund), min=-.1,max=.1) + exp(logUndirectedFlowScaled)),
-                        y=cases), col='red', alpha=0.5)
-g <- g + labs(x='Flow (swine / pairs / year)', y='Cases')
-g <- g + coord_trans(y="log1p")
-g
-ggsave('flow-prediction.pdf', width=7, height=5, pointsize=18)
-
-save.image('checkpoint4.RData')
+save.image('flows-checkpoint4.RData')
 
                                              
