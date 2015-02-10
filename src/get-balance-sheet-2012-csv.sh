@@ -9,7 +9,7 @@ archive='/root/data/usda01.library.cornell.edu_usda_current_MeatAnimPr_MeatAnimP
 
 echo 'state,inventory2011,pigCrop,inshipments' > "${file1}" 
 
-unzip -c "${archive}" meat_014.csv \
+unzip -c "${archive}" meat_p14_t014.csv \
   | grep ,\"d\" \
   | cut -d',' -f3- \
   | grep -v ^\"\" \
@@ -18,7 +18,7 @@ unzip -c "${archive}" meat_014.csv \
   | sed 's/ Washington/IdahoWashington/' >> "${file1}"
 
 echo 'state2,marketings,slaughter,deaths,inventory2012' > "${file2}"
-unzip -c "${archive}" meat_015.csv \
+unzip -c "${archive}" meat_p15_t015.csv \
   | grep ,\"d\" \
   | cut -d',' -f3- \
   | grep -v ^\"\" \
