@@ -1,4 +1,4 @@
 .git
-./root/data/*
-./root/src/*
-./root/work*
+./data/*
+./src/*
+./work*

@@ -2,7 +2,10 @@ RS = '/usr/bin/Rscript'
 WD = /root/work
 SD = /root/src
 
-all: $(WD)/flagPedvCum
+all: $(WD)/flagAssocPlots
+
+$(WD)/flagAssocPlots: $(SD)/make-assoc-plots.r $(WD)/flagPedvCum
+	cd $(WD) && cp $< . && $(RS) -e "library(knitr); spin(\"make-assoc-plots.r\")" >$(<F).so 2>$(<F).se && touch $@
 
 $(WD)/flagPedvCum: $(SD)/pedv-cum.r $(WD)/flagWeeklyReports $(WD)/shipment-flows-origins-on-rows-dests-on-columns.csv $(WD)/state-hogBalanceSheetDec2011Dec2012.csv | data
 	cd $(WD) && cp $< . && $(RS) -e "library(knitr); spin(\"pedv-cum.r\")" >$(<F).so 2>$(<F).se && touch $@
@@ -18,7 +21,6 @@ $(WD)/state-hogBalanceSheetDec2000Dec2001.csv: $(SD)/get-balance-sheet-csv.sh
 
 $(WD)/state-hogBalanceSheetDec2011Dec2012.csv: $(SD)/get-balance-sheet-2012-csv.sh
 	cd $(WD) && $<
-
 
 $(WD)/shipment-flows-origins-on-rows-dests-on-columns.csv: $(SD)/clean-shipment-matrix.r
 	cd $(WD) && $<

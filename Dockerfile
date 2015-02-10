@@ -11,6 +11,7 @@ RUN install2.r --error \
   car \
   coda \
   c060 \
+  DescTools \
   fields \
   geoR \
   ggplot2 \
@@ -24,6 +25,7 @@ RUN install2.r --error \
   plyr \
   pscl \
   reshape \
+  vcd \
   vegan \
 && rm -rf /tmp/download_packages/ /tmp/*.rds
 RUN install2.r --repos http://r-forge.r-project.org --error glmmADMB \
