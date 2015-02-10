@@ -10,13 +10,18 @@ RUN apt-get update && apt-get install -y -q --no-install-recommends \
 RUN install2.r --error \
   car \
   coda \
+  c060 \
   fields \
+  geoR \
   ggplot2 \
+  glmnet \
   Hmisc \
   igraph \
   knitr \
   lme4 \
+  maps \
   pander \
+  plyr \
   pscl \
   reshape \
   vegan \

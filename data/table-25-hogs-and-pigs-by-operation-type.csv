@@ -1,0 +1,511 @@
+"STFIPS","GEO","ITEM","Farrow to wean Farms","Farrow to wean Number","Farrow to finish Farms","Farrow to finish Number","Finish only Farms","Finish only Number","Farrow to feeder Farms","Farrow to feeder Number","Nursery Farms","Nursery Number","Other Farms","Other Number"
+"01","Alabama","Total inventory",33,25185,201,10065,164,91268,96,13316,8,36761,251,1680
+"02","Alaska","Total inventory",9,103,22,511,8,"(D)",-,-,-,-,4,"(D)"
+"04","Arizona","Total inventory",31,295,124,"(D)",69,243,39,1263,-,-,115,994
+"05","Arkansas","Total inventory",199,162423,308,13229,214,60422,88,2211,17,36625,316,14432
+"06","California","Total inventory",144,5033,315,117484,369,3248,216,25897,4,102,341,2219
+"08","Colorado","Total inventory",83,171071,361,372269,448,"(D)",115,"(D)",2,"(D)",162,9322
+"09","Connecticut","Total inventory",22,798,71,1152,87,428,24,1003,-,-,40,264
+"10","Delaware","Total inventory",4,"(D)",16,"(D)",28,"(D)",10,88,6,12,13,"(D)"
+"12","Florida","Total inventory",144,1389,512,7828,411,2732,182,4622,21,84,636,3282
+"13","Georgia","Total inventory",78,52820,281,83102,183,69729,142,20722,9,21308,418,15790
+"15","Hawaii","Total inventory",24,645,114,12939,20,188,8,66,3,3,56,1092
+"16","Idaho","Total inventory",103,1535,177,26070,228,3271,19,940,-,-,130,978
+"17","Illinois","Total inventory",188,726214,1043,1385528,1130,1631288,116,70530,41,84207,346,400949
+"18","Indiana","Total inventory",180,250349,1243,1616827,1222,1335024,269,77200,55,140798,451,248859
+"19","Iowa","Total inventory",304,806634,2206,4122235,4424,11061280,201,425511,444,969042,751,1910390
+"20","Kansas","Total inventory",104,63717,540,880160,475,792455,130,17846,19,103237,186,27837
+"21","Kentucky","Total inventory",124,28186,468,189258,391,95162,91,17935,8,87,416,17395
+"22","Louisiana","Total inventory",83,1730,152,2510,160,858,93,2385,-,-,230,3132
+"23","Maine","Total inventory",42,219,139,2260,146,695,13,845,3,9,94,373
+"24","Maryland","Total inventory",41,4232,134,"(D)",112,"(D)",36,"(D)",6,46,83,780
+"25","Massachusetts","Total inventory",24,990,115,4071,97,1022,84,4960,5,35,128,475
+"26","Michigan","Total inventory",75,37644,844,445065,1137,459273,244,25734,19,43722,372,20616
+"27","Minnesota","Total inventory",150,558628,1181,2163010,2280,3734504,188,157806,164,446479,419,591857
+"28","Mississippi","Total inventory",30,"(D)",164,96986,136,148160,41,410,14,"(D)",298,14965
+"29","Missouri","Total inventory",237,437283,1153,1519498,812,599490,232,39869,105,394919,460,110410
+"30","Montana","Total inventory",36,2794,169,173511,177,"(D)",21,"(D)",-,-,80,427
+"31","Nebraska","Total inventory",116,529778,702,1032725,1123,1324395,100,185144,83,173267,89,23235
+"32","Nevada","Total inventory",8,"(D)",12,"(D)",40,595,7,155,-,-,24,77
+"33","New Hampshire","Total inventory",31,232,89,1321,79,982,15,160,2,"(D)",50,"(D)"
+"34","New Jersey","Total inventory",16,"(D)",68,1989,141,5388,22,603,1,"(D)",23,"(D)"
+"35","New Mexico","Total inventory",17,121,106,559,138,407,32,330,-,-,102,555
+"36","New York","Total inventory",177,10312,559,26641,647,36364,152,"(D)",16,"(D)",320,2376
+"37","North Carolina","Total inventory",234,1415329,475,892014,1305,4481822,157,1367999,276,1496685,389,480155
+"38","North Dakota","Total inventory",34,87331,145,42449,113,49455,37,2348,-,-,21,96
+"39","Ohio","Total inventory",182,130582,1016,493265,1679,827236,287,57724,51,137466,503,184811
+"40","Oklahoma","Total inventory",327,567436,545,1452165,688,291815,294,9496,33,56166,815,21294
+"41","Oregon","Total inventory",155,2198,349,13170,542,2443,67,2024,-,-,170,1290
+"42","Pennsylvania","Total inventory",261,"(D)",935,"(D)",1651,663093,251,55980,42,"(D)",497,21300
+"44","Rhode Island","Total inventory",20,467,22,1128,26,373,11,290,2,"(D)",22,"(D)"
+"45","South Carolina","Total inventory",44,40077,249,30242,183,167953,63,18243,19,26454,254,10824
+"46","South Dakota","Total inventory",54,157517,347,671091,413,556281,51,28809,20,49480,74,26856
+"47","Tennessee","Total inventory",98,7924,431,50234,376,45702,114,2968,15,21621,532,9758
+"48","Texas","Total inventory",246,4980,1006,"(D)",1244,"(D)",410,8298,53,"(D)",1512,9722
+"49","Utah","Total inventory",70,"(D)",141,"(D)",250,"(D)",54,3207,6,140,90,438
+"50","Vermont","Total inventory",16,257,79,1564,79,603,10,29,18,"(D)",47,"(D)"
+"51","Virginia","Total inventory",82,10330,414,39797,305,80880,70,3916,32,232121,337,4132
+"53","Washington","Total inventory",216,3567,410,18014,468,4056,94,1082,7,307,268,1519
+"54","West Virginia","Total inventory",100,807,255,3282,310,3311,55,726,3,3,232,819
+"55","Wisconsin","Total inventory",99,24582,1027,233264,1463,122839,367,44400,6,10168,226,1561
+"56","Wyoming","Total inventory",7,118,78,104803,130,1886,42,326,-,-,15,47
+"99","United States","Total inventory",5102,6559162,21513,20096038,28321,29116843,5460,3004856,1638,4809569,13408,4199850
+"01","Alabama","Total inventory \ Farms with 1 to 24",25,208,146,1223,137,761,69,479,-,-,241,1206
+"02","Alaska","Total inventory \ Farms with 1 to 24",8,"(D)",17,93,8,"(D)",-,-,-,-,3,6
+"04","Arizona","Total inventory \ Farms with 1 to 24",28,154,111,424,68,"(D)",33,215,-,-,111,"(D)"
+"05","Arkansas","Total inventory \ Farms with 1 to 24",90,667,253,1551,181,940,77,516,6,25,294,1029
+"06","California","Total inventory \ Farms with 1 to 24",101,"(D)",258,1243,360,1307,154,1180,1,"(D)",329,"(D)"
+"08","Colorado","Total inventory \ Farms with 1 to 24",61,"(D)",289,2169,428,2225,80,"(D)",2,"(D)",150,698
+"09","Connecticut","Total inventory \ Farms with 1 to 24",12,190,58,329,87,428,15,90,-,-,37,144
+"10","Delaware","Total inventory \ Farms with 1 to 24",1,"(D)",10,"(D)",19,85,9,"(D)",6,12,13,"(D)"
+"12","Florida","Total inventory \ Farms with 1 to 24",133,"(D)",456,2704,400,1652,139,885,20,"(D)",623,2418
+"13","Georgia","Total inventory \ Farms with 1 to 24",51,439,201,1229,151,646,103,622,5,59,394,1556
+"15","Hawaii","Total inventory \ Farms with 1 to 24",13,117,59,539,16,68,8,66,3,3,46,239
+"16","Idaho","Total inventory \ Farms with 1 to 24",87,799,137,900,211,946,9,"(D)",-,-,129,"(D)"
+"17","Illinois","Total inventory \ Farms with 1 to 24",37,326,233,2459,310,2381,50,583,5,36,211,1168
+"18","Indiana","Total inventory \ Farms with 1 to 24",57,507,388,3697,492,3022,144,1485,-,-,344,1782
+"19","Iowa","Total inventory \ Farms with 1 to 24",23,"(D)",254,2731,316,2604,27,271,1,"(D)",159,902
+"20","Kansas","Total inventory \ Farms with 1 to 24",55,"(D)",183,1662,274,1881,83,797,2,"(D)",149,"(D)"
+"21","Kentucky","Total inventory \ Farms with 1 to 24",101,579,276,1984,332,1490,77,613,5,12,396,1537
+"22","Louisiana","Total inventory \ Farms with 1 to 24",57,"(D)",127,"(D)",156,708,71,636,-,-,210,"(D)"
+"23","Maine","Total inventory \ Farms with 1 to 24",41,"(D)",131,706,144,"(D)",8,39,3,9,91,211
+"24","Maryland","Total inventory \ Farms with 1 to 24",36,231,98,567,95,448,25,142,6,46,78,246
+"25","Massachusetts","Total inventory \ Farms with 1 to 24",20,210,87,431,83,417,48,583,5,35,125,367
+"26","Michigan","Total inventory \ Farms with 1 to 24",41,459,435,3413,818,4729,143,1386,7,72,338,1487
+"27","Minnesota","Total inventory \ Farms with 1 to 24",20,200,255,2807,514,3499,78,862,3,24,219,1007
+"28","Mississippi","Total inventory \ Farms with 1 to 24",24,"(D)",107,726,105,432,37,283,4,"(D)",285,1333
+"29","Missouri","Total inventory \ Farms with 1 to 24",106,"(D)",412,3815,515,3268,129,"(D)",10,"(D)",409,1799
+"30","Montana","Total inventory \ Farms with 1 to 24",28,164,72,612,163,686,17,"(D)",-,-,79,"(D)"
+"31","Nebraska","Total inventory \ Farms with 1 to 24",24,232,82,979,232,1829,27,255,-,-,63,371
+"32","Nevada","Total inventory \ Farms with 1 to 24",6,"(D)",8,"(D)",35,132,5,"(D)",-,-,24,77
+"33","New Hampshire","Total inventory \ Farms with 1 to 24",31,232,81,394,76,353,13,"(D)",2,"(D)",50,"(D)"
+"34","New Jersey","Total inventory \ Farms with 1 to 24",11,"(D)",57,327,129,632,14,135,1,"(D)",22,"(D)"
+"35","New Mexico","Total inventory \ Farms with 1 to 24",17,121,103,422,138,407,28,207,-,-,99,296
+"36","New York","Total inventory \ Farms with 1 to 24",148,1077,439,3051,579,2856,132,992,15,66,299,1223
+"37","North Carolina","Total inventory \ Farms with 1 to 24",51,271,247,1786,213,1080,73,476,-,-,343,1516
+"38","North Dakota","Total inventory \ Farms with 1 to 24",16,195,62,601,59,443,24,273,-,-,21,96
+"39","Ohio","Total inventory \ Farms with 1 to 24",113,731,468,3510,1102,6067,170,1347,7,27,401,1688
+"40","Oklahoma","Total inventory \ Farms with 1 to 24",222,1842,464,2978,641,2856,233,1782,21,102,757,3754
+"41","Oregon","Total inventory \ Farms with 1 to 24",131,994,295,1705,537,2230,54,350,-,-,167,590
+"42","Pennsylvania","Total inventory \ Farms with 1 to 24",156,1203,606,4308,1175,6814,154,1557,7,49,467,1868
+"44","Rhode Island","Total inventory \ Farms with 1 to 24",14,"(D)",15,75,23,"(D)",6,"(D)",2,"(D)",22,"(D)"
+"45","South Carolina","Total inventory \ Farms with 1 to 24",35,139,187,987,136,735,38,308,12,51,238,910
+"46","South Dakota","Total inventory \ Farms with 1 to 24",13,170,61,616,95,775,18,175,-,-,44,160
+"47","Tennessee","Total inventory \ Farms with 1 to 24",76,636,288,2000,319,1582,89,813,10,51,509,2134
+"48","Texas","Total inventory \ Farms with 1 to 24",199,1532,857,4478,1201,4456,313,2202,49,185,1425,4531
+"49","Utah","Total inventory \ Farms with 1 to 24",62,485,116,642,224,1092,33,300,3,"(D)",88,"(D)"
+"50","Vermont","Total inventory \ Farms with 1 to 24",13,"(D)",70,321,75,331,10,29,17,"(D)",47,"(D)"
+"51","Virginia","Total inventory \ Farms with 1 to 24",70,587,278,2001,240,1317,60,330,19,90,320,1208
+"53","Washington","Total inventory \ Farms with 1 to 24",182,1146,364,2229,449,1976,82,"(D)",5,"(D)",257,1009
+"54","West Virginia","Total inventory \ Farms with 1 to 24",96,667,231,888,306,"(D)",45,"(D)",3,3,229,575
+"55","Wisconsin","Total inventory \ Farms with 1 to 24",78,687,508,4050,1193,7300,211,2049,-,-,222,796
+"56","Wyoming","Total inventory \ Farms with 1 to 24",6,"(D)",44,"(D)",114,530,39,239,-,-,15,47
+"99","United States","Total inventory \ Farms with 1 to 24",3026,23062,10984,77803,15674,82502,3504,28675,267,1269,11592,46843
+"01","Alabama","Total inventory \ Farms with 25 to 49",1,"(D)",21,748,2,"(D)",19,"(D)",-,-,7,206
+"02","Alaska","Total inventory \ Farms with 25 to 49",1,"(D)",2,"(D)",-,-,-,-,-,-,-,-
+"04","Arizona","Total inventory \ Farms with 25 to 49",3,141,-,-,1,"(D)",2,"(D)",-,-,-,-
+"05","Arkansas","Total inventory \ Farms with 25 to 49",9,272,29,1040,7,256,7,209,-,-,6,188
+"06","California","Total inventory \ Farms with 25 to 49",21,693,25,860,4,115,24,878,3,"(D)",7,"(D)"
+"08","Colorado","Total inventory \ Farms with 25 to 49",10,349,33,983,7,228,15,483,-,-,5,151
+"09","Connecticut","Total inventory \ Farms with 25 to 49",6,231,9,239,-,-,5,207,-,-,3,120
+"10","Delaware","Total inventory \ Farms with 25 to 49",1,"(D)",3,81,8,"(D)",1,"(D)",-,-,-,-
+"12","Florida","Total inventory \ Farms with 25 to 49",5,"(D)",28,926,5,158,19,"(D)",1,"(D)",10,289
+"13","Georgia","Total inventory \ Farms with 25 to 49",6,191,28,1016,5,168,15,506,-,-,10,316
+"15","Hawaii","Total inventory \ Farms with 25 to 49",7,"(D)",18,631,4,120,-,-,-,-,6,"(D)"
+"16","Idaho","Total inventory \ Farms with 25 to 49",10,320,20,704,10,315,8,291,-,-,-,-
+"17","Illinois","Total inventory \ Farms with 25 to 49",14,539,88,3098,42,1339,15,511,-,-,14,449
+"18","Indiana","Total inventory \ Farms with 25 to 49",5,198,93,3142,49,1701,44,1461,-,-,15,530
+"19","Iowa","Total inventory \ Farms with 25 to 49",9,"(D)",139,5060,71,2420,11,396,1,"(D)",14,440
+"20","Kansas","Total inventory \ Farms with 25 to 49",17,522,48,1648,28,1010,15,486,-,-,8,290
+"21","Kentucky","Total inventory \ Farms with 25 to 49",14,419,56,2025,5,"(D)",7,216,3,75,11,396
+"22","Louisiana","Total inventory \ Farms with 25 to 49",17,578,11,350,4,150,9,318,-,-,12,440
+"23","Maine","Total inventory \ Farms with 25 to 49",1,"(D)",3,"(D)",2,"(D)",1,"(D)",-,-,1,"(D)"
+"24","Maryland","Total inventory \ Farms with 25 to 49",2,"(D)",13,440,3,115,3,87,-,-,2,"(D)"
+"25","Massachusetts","Total inventory \ Farms with 25 to 49",2,"(D)",4,"(D)",7,231,18,"(D)",-,-,3,108
+"26","Michigan","Total inventory \ Farms with 25 to 49",14,495,106,3644,44,1384,48,1632,-,-,7,227
+"27","Minnesota","Total inventory \ Farms with 25 to 49",11,380,103,3720,64,2240,24,939,-,-,8,221
+"28","Mississippi","Total inventory \ Farms with 25 to 49",5,133,30,1047,6,"(D)",3,"(D)",-,-,1,"(D)"
+"29","Missouri","Total inventory \ Farms with 25 to 49",33,1091,107,3815,40,1332,26,869,7,211,17,619
+"30","Montana","Total inventory \ Farms with 25 to 49",3,"(D)",31,1083,6,192,1,"(D)",-,-,-,-
+"31","Nebraska","Total inventory \ Farms with 25 to 49",2,"(D)",66,2374,51,"(D)",7,260,-,-,3,"(D)"
+"32","Nevada","Total inventory \ Farms with 25 to 49",2,"(D)",2,"(D)",2,"(D)",2,"(D)",-,-,-,-
+"33","New Hampshire","Total inventory \ Farms with 25 to 49",-,-,1,"(D)",1,"(D)",2,"(D)",-,-,-,-
+"34","New Jersey","Total inventory \ Farms with 25 to 49",2,"(D)",2,"(D)",2,"(D)",3,"(D)",-,-,1,"(D)"
+"35","New Mexico","Total inventory \ Farms with 25 to 49",-,-,2,"(D)",-,-,4,123,-,-,1,"(D)"
+"36","New York","Total inventory \ Farms with 25 to 49",20,702,74,2402,27,836,11,328,-,-,14,504
+"37","North Carolina","Total inventory \ Farms with 25 to 49",7,283,63,2231,15,531,7,"(D)",-,-,12,370
+"38","North Dakota","Total inventory \ Farms with 25 to 49",5,170,17,623,12,407,5,204,-,-,-,-
+"39","Ohio","Total inventory \ Farms with 25 to 49",22,731,119,4225,55,1936,31,1056,-,-,13,431
+"40","Oklahoma","Total inventory \ Farms with 25 to 49",21,691,34,1210,12,387,34,1104,-,-,40,1281
+"41","Oregon","Total inventory \ Farms with 25 to 49",17,530,23,820,3,"(D)",7,241,-,-,-,-
+"42","Pennsylvania","Total inventory \ Farms with 25 to 49",23,744,82,2749,58,1854,33,1133,1,"(D)",10,"(D)"
+"44","Rhode Island","Total inventory \ Farms with 25 to 49",1,"(D)",3,129,2,"(D)",4,139,-,-,-,-
+"45","South Carolina","Total inventory \ Farms with 25 to 49",3,"(D)",25,907,7,230,13,403,1,"(D)",10,342
+"46","South Dakota","Total inventory \ Farms with 25 to 49",2,"(D)",36,1238,24,773,10,"(D)",-,-,-,-
+"47","Tennessee","Total inventory \ Farms with 25 to 49",10,309,67,2502,13,453,13,404,-,-,13,446
+"48","Texas","Total inventory \ Farms with 25 to 49",23,777,61,1963,22,"(D)",56,1812,1,"(D)",47,1455
+"49","Utah","Total inventory \ Farms with 25 to 49",6,236,10,335,6,"(D)",8,272,2,"(D)",-,-
+"50","Vermont","Total inventory \ Farms with 25 to 49",2,"(D)",3,"(D)",3,"(D)",-,-,-,-,-,-
+"51","Virginia","Total inventory \ Farms with 25 to 49",5,161,57,1987,12,367,4,141,6,240,12,386
+"53","Washington","Total inventory \ Farms with 25 to 49",18,619,32,1163,13,420,10,"(D)",-,-,9,"(D)"
+"54","West Virginia","Total inventory \ Farms with 25 to 49",4,140,9,"(D)",1,"(D)",8,"(D)",-,-,-,-
+"55","Wisconsin","Total inventory \ Farms with 25 to 49",3,"(D)",109,3977,85,2758,63,2157,-,-,1,"(D)"
+"56","Wyoming","Total inventory \ Farms with 25 to 49",-,-,9,295,6,223,3,87,-,-,-,-
+"99","United States","Total inventory \ Farms with 25 to 49",425,14253,1954,68455,856,28684,678,22947,26,844,353,11489
+"01","Alabama","Total inventory \ Farms with 50 to 99",1,"(D)",15,1114,3,200,4,312,-,-,2,"(D)"
+"02","Alaska","Total inventory \ Farms with 50 to 99",-,-,2,"(D)",-,-,-,-,-,-,1,"(D)"
+"04","Arizona","Total inventory \ Farms with 50 to 99",-,-,9,672,-,-,-,-,-,-,3,170
+"05","Arkansas","Total inventory \ Farms with 50 to 99",8,506,16,1020,6,"(D)",2,"(D)",-,-,4,280
+"06","California","Total inventory \ Farms with 50 to 99",11,812,14,1023,3,"(D)",15,998,-,-,2,"(D)"
+"08","Colorado","Total inventory \ Farms with 50 to 99",4,253,11,"(D)",2,"(D)",8,550,-,-,1,"(D)"
+"09","Connecticut","Total inventory \ Farms with 50 to 99",3,"(D)",2,"(D)",-,-,1,"(D)",-,-,-,-
+"10","Delaware","Total inventory \ Farms with 50 to 99",-,-,-,-,-,-,-,-,-,-,-,-
+"12","Florida","Total inventory \ Farms with 50 to 99",5,311,19,1164,2,"(D)",15,957,-,-,1,"(D)"
+"13","Georgia","Total inventory \ Farms with 50 to 99",1,"(D)",16,1176,3,"(D)",13,804,-,-,6,392
+"15","Hawaii","Total inventory \ Farms with 50 to 99",3,205,13,878,-,-,-,-,-,-,-,-
+"16","Idaho","Total inventory \ Farms with 50 to 99",6,416,6,472,3,"(D)",1,"(D)",-,-,-,-
+"17","Illinois","Total inventory \ Farms with 50 to 99",17,1015,100,6854,46,3073,17,1116,-,-,4,272
+"18","Indiana","Total inventory \ Farms with 50 to 99",12,888,118,8311,26,1595,38,2641,-,-,14,943
+"19","Iowa","Total inventory \ Farms with 50 to 99",15,933,183,12899,109,7662,17,1039,-,-,16,956
+"20","Kansas","Total inventory \ Farms with 50 to 99",10,700,66,4638,13,803,25,1592,3,285,9,508
+"21","Kentucky","Total inventory \ Farms with 50 to 99",2,"(D)",26,1885,7,"(D)",-,-,-,-,-,-
+"22","Louisiana","Total inventory \ Farms with 50 to 99",8,514,10,558,-,-,5,310,-,-,4,225
+"23","Maine","Total inventory \ Farms with 50 to 99",-,-,1,"(D)",-,-,-,-,-,-,2,"(D)"
+"24","Maryland","Total inventory \ Farms with 50 to 99",-,-,5,"(D)",5,312,6,"(D)",-,-,1,"(D)"
+"25","Massachusetts","Total inventory \ Farms with 50 to 99",-,-,12,921,7,374,12,660,-,-,-,-
+"26","Michigan","Total inventory \ Farms with 50 to 99",8,617,62,4249,29,1925,33,2227,1,"(D)",4,"(D)"
+"27","Minnesota","Total inventory \ Farms with 50 to 99",4,311,91,6195,66,4378,29,"(D)",-,-,1,"(D)"
+"28","Mississippi","Total inventory \ Farms with 50 to 99",-,-,5,"(D)",1,"(D)",1,"(D)",-,-,8,"(D)"
+"29","Missouri","Total inventory \ Farms with 50 to 99",25,"(D)",136,9550,28,1853,31,2026,1,"(D)",2,"(D)"
+"30","Montana","Total inventory \ Farms with 50 to 99",3,"(D)",18,1146,5,350,1,"(D)",-,-,-,-
+"31","Nebraska","Total inventory \ Farms with 50 to 99",5,408,53,3928,61,3960,14,969,1,"(D)",5,"(D)"
+"32","Nevada","Total inventory \ Farms with 50 to 99",-,-,1,"(D)",2,"(D)",-,-,-,-,-,-
+"33","New Hampshire","Total inventory \ Farms with 50 to 99",-,-,3,"(D)",-,-,-,-,-,-,-,-
+"34","New Jersey","Total inventory \ Farms with 50 to 99",2,"(D)",3,237,1,"(D)",4,255,-,-,-,-
+"35","New Mexico","Total inventory \ Farms with 50 to 99",-,-,1,"(D)",-,-,-,-,-,-,1,"(D)"
+"36","New York","Total inventory \ Farms with 50 to 99",4,228,25,1702,15,931,4,271,-,-,4,299
+"37","North Carolina","Total inventory \ Farms with 50 to 99",2,"(D)",39,2549,8,445,12,770,-,-,3,"(D)"
+"38","North Dakota","Total inventory \ Farms with 50 to 99",-,-,15,1006,12,909,3,207,-,-,-,-
+"39","Ohio","Total inventory \ Farms with 50 to 99",7,511,105,6932,32,2171,36,2433,-,-,5,316
+"40","Oklahoma","Total inventory \ Farms with 50 to 99",13,869,23,1664,11,"(D)",16,960,2,"(D)",7,"(D)"
+"41","Oregon","Total inventory \ Farms with 50 to 99",3,254,10,648,2,"(D)",2,"(D)",-,-,-,-
+"42","Pennsylvania","Total inventory \ Farms with 50 to 99",11,716,56,3617,40,2655,21,1351,-,-,7,487
+"44","Rhode Island","Total inventory \ Farms with 50 to 99",5,"(D)",-,-,-,-,1,"(D)",-,-,-,-
+"45","South Carolina","Total inventory \ Farms with 50 to 99",-,-,13,933,4,"(D)",5,289,1,"(D)",1,"(D)"
+"46","South Dakota","Total inventory \ Farms with 50 to 99",1,"(D)",29,2107,30,1922,9,"(D)",-,-,5,288
+"47","Tennessee","Total inventory \ Farms with 50 to 99",6,401,28,1978,18,1152,6,381,-,-,4,253
+"48","Texas","Total inventory \ Farms with 50 to 99",15,1032,31,2102,11,693,25,1677,-,-,33,2050
+"49","Utah","Total inventory \ Farms with 50 to 99",-,-,8,460,4,283,3,202,1,"(D)",2,"(D)"
+"50","Vermont","Total inventory \ Farms with 50 to 99",1,"(D)",2,"(D)",-,-,-,-,1,"(D)",-,-
+"51","Virginia","Total inventory \ Farms with 50 to 99",3,182,38,2727,16,"(D)",2,"(D)",-,-,1,"(D)"
+"53","Washington","Total inventory \ Farms with 50 to 99",14,"(D)",1,"(D)",1,"(D)",1,"(D)",-,-,1,"(D)"
+"54","West Virginia","Total inventory \ Farms with 50 to 99",-,-,7,466,1,"(D)",2,"(D)",-,-,3,244
+"55","Wisconsin","Total inventory \ Farms with 50 to 99",5,360,127,8949,40,2529,53,3520,-,-,-,-
+"56","Wyoming","Total inventory \ Farms with 50 to 99",1,"(D)",13,797,7,"(D)",-,-,-,-,-,-
+"99","United States","Total inventory \ Farms with 50 to 99",244,16571,1587,109874,680,45020,493,32605,11,727,167,10409
+"01","Alabama","Total inventory \ Farms with 100 to 199",-,-,9,1162,5,"(D)",-,-,-,-,1,"(D)"
+"02","Alaska","Total inventory \ Farms with 100 to 199",-,-,-,-,-,-,-,-,-,-,-,-
+"04","Arizona","Total inventory \ Farms with 100 to 199",-,-,1,"(D)",-,-,3,"(D)",-,-,-,-
+"05","Arkansas","Total inventory \ Farms with 100 to 199",-,-,5,"(D)",2,"(D)",-,-,-,-,3,406
+"06","California","Total inventory \ Farms with 100 to 199",5,600,9,1397,-,-,12,1861,-,-,-,-
+"08","Colorado","Total inventory \ Farms with 100 to 199",-,-,12,1385,1,"(D)",9,"(D)",-,-,-,-
+"09","Connecticut","Total inventory \ Farms with 100 to 199",1,"(D)",1,"(D)",-,-,1,"(D)",-,-,-,-
+"10","Delaware","Total inventory \ Farms with 100 to 199",-,-,-,-,-,-,-,-,-,-,-,-
+"12","Florida","Total inventory \ Farms with 100 to 199",1,"(D)",4,"(D)",1,"(D)",5,594,-,-,1,"(D)"
+"13","Georgia","Total inventory \ Farms with 100 to 199",4,493,10,1300,-,-,2,"(D)",-,-,3,"(D)"
+"15","Hawaii","Total inventory \ Farms with 100 to 199",1,"(D)",7,1075,-,-,-,-,-,-,2,"(D)"
+"16","Idaho","Total inventory \ Farms with 100 to 199",-,-,7,875,-,-,-,-,-,-,-,-
+"17","Illinois","Total inventory \ Farms with 100 to 199",4,566,112,16239,42,5752,5,"(D)",1,"(D)",4,635
+"18","Indiana","Total inventory \ Farms with 100 to 199",6,740,102,13556,33,4248,8,1155,-,-,8,1035
+"19","Iowa","Total inventory \ Farms with 100 to 199",16,"(D)",270,38129,179,24493,30,3915,7,"(D)",27,3450
+"20","Kansas","Total inventory \ Farms with 100 to 199",6,721,72,9842,26,3609,3,346,-,-,5,637
+"21","Kentucky","Total inventory \ Farms with 100 to 199",2,"(D)",24,3344,5,554,4,"(D)",-,-,3,"(D)"
+"22","Louisiana","Total inventory \ Farms with 100 to 199",-,-,3,306,-,-,8,1121,-,-,3,416
+"23","Maine","Total inventory \ Farms with 100 to 199",-,-,2,"(D)",-,-,3,"(D)",-,-,-,-
+"24","Maryland","Total inventory \ Farms with 100 to 199",-,-,7,1033,1,"(D)",2,"(D)",-,-,1,"(D)"
+"25","Massachusetts","Total inventory \ Farms with 100 to 199",1,"(D)",6,807,-,-,4,"(D)",-,-,-,-
+"26","Michigan","Total inventory \ Farms with 100 to 199",-,-,62,7773,27,3477,8,"(D)",1,"(D)",5,"(D)"
+"27","Minnesota","Total inventory \ Farms with 100 to 199",4,493,94,13241,64,8789,17,2651,-,-,5,648
+"28","Mississippi","Total inventory \ Farms with 100 to 199",-,-,8,"(D)",1,"(D)",-,-,-,-,-,-
+"29","Missouri","Total inventory \ Farms with 100 to 199",15,2457,136,19211,22,2861,18,"(D)",-,-,2,"(D)"
+"30","Montana","Total inventory \ Farms with 100 to 199",1,"(D)",5,577,2,"(D)",1,"(D)",-,-,1,"(D)"
+"31","Nebraska","Total inventory \ Farms with 100 to 199",1,"(D)",127,17981,53,"(D)",19,"(D)",-,-,-,-
+"32","Nevada","Total inventory \ Farms with 100 to 199",-,-,-,-,-,-,-,-,-,-,-,-
+"33","New Hampshire","Total inventory \ Farms with 100 to 199",-,-,2,"(D)",-,-,-,-,-,-,-,-
+"34","New Jersey","Total inventory \ Farms with 100 to 199",-,-,4,"(D)",1,"(D)",1,"(D)",-,-,-,-
+"35","New Mexico","Total inventory \ Farms with 100 to 199",-,-,-,-,-,-,-,-,-,-,1,"(D)"
+"36","New York","Total inventory \ Farms with 100 to 199",-,-,13,"(D)",4,"(D)",1,"(D)",-,-,3,350
+"37","North Carolina","Total inventory \ Farms with 100 to 199",1,"(D)",36,4672,-,-,1,"(D)",-,-,4,"(D)"
+"38","North Dakota","Total inventory \ Farms with 100 to 199",-,-,21,2837,3,"(D)",2,"(D)",-,-,-,-
+"39","Ohio","Total inventory \ Farms with 100 to 199",8,"(D)",75,10545,33,4228,15,"(D)",2,"(D)",4,492
+"40","Oklahoma","Total inventory \ Farms with 100 to 199",4,"(D)",10,1311,2,"(D)",4,"(D)",-,-,5,588
+"41","Oregon","Total inventory \ Farms with 100 to 199",4,420,6,"(D)",-,-,-,-,-,-,1,"(D)"
+"42","Pennsylvania","Total inventory \ Farms with 100 to 199",5,762,37,5222,35,4760,19,"(D)",1,"(D)",1,"(D)"
+"44","Rhode Island","Total inventory \ Farms with 100 to 199",-,-,2,"(D)",1,"(D)",-,-,-,-,-,-
+"45","South Carolina","Total inventory \ Farms with 100 to 199",-,-,9,1191,-,-,2,"(D)",-,-,1,"(D)"
+"46","South Dakota","Total inventory \ Farms with 100 to 199",4,"(D)",47,6546,16,1813,2,"(D)",-,-,4,537
+"47","Tennessee","Total inventory \ Farms with 100 to 199",1,"(D)",11,1506,4,"(D)",3,540,1,"(D)",-,-
+"48","Texas","Total inventory \ Farms with 100 to 199",5,663,24,"(D)",1,"(D)",11,1267,-,-,3,450
+"49","Utah","Total inventory \ Farms with 100 to 199",1,"(D)",2,"(D)",-,-,3,363,-,-,-,-
+"50","Vermont","Total inventory \ Farms with 100 to 199",-,-,-,-,1,"(D)",-,-,-,-,-,-
+"51","Virginia","Total inventory \ Farms with 100 to 199",-,-,24,3012,1,"(D)",1,"(D)",-,-,1,"(D)"
+"53","Washington","Total inventory \ Farms with 100 to 199",1,"(D)",3,462,3,360,1,"(D)",2,"(D)",1,"(D)"
+"54","West Virginia","Total inventory \ Farms with 100 to 199",-,-,6,803,-,-,-,-,-,-,-,-
+"55","Wisconsin","Total inventory \ Farms with 100 to 199",1,"(D)",73,10067,42,5578,20,2565,-,-,2,"(D)"
+"56","Wyoming","Total inventory \ Farms with 100 to 199",-,-,6,"(D)",2,"(D)",-,-,-,-,-,-
+"99","United States","Total inventory \ Farms with 100 to 199",103,13753,1506,208407,613,81628,248,34080,15,2442,105,13893
+"01","Alabama","Total inventory \ Farms with 200 to 499",-,-,6,"(D)",-,-,2,"(D)",-,-,-,-
+"02","Alaska","Total inventory \ Farms with 200 to 499",-,-,1,"(D)",-,-,-,-,-,-,-,-
+"04","Arizona","Total inventory \ Farms with 200 to 499",-,-,2,"(D)",-,-,-,-,-,-,1,"(D)"
+"05","Arkansas","Total inventory \ Farms with 200 to 499",1,"(D)",1,"(D)",-,-,-,-,-,-,5,"(D)"
+"06","California","Total inventory \ Farms with 200 to 499",4,1040,2,"(D)",1,"(D)",4,920,-,-,3,790
+"08","Colorado","Total inventory \ Farms with 200 to 499",-,-,10,3149,-,-,-,-,-,-,-,-
+"09","Connecticut","Total inventory \ Farms with 200 to 499",-,-,1,"(D)",-,-,2,"(D)",-,-,-,-
+"10","Delaware","Total inventory \ Farms with 200 to 499",-,-,1,"(D)",1,"(D)",-,-,-,-,-,-
+"12","Florida","Total inventory \ Farms with 200 to 499",-,-,3,930,3,"(D)",3,1050,-,-,1,"(D)"
+"13","Georgia","Total inventory \ Farms with 200 to 499",2,"(D)",11,3187,3,1050,5,1662,-,-,2,"(D)"
+"15","Hawaii","Total inventory \ Farms with 200 to 499",-,-,7,"(D)",-,-,-,-,-,-,2,"(D)"
+"16","Idaho","Total inventory \ Farms with 200 to 499",-,-,2,"(D)",2,"(D)",1,"(D)",-,-,-,-
+"17","Illinois","Total inventory \ Farms with 200 to 499",12,4216,168,53751,149,49858,16,"(D)",2,"(D)",10,3228
+"18","Indiana","Total inventory \ Farms with 200 to 499",12,4603,172,56551,144,51897,16,5327,10,3735,4,1438
+"19","Iowa","Total inventory \ Farms with 200 to 499",27,9346,464,153384,645,217344,45,15008,80,26287,57,18453
+"20","Kansas","Total inventory \ Farms with 200 to 499",2,"(D)",64,21875,30,9677,2,"(D)",2,"(D)",5,1485
+"21","Kentucky","Total inventory \ Farms with 200 to 499",-,-,22,5929,6,"(D)",1,"(D)",-,-,-,-
+"22","Louisiana","Total inventory \ Farms with 200 to 499",1,"(D)",1,"(D)",-,-,-,-,-,-,-,-
+"23","Maine","Total inventory \ Farms with 200 to 499",-,-,-,-,-,-,1,"(D)",-,-,-,-
+"24","Maryland","Total inventory \ Farms with 200 to 499",-,-,5,"(D)",1,"(D)",-,-,-,-,1,"(D)"
+"25","Massachusetts","Total inventory \ Farms with 200 to 499",-,-,6,"(D)",-,-,-,-,-,-,-,-
+"26","Michigan","Total inventory \ Farms with 200 to 499",4,"(D)",79,23819,48,16925,2,"(D)",-,-,4,1545
+"27","Minnesota","Total inventory \ Farms with 200 to 499",15,5515,190,61849,245,79569,14,3825,18,6746,12,3448
+"28","Mississippi","Total inventory \ Farms with 200 to 499",-,-,-,-,-,-,-,-,-,-,-,-
+"29","Missouri","Total inventory \ Farms with 200 to 499",10,3369,174,54194,48,15062,12,4297,-,-,-,-
+"30","Montana","Total inventory \ Farms with 200 to 499",-,-,5,1500,-,-,-,-,-,-,-,-
+"31","Nebraska","Total inventory \ Farms with 200 to 499",7,2064,162,52728,225,70856,11,3578,23,9192,7,2732
+"32","Nevada","Total inventory \ Farms with 200 to 499",-,-,-,-,1,"(D)",-,-,-,-,-,-
+"33","New Hampshire","Total inventory \ Farms with 200 to 499",-,-,2,"(D)",2,"(D)",-,-,-,-,-,-
+"34","New Jersey","Total inventory \ Farms with 200 to 499",1,"(D)",2,"(D)",3,773,-,-,-,-,-,-
+"35","New Mexico","Total inventory \ Farms with 200 to 499",-,-,-,-,-,-,-,-,-,-,-,-
+"36","New York","Total inventory \ Farms with 200 to 499",1,"(D)",3,909,7,2063,2,"(D)",-,-,-,-
+"37","North Carolina","Total inventory \ Farms with 200 to 499",-,-,35,10970,4,1142,7,"(D)",-,-,1,"(D)"
+"38","North Dakota","Total inventory \ Farms with 200 to 499",2,"(D)",16,5110,15,4955,2,"(D)",-,-,-,-
+"39","Ohio","Total inventory \ Farms with 200 to 499",2,"(D)",111,35821,81,25731,15,4549,2,"(D)",4,1260
+"40","Oklahoma","Total inventory \ Farms with 200 to 499",4,1480,3,1219,-,-,5,1185,-,-,3,941
+"41","Oregon","Total inventory \ Farms with 200 to 499",-,-,8,2970,-,-,4,"(D)",-,-,2,"(D)"
+"42","Pennsylvania","Total inventory \ Farms with 200 to 499",18,6580,59,16153,58,17445,10,3105,2,"(D)",3,"(D)"
+"44","Rhode Island","Total inventory \ Farms with 200 to 499",-,-,2,"(D)",-,-,-,-,-,-,-,-
+"45","South Carolina","Total inventory \ Farms with 200 to 499",-,-,6,1791,6,2385,2,"(D)",-,-,2,"(D)"
+"46","South Dakota","Total inventory \ Farms with 200 to 499",7,2189,66,19912,59,16369,5,"(D)",2,"(D)",6,1564
+"47","Tennessee","Total inventory \ Farms with 200 to 499",2,"(D)",23,"(D)",4,1120,3,830,-,-,2,"(D)"
+"48","Texas","Total inventory \ Farms with 200 to 499",4,976,18,5135,6,"(D)",5,1340,1,"(D)",4,1236
+"49","Utah","Total inventory \ Farms with 200 to 499",-,-,2,"(D)",1,"(D)",7,2070,-,-,-,-
+"50","Vermont","Total inventory \ Farms with 200 to 499",-,-,4,1020,-,-,-,-,-,-,-,-
+"51","Virginia","Total inventory \ Farms with 200 to 499",-,-,6,1800,7,1400,2,"(D)",-,-,2,"(D)"
+"53","Washington","Total inventory \ Farms with 200 to 499",-,-,2,"(D)",1,"(D)",-,-,-,-,-,-
+"54","West Virginia","Total inventory \ Farms with 200 to 499",-,-,1,"(D)",1,"(D)",-,-,-,-,-,-
+"55","Wisconsin","Total inventory \ Farms with 200 to 499",-,-,104,33252,41,11418,9,"(D)",1,"(D)",1,"(D)"
+"56","Wyoming","Total inventory \ Farms with 200 to 499",-,-,3,"(D)",1,"(D)",-,-,-,-,-,-
+"99","United States","Total inventory \ Farms with 200 to 499",138,46794,2035,652025,1849,606027,215,66423,143,49805,144,46309
+"01","Alabama","Total inventory \ Farms with 500 to 999",-,-,2,"(D)",-,-,-,-,-,-,-,-
+"02","Alaska","Total inventory \ Farms with 500 to 999",-,-,-,-,-,-,-,-,-,-,-,-
+"04","Arizona","Total inventory \ Farms with 500 to 999",-,-,-,-,-,-,1,"(D)",-,-,-,-
+"05","Arkansas","Total inventory \ Farms with 500 to 999",39,29921,1,"(D)",-,-,2,"(D)",-,-,-,-
+"06","California","Total inventory \ Farms with 500 to 999",2,"(D)",-,-,-,-,4,"(D)",-,-,-,-
+"08","Colorado","Total inventory \ Farms with 500 to 999",-,-,1,"(D)",-,-,-,-,-,-,4,"(D)"
+"09","Connecticut","Total inventory \ Farms with 500 to 999",-,-,-,-,-,-,-,-,-,-,-,-
+"10","Delaware","Total inventory \ Farms with 500 to 999",-,-,-,-,-,-,-,-,-,-,-,-
+"12","Florida","Total inventory \ Farms with 500 to 999",-,-,1,"(D)",-,-,1,"(D)",-,-,-,-
+"13","Georgia","Total inventory \ Farms with 500 to 999",2,"(D)",4,"(D)",6,4374,-,-,-,-,-,-
+"15","Hawaii","Total inventory \ Farms with 500 to 999",-,-,8,4836,-,-,-,-,-,-,-,-
+"16","Idaho","Total inventory \ Farms with 500 to 999",-,-,4,"(D)",2,"(D)",-,-,-,-,1,"(D)"
+"17","Illinois","Total inventory \ Farms with 500 to 999",12,8322,91,65111,145,101242,4,2792,8,4830,9,6897
+"18","Indiana","Total inventory \ Farms with 500 to 999",33,21666,114,78226,148,96348,8,5828,3,1600,11,7978
+"19","Iowa","Total inventory \ Farms with 500 to 999",30,20845,325,227789,649,444632,9,6847,96,59647,62,44732
+"20","Kansas","Total inventory \ Farms with 500 to 999",-,-,39,28681,33,22750,-,-,2,"(D)",1,"(D)"
+"21","Kentucky","Total inventory \ Farms with 500 to 999",2,"(D)",27,18953,12,7782,-,-,-,-,4,"(D)"
+"22","Louisiana","Total inventory \ Farms with 500 to 999",-,-,-,-,-,-,-,-,-,-,1,"(D)"
+"23","Maine","Total inventory \ Farms with 500 to 999",-,-,2,"(D)",-,-,-,-,-,-,-,-
+"24","Maryland","Total inventory \ Farms with 500 to 999",1,"(D)",3,"(D)",1,"(D)",-,-,-,-,-,-
+"25","Massachusetts","Total inventory \ Farms with 500 to 999",1,"(D)",-,-,-,-,-,-,-,-,-,-
+"26","Michigan","Total inventory \ Farms with 500 to 999",1,"(D)",44,31964,45,32952,5,"(D)",-,-,9,6450
+"27","Minnesota","Total inventory \ Farms with 500 to 999",14,10608,139,101838,255,173312,8,5629,25,17414,18,12965
+"28","Mississippi","Total inventory \ Farms with 500 to 999",-,-,6,3921,-,-,-,-,-,-,-,-
+"29","Missouri","Total inventory \ Farms with 500 to 999",17,13938,87,60099,34,23182,5,3637,-,-,3,2286
+"30","Montana","Total inventory \ Farms with 500 to 999",-,-,1,"(D)",-,-,-,-,-,-,-,-
+"31","Nebraska","Total inventory \ Farms with 500 to 999",12,9289,87,62652,190,129786,5,"(D)",22,"(D)",2,"(D)"
+"32","Nevada","Total inventory \ Farms with 500 to 999",-,-,-,-,-,-,-,-,-,-,-,-
+"33","New Hampshire","Total inventory \ Farms with 500 to 999",-,-,-,-,-,-,-,-,-,-,-,-
+"34","New Jersey","Total inventory \ Farms with 500 to 999",-,-,-,-,4,2500,-,-,-,-,-,-
+"35","New Mexico","Total inventory \ Farms with 500 to 999",-,-,-,-,-,-,-,-,-,-,-,-
+"36","New York","Total inventory \ Farms with 500 to 999",-,-,2,"(D)",2,"(D)",-,-,-,-,-,-
+"37","North Carolina","Total inventory \ Farms with 500 to 999",2,"(D)",10,7826,32,23157,1,"(D)",1,"(D)",2,"(D)"
+"38","North Dakota","Total inventory \ Farms with 500 to 999",1,"(D)",3,"(D)",5,3700,1,"(D)",-,-,-,-
+"39","Ohio","Total inventory \ Farms with 500 to 999",5,"(D)",53,36534,75,51005,7,4682,2,"(D)",6,4440
+"40","Oklahoma","Total inventory \ Farms with 500 to 999",15,"(D)",1,"(D)",-,-,-,-,-,-,-,-
+"41","Oregon","Total inventory \ Farms with 500 to 999",-,-,6,4892,-,-,-,-,-,-,-,-
+"42","Pennsylvania","Total inventory \ Farms with 500 to 999",5,3040,37,26404,64,42111,2,"(D)",8,"(D)",1,"(D)"
+"44","Rhode Island","Total inventory \ Farms with 500 to 999",-,-,-,-,-,-,-,-,-,-,-,-
+"45","South Carolina","Total inventory \ Farms with 500 to 999",-,-,4,"(D)",1,"(D)",-,-,-,-,-,-
+"46","South Dakota","Total inventory \ Farms with 500 to 999",5,2966,26,17863,58,40168,3,2392,4,2580,5,3655
+"47","Tennessee","Total inventory \ Farms with 500 to 999",2,"(D)",3,"(D)",5,"(D)",-,-,-,-,3,"(D)"
+"48","Texas","Total inventory \ Farms with 500 to 999",-,-,8,"(D)",1,"(D)",-,-,-,-,-,-
+"49","Utah","Total inventory \ Farms with 500 to 999",-,-,-,-,-,-,-,-,-,-,-,-
+"50","Vermont","Total inventory \ Farms with 500 to 999",-,-,-,-,-,-,-,-,-,-,-,-
+"51","Virginia","Total inventory \ Farms with 500 to 999",1,"(D)",4,"(D)",5,3287,-,-,-,-,-,-
+"53","Washington","Total inventory \ Farms with 500 to 999",1,"(D)",2,"(D)",1,"(D)",-,-,-,-,-,-
+"54","West Virginia","Total inventory \ Farms with 500 to 999",-,-,1,"(D)",-,-,-,-,-,-,-,-
+"55","Wisconsin","Total inventory \ Farms with 500 to 999",2,"(D)",58,40959,22,15234,5,"(D)",-,-,-,-
+"56","Wyoming","Total inventory \ Farms with 500 to 999",-,-,-,-,-,-,-,-,-,-,-,-
+"99","United States","Total inventory \ Farms with 500 to 999",205,147731,1204,850834,1795,1226778,71,49927,171,109044,142,103920
+"01","Alabama","Total inventory \ Farms with 1,000 to 1,999",3,4362,2,"(D)",1,"(D)",-,-,1,"(D)",-,-
+"02","Alaska","Total inventory \ Farms with 1,000 to 1,999",-,-,-,-,-,-,-,-,-,-,-,-
+"04","Arizona","Total inventory \ Farms with 1,000 to 1,999",-,-,-,-,-,-,-,-,-,-,-,-
+"05","Arkansas","Total inventory \ Farms with 1,000 to 1,999",42,55427,1,"(D)",4,"(D)",-,-,-,-,-,-
+"06","California","Total inventory \ Farms with 1,000 to 1,999",-,-,2,"(D)",1,"(D)",2,"(D)",-,-,-,-
+"08","Colorado","Total inventory \ Farms with 1,000 to 1,999",-,-,-,-,1,"(D)",-,-,-,-,-,-
+"09","Connecticut","Total inventory \ Farms with 1,000 to 1,999",-,-,-,-,-,-,-,-,-,-,-,-
+"10","Delaware","Total inventory \ Farms with 1,000 to 1,999",1,"(D)",1,"(D)",-,-,-,-,-,-,-,-
+"12","Florida","Total inventory \ Farms with 1,000 to 1,999",-,-,1,"(D)",-,-,-,-,-,-,-,-
+"13","Georgia","Total inventory \ Farms with 1,000 to 1,999",3,3594,5,"(D)",1,"(D)",2,"(D)",-,-,-,-
+"15","Hawaii","Total inventory \ Farms with 1,000 to 1,999",-,-,2,"(D)",-,-,-,-,-,-,-,-
+"16","Idaho","Total inventory \ Farms with 1,000 to 1,999",-,-,-,-,-,-,-,-,-,-,-,-
+"17","Illinois","Total inventory \ Farms with 1,000 to 1,999",25,36882,81,111154,147,210501,1,"(D)",4,"(D)",35,47751
+"18","Indiana","Total inventory \ Farms with 1,000 to 1,999",27,36094,88,125443,118,154102,3,"(D)",12,"(D)",10,15237
+"19","Iowa","Total inventory \ Farms with 1,000 to 1,999",66,93147,227,301572,754,1024115,16,19767,106,133277,104,144143
+"20","Kansas","Total inventory \ Farms with 1,000 to 1,999",4,6642,23,29324,23,34528,-,-,1,"(D)",3,"(D)"
+"21","Kentucky","Total inventory \ Farms with 1,000 to 1,999",1,"(D)",21,28390,5,"(D)",-,-,-,-,1,"(D)"
+"22","Louisiana","Total inventory \ Farms with 1,000 to 1,999",-,-,-,-,-,-,-,-,-,-,-,-
+"23","Maine","Total inventory \ Farms with 1,000 to 1,999",-,-,-,-,-,-,-,-,-,-,-,-
+"24","Maryland","Total inventory \ Farms with 1,000 to 1,999",2,"(D)",1,"(D)",2,"(D)",-,-,-,-,-,-
+"25","Massachusetts","Total inventory \ Farms with 1,000 to 1,999",-,-,-,-,-,-,2,"(D)",-,-,-,-
+"26","Michigan","Total inventory \ Farms with 1,000 to 1,999",1,"(D)",19,27477,39,50197,2,"(D)",2,"(D)",4,5957
+"27","Minnesota","Total inventory \ Farms with 1,000 to 1,999",20,29991,117,163601,324,440421,2,"(D)",29,37833,41,"(D)"
+"28","Mississippi","Total inventory \ Farms with 1,000 to 1,999",-,-,3,4000,-,-,-,-,-,-,-,-
+"29","Missouri","Total inventory \ Farms with 1,000 to 1,999",18,24512,48,65161,39,56098,4,4657,6,9032,8,11494
+"30","Montana","Total inventory \ Farms with 1,000 to 1,999",-,-,2,"(D)",1,"(D)",-,-,-,-,-,-
+"31","Nebraska","Total inventory \ Farms with 1,000 to 1,999",20,28362,66,94455,153,198858,5,6573,15,20600,5,6587
+"32","Nevada","Total inventory \ Farms with 1,000 to 1,999",-,-,1,"(D)",-,-,-,-,-,-,-,-
+"33","New Hampshire","Total inventory \ Farms with 1,000 to 1,999",-,-,-,-,-,-,-,-,-,-,-,-
+"34","New Jersey","Total inventory \ Farms with 1,000 to 1,999",-,-,-,-,1,"(D)",-,-,-,-,-,-
+"35","New Mexico","Total inventory \ Farms with 1,000 to 1,999",-,-,-,-,-,-,-,-,-,-,-,-
+"36","New York","Total inventory \ Farms with 1,000 to 1,999",2,"(D)",1,"(D)",5,5150,1,"(D)",-,-,-,-
+"37","North Carolina","Total inventory \ Farms with 1,000 to 1,999",36,57764,10,13311,370,563807,19,"(D)",19,"(D)",-,-
+"38","North Dakota","Total inventory \ Farms with 1,000 to 1,999",1,"(D)",7,9420,2,"(D)",-,-,-,-,-,-
+"39","Ohio","Total inventory \ Farms with 1,000 to 1,999",9,12843,41,55593,108,139147,8,11731,6,7825,21,30219
+"40","Oklahoma","Total inventory \ Farms with 1,000 to 1,999",23,30611,2,"(D)",1,"(D)",1,"(D)",-,-,1,"(D)"
+"41","Oregon","Total inventory \ Farms with 1,000 to 1,999",-,-,1,"(D)",-,-,-,-,-,-,-,-
+"42","Pennsylvania","Total inventory \ Farms with 1,000 to 1,999",24,30275,39,51369,81,110309,6,8675,11,15275,3,4350
+"44","Rhode Island","Total inventory \ Farms with 1,000 to 1,999",-,-,-,-,-,-,-,-,-,-,-,-
+"45","South Carolina","Total inventory \ Farms with 1,000 to 1,999",2,"(D)",-,-,9,11385,-,-,-,-,1,"(D)"
+"46","South Dakota","Total inventory \ Farms with 1,000 to 1,999",1,"(D)",10,13520,48,60958,1,"(D)",4,"(D)",4,4820
+"47","Tennessee","Total inventory \ Farms with 1,000 to 1,999",-,-,7,10057,5,7350,-,-,-,-,-,-
+"48","Texas","Total inventory \ Farms with 1,000 to 1,999",-,-,-,-,-,-,-,-,-,-,-,-
+"49","Utah","Total inventory \ Farms with 1,000 to 1,999",-,-,-,-,1,"(D)",-,-,-,-,-,-
+"50","Vermont","Total inventory \ Farms with 1,000 to 1,999",-,-,-,-,-,-,-,-,-,-,-,-
+"51","Virginia","Total inventory \ Farms with 1,000 to 1,999",-,-,4,"(D)",4,6890,-,-,-,-,1,"(D)"
+"53","Washington","Total inventory \ Farms with 1,000 to 1,999",-,-,3,4108,-,-,-,-,-,-,-,-
+"54","West Virginia","Total inventory \ Farms with 1,000 to 1,999",-,-,-,-,-,-,-,-,-,-,-,-
+"55","Wisconsin","Total inventory \ Farms with 1,000 to 1,999",5,6955,29,39364,25,31163,3,5050,3,3700,-,-
+"56","Wyoming","Total inventory \ Farms with 1,000 to 1,999",-,-,-,-,-,-,-,-,-,-,-,-
+"99","United States","Total inventory \ Farms with 1,000 to 1,999",336,471116,865,1183112,2273,3133122,78,110430,219,295042,242,334976
+"01","Alabama","Total inventory \ Farms with 2,000 to 4,999",1,"(D)",-,-,7,26790,1,"(D)",4,"(D)",-,-
+"02","Alaska","Total inventory \ Farms with 2,000 to 4,999",-,-,-,-,-,-,-,-,-,-,-,-
+"04","Arizona","Total inventory \ Farms with 2,000 to 4,999",-,-,-,-,-,-,-,-,-,-,-,-
+"05","Arkansas","Total inventory \ Farms with 2,000 to 4,999",6,16000,2,"(D)",12,33703,-,-,11,36600,4,"(D)"
+"06","California","Total inventory \ Farms with 2,000 to 4,999",-,-,1,"(D)",-,-,-,-,-,-,-,-
+"08","Colorado","Total inventory \ Farms with 2,000 to 4,999",2,"(D)",1,"(D)",7,23300,-,-,-,-,2,"(D)"
+"09","Connecticut","Total inventory \ Farms with 2,000 to 4,999",-,-,-,-,-,-,-,-,-,-,-,-
+"10","Delaware","Total inventory \ Farms with 2,000 to 4,999",1,"(D)",1,"(D)",-,-,-,-,-,-,-,-
+"12","Florida","Total inventory \ Farms with 2,000 to 4,999",-,-,-,-,-,-,-,-,-,-,-,-
+"13","Georgia","Total inventory \ Farms with 2,000 to 4,999",4,15250,4,12661,10,31220,1,"(D)",3,"(D)",2,"(D)"
+"15","Hawaii","Total inventory \ Farms with 2,000 to 4,999",-,-,-,-,-,-,-,-,-,-,-,-
+"16","Idaho","Total inventory \ Farms with 2,000 to 4,999",-,-,-,-,-,-,-,-,-,-,-,-
+"17","Illinois","Total inventory \ Farms with 2,000 to 4,999",29,98575,101,305589,170,538023,6,17506,19,59900,41,122881
+"18","Indiana","Total inventory \ Farms with 2,000 to 4,999",16,51944,95,296890,147,468552,6,17908,22,62352,34,124766
+"19","Iowa","Total inventory \ Farms with 2,000 to 4,999",67,205201,216,646984,1221,3818928,33,88517,104,324355,225,717030
+"20","Kansas","Total inventory \ Farms with 2,000 to 4,999",4,"(D)",23,61725,24,76244,1,"(D)",6,17700,5,14369
+"21","Kentucky","Total inventory \ Farms with 2,000 to 4,999",1,"(D)",9,27908,13,"(D)",1,"(D)",-,-,-,-
+"22","Louisiana","Total inventory \ Farms with 2,000 to 4,999",-,-,-,-,-,-,-,-,-,-,-,-
+"23","Maine","Total inventory \ Farms with 2,000 to 4,999",-,-,-,-,-,-,-,-,-,-,-,-
+"24","Maryland","Total inventory \ Farms with 2,000 to 4,999",-,-,1,"(D)",4,"(D)",-,-,-,-,-,-
+"25","Massachusetts","Total inventory \ Farms with 2,000 to 4,999",-,-,-,-,-,-,-,-,-,-,-,-
+"26","Michigan","Total inventory \ Farms with 2,000 to 4,999",5,18207,18,51733,69,213923,2,"(D)",5,15100,1,"(D)"
+"27","Minnesota","Total inventory \ Farms with 2,000 to 4,999",27,85871,102,321413,596,1771948,3,11892,60,183165,87,245713
+"28","Mississippi","Total inventory \ Farms with 2,000 to 4,999",-,-,3,"(D)",13,46540,-,-,2,"(D)",4,13100
+"29","Missouri","Total inventory \ Farms with 2,000 to 4,999",2,"(D)",31,84992,65,204301,6,"(D)",54,162472,15,54184
+"30","Montana","Total inventory \ Farms with 2,000 to 4,999",1,"(D)",21,"(D)",-,-,1,"(D)",-,-,-,-
+"31","Nebraska","Total inventory \ Farms with 2,000 to 4,999",25,86801,26,77951,121,352701,7,25550,20,65997,4,11970
+"32","Nevada","Total inventory \ Farms with 2,000 to 4,999",-,-,-,-,-,-,-,-,-,-,-,-
+"33","New Hampshire","Total inventory \ Farms with 2,000 to 4,999",-,-,-,-,-,-,-,-,-,-,-,-
+"34","New Jersey","Total inventory \ Farms with 2,000 to 4,999",-,-,-,-,-,-,-,-,-,-,-,-
+"35","New Mexico","Total inventory \ Farms with 2,000 to 4,999",-,-,-,-,-,-,-,-,-,-,-,-
+"36","New York","Total inventory \ Farms with 2,000 to 4,999",2,"(D)",-,-,8,22890,1,"(D)",1,"(D)",-,-
+"37","North Carolina","Total inventory \ Farms with 2,000 to 4,999",48,162103,4,11590,366,1211758,9,25538,111,356360,4,15910
+"38","North Dakota","Total inventory \ Farms with 2,000 to 4,999",3,"(D)",2,"(D)",3,13500,-,-,-,-,-,-
+"39","Ohio","Total inventory \ Farms with 2,000 to 4,999",6,19450,22,68234,170,440102,4,13396,26,79675,44,118765
+"40","Oklahoma","Total inventory \ Farms with 2,000 to 4,999",11,31736,-,-,9,30382,1,"(D)",4,"(D)",1,"(D)"
+"41","Oregon","Total inventory \ Farms with 2,000 to 4,999",-,-,-,-,-,-,-,-,-,-,-,-
+"42","Pennsylvania","Total inventory \ Farms with 2,000 to 4,999",13,"(D)",12,"(D)",123,359845,2,"(D)",9,"(D)",5,"(D)"
+"44","Rhode Island","Total inventory \ Farms with 2,000 to 4,999",-,-,-,-,-,-,-,-,-,-,-,-
+"45","South Carolina","Total inventory \ Farms with 2,000 to 4,999",2,"(D)",4,15246,8,24220,2,"(D)",2,"(D)",-,-
+"46","South Dakota","Total inventory \ Farms with 2,000 to 4,999",5,"(D)",18,54215,66,194879,1,"(D)",7,19900,6,15832
+"47","Tennessee","Total inventory \ Farms with 2,000 to 4,999",1,"(D)",3,10462,6,18716,-,-,2,"(D)",1,"(D)"
+"48","Texas","Total inventory \ Farms with 2,000 to 4,999",-,-,2,"(D)",1,"(D)",-,-,-,-,-,-
+"49","Utah","Total inventory \ Farms with 2,000 to 4,999",-,-,2,"(D)",-,-,-,-,-,-,-,-
+"50","Vermont","Total inventory \ Farms with 2,000 to 4,999",-,-,-,-,-,-,-,-,-,-,-,-
+"51","Virginia","Total inventory \ Farms with 2,000 to 4,999",3,"(D)",1,"(D)",17,49342,1,"(D)",3,11555,-,-
+"53","Washington","Total inventory \ Farms with 2,000 to 4,999",-,-,3,7835,-,-,-,-,-,-,-,-
+"54","West Virginia","Total inventory \ Farms with 2,000 to 4,999",-,-,-,-,1,"(D)",-,-,-,-,-,-
+"55","Wisconsin","Total inventory \ Farms with 2,000 to 4,999",5,"(D)",15,45342,15,46859,-,-,2,"(D)",-,-
+"56","Wyoming","Total inventory \ Farms with 2,000 to 4,999",-,-,-,-,-,-,-,-,-,-,-,-
+"99","United States","Total inventory \ Farms with 2,000 to 4,999",290,939620,743,2264523,3272,10068602,89,256990,477,1502721,485,1500462
+"01","Alabama","Total inventory \ Farms with 5,000 or more",2,"(D)",-,-,9,61440,1,"(D)",3,19500,-,-
+"02","Alaska","Total inventory \ Farms with 5,000 or more",-,-,-,-,-,-,-,-,-,-,-,-
+"04","Arizona","Total inventory \ Farms with 5,000 or more",-,-,1,"(D)",-,-,-,-,-,-,-,-
+"05","Arkansas","Total inventory \ Farms with 5,000 or more",4,"(D)",-,-,2,"(D)",-,-,-,-,-,-
+"06","California","Total inventory \ Farms with 5,000 or more",-,-,4,"(D)",-,-,1,"(D)",-,-,-,-
+"08","Colorado","Total inventory \ Farms with 5,000 or more",6,164789,4,361235,2,"(D)",3,"(D)",-,-,-,-
+"09","Connecticut","Total inventory \ Farms with 5,000 or more",-,-,-,-,-,-,-,-,-,-,-,-
+"10","Delaware","Total inventory \ Farms with 5,000 or more",-,-,-,-,-,-,-,-,-,-,-,-
+"12","Florida","Total inventory \ Farms with 5,000 or more",-,-,-,-,-,-,-,-,-,-,-,-
+"13","Georgia","Total inventory \ Farms with 5,000 or more",5,30915,2,"(D)",4,31050,1,"(D)",1,"(D)",1,"(D)"
+"15","Hawaii","Total inventory \ Farms with 5,000 or more",-,-,-,-,-,-,-,-,-,-,-,-
+"16","Idaho","Total inventory \ Farms with 5,000 or more",-,-,1,"(D)",-,-,-,-,-,-,-,-
+"17","Illinois","Total inventory \ Farms with 5,000 or more",38,575773,69,821273,79,719119,2,"(D)",2,"(D)",18,217668
+"18","Indiana","Total inventory \ Farms with 5,000 or more",12,133709,73,1031011,65,553559,2,"(D)",8,"(D)",11,95150
+"19","Iowa","Total inventory \ Farms with 5,000 or more",51,474413,128,2733687,480,5519082,13,289751,49,424178,87,980284
+"20","Kansas","Total inventory \ Farms with 5,000 or more",6,41192,22,720765,24,641953,1,"(D)",3,"(D)",1,"(D)"
+"21","Kentucky","Total inventory \ Farms with 5,000 or more",1,"(D)",7,98840,6,41225,1,"(D)",-,-,1,"(D)"
+"22","Louisiana","Total inventory \ Farms with 5,000 or more",-,-,-,-,-,-,-,-,-,-,-,-
+"23","Maine","Total inventory \ Farms with 5,000 or more",-,-,-,-,-,-,-,-,-,-,-,-
+"24","Maryland","Total inventory \ Farms with 5,000 or more",-,-,1,"(D)",-,-,-,-,-,-,-,-
+"25","Massachusetts","Total inventory \ Farms with 5,000 or more",-,-,-,-,-,-,-,-,-,-,-,-
+"26","Michigan","Total inventory \ Farms with 5,000 or more",1,"(D)",19,290993,18,133761,1,"(D)",3,"(D)",-,-
+"27","Minnesota","Total inventory \ Farms with 5,000 or more",35,425259,90,1488346,152,1250348,13,127415,29,201297,28,273003
+"28","Mississippi","Total inventory \ Farms with 5,000 or more",1,"(D)",2,"(D)",10,100800,-,-,8,58300,-,-
+"29","Missouri","Total inventory \ Farms with 5,000 or more",11,383937,22,1218661,21,291533,1,"(D)",27,223100,4,"(D)"
+"30","Montana","Total inventory \ Farms with 5,000 or more",-,-,14,85642,-,-,-,-,-,-,-,-
+"31","Nebraska","Total inventory \ Farms with 5,000 or more",20,402377,33,719677,37,557540,5,"(D)",2,"(D)",-,-
+"32","Nevada","Total inventory \ Farms with 5,000 or more",-,-,-,-,-,-,-,-,-,-,-,-
+"33","New Hampshire","Total inventory \ Farms with 5,000 or more",-,-,-,-,-,-,-,-,-,-,-,-
+"34","New Jersey","Total inventory \ Farms with 5,000 or more",-,-,-,-,-,-,-,-,-,-,-,-
+"35","New Mexico","Total inventory \ Farms with 5,000 or more",-,-,-,-,-,-,-,-,-,-,-,-
+"36","New York","Total inventory \ Farms with 5,000 or more",-,-,2,"(D)",-,-,-,-,-,-,-,-
+"37","North Carolina","Total inventory \ Farms with 5,000 or more",87,1193126,31,837079,297,2679902,28,1309606,145,1107651,20,460344
+"38","North Dakota","Total inventory \ Farms with 5,000 or more",6,72366,2,"(D)",2,"(D)",-,-,-,-,-,-
+"39","Ohio","Total inventory \ Farms with 5,000 or more",10,90874,22,271871,23,156849,1,"(D)",6,"(D)",5,27200
+"40","Oklahoma","Total inventory \ Farms with 5,000 or more",14,488795,8,1440560,12,256144,-,-,6,"(D)",1,"(D)"
+"41","Oregon","Total inventory \ Farms with 5,000 or more",-,-,-,-,-,-,-,-,-,-,-,-
+"42","Pennsylvania","Total inventory \ Farms with 5,000 or more",6,47799,7,66904,17,117300,4,29992,3,23500,-,-
+"44","Rhode Island","Total inventory \ Farms with 5,000 or more",-,-,-,-,-,-,-,-,-,-,-,-
+"45","South Carolina","Total inventory \ Farms with 5,000 or more",2,"(D)",1,"(D)",12,127943,1,"(D)",3,"(D)",1,"(D)"
+"46","South Dakota","Total inventory \ Farms with 5,000 or more",16,134206,54,555074,17,238624,2,"(D)",3,"(D)",-,-
+"47","Tennessee","Total inventory \ Farms with 5,000 or more",-,-,1,"(D)",2,"(D)",-,-,2,"(D)",-,-
+"48","Texas","Total inventory \ Farms with 5,000 or more",-,-,5,"(D)",1,"(D)",-,-,2,"(D)",-,-
+"49","Utah","Total inventory \ Farms with 5,000 or more",1,"(D)",1,"(D)",14,"(D)",-,-,-,-,-,-
+"50","Vermont","Total inventory \ Farms with 5,000 or more",-,-,-,-,-,-,-,-,-,-,-,-
+"51","Virginia","Total inventory \ Farms with 5,000 or more",-,-,2,"(D)",3,"(D)",-,-,4,220236,-,-
+"53","Washington","Total inventory \ Farms with 5,000 or more",-,-,-,-,-,-,-,-,-,-,-,-
+"54","West Virginia","Total inventory \ Farms with 5,000 or more",-,-,-,-,-,-,-,-,-,-,-,-
+"55","Wisconsin","Total inventory \ Farms with 5,000 or more",-,-,4,47304,-,-,3,23203,-,-,-,-
+"56","Wyoming","Total inventory \ Farms with 5,000 or more",-,-,3,101236,-,-,-,-,-,-,-,-
+"99","United States","Total inventory \ Farms with 5,000 or more",335,4886262,635,14681005,1309,13844480,84,2402779,309,2847675,178,2131549
