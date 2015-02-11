@@ -14,17 +14,22 @@ RUN install2.r --error \
   DescTools \
   fields \
   geoR \
+  GGally \
   ggplot2 \
   glmnet \
   Hmisc \
   igraph \
   knitr \
   lme4 \
+  mapproj \
   maps \
   pander \
   plyr \
   pscl \
   reshape \
+  reshape2 \
+  RColorBrewer \
+  scales \
   vcd \
   vegan \
 && rm -rf /tmp/download_packages/ /tmp/*.rds
