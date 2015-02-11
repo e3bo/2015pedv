@@ -55,6 +55,18 @@ myPrintGGpairs <-
     function (x, leftWidthProportion = 0.2, bottomHeightProportion = 0.1, 
               spacingProportion = 0.03, showStrips = NULL, newpage=TRUE, ...) 
 {
+    ## adapted from GGally:::print.ggpairs
+    vplayout <- function (x, y) 
+    {
+        viewport(layout.pos.row = x, layout.pos.col = y)
+    }
+
+    is_blank_plot <- function (p) 
+    {
+        if (!is.null(p$subType) && !is.null(p$type)) 
+            p$subType == "blank" && p$type == "blank"
+        else FALSE
+    }
     plotObj <- x
     if (identical(plotObj$axisLabels, "internal")) {
         v1 <- viewport(y = unit(0.5, "npc") + unit(1, "lines"),
@@ -122,7 +134,7 @@ myPrintGGpairs <-
     for (rowPos in 1:numCol) {
         for (columnPos in 1:numCol) {
             p <- getPlot(plotObj, rowPos, columnPos)
-            if (GGally:::is_blank_plot(p)) {
+            if (is_blank_plot(p)) {
                 next
             }
             pGtable <- ggplot_gtable(ggplot_build(p))
@@ -207,8 +219,6 @@ myPrintGGpairs <-
     popViewport()
     popViewport()
 }
-
-### heat map
 
 image.plot.ebo <- function (..., add = FALSE, nlevel = 64, horizontal = FALSE,
                             legend.shrink = 0.9, legend.width = 1.2,

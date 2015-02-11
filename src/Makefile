@@ -4,7 +4,7 @@ SD = /root/src
 
 all: $(WD)/flagMantel
 
-$(WD)/flagMantel: $(SD)/mantel-testing.r $(SD)/custom-plot-functions.r $(WD)/flagData $(WD)/flagWeeklyReport $(WD)/flagPedvCum
+$(WD)/flagMantel: $(SD)/mantel-testing.r $(SD)/custom-plot-functions.r $(WD)/flagData $(WD)/flagWeeklyReports $(WD)/flagPedvCum
 	cd $(WD) && cp $< . && cp $(SD)/custom-plot-functions.r . && ./$(<F) >$(<F).so 2>$(<F).se && touch $@
 
 $(WD)/flagAssocPlots: $(SD)/make-assoc-plots.r $(WD)/flagPedvCum

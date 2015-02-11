@@ -326,8 +326,6 @@ mg <- merge(mg, vecs)
 mg <- merge(mg, bal)
 mgAge <- mg
 save(mgAge, file='mgAge.RData')
-q('no')
-
 
 #' Merge in data on spatial density of farms
 #+
