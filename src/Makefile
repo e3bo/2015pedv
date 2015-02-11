@@ -4,8 +4,8 @@ SD = /root/src
 
 all: $(WD)/flagMantel
 
-$(WD)/flagMantel: $(SD)/mantel-testing.r $(WD)/flagPedvCum $(WD)/flagData
-	cd $(WD) && cp $< . && $(<F) >$(<F).so 2>$(<F).se && touch $@
+$(WD)/flagMantel: $(SD)/mantel-testing.r $(SD)/custom-plot-functions.r $(WD)/flagData $(WD)/flagWeeklyReport $(WD)/flagPedvCum
+	cd $(WD) && cp $< . && cp $(SD)/custom-plot-functions.r . && ./$(<F) >$(<F).so 2>$(<F).se && touch $@
 
 $(WD)/flagAssocPlots: $(SD)/make-assoc-plots.r $(WD)/flagPedvCum
 	cd $(WD) && cp $< . && $(RS) -e "library(knitr); spin(\"make-assoc-plots.r\")" >$(<F).so 2>$(<F).se && touch $@
@@ -14,7 +14,7 @@ $(WD)/flagPedvCum: $(SD)/pedv-cum.r $(WD)/flagWeeklyReports $(WD)/shipment-flows
 	cd $(WD) && cp $< . && $(RS) -e "library(knitr); spin(\"pedv-cum.r\")" >$(<F).so 2>$(<F).se && touch $@
 
 $(WD)/flagTsirFigs: $(SD)/make-regression-results-figs.r $(WD)/flows.html
-	cd $(WD) && cp $< . && $(<F) >$(<F).so 2>$(<F).se && touch $@
+	cd $(WD) && cp $< . && ./$(<F) >$(<F).so 2>$(<F).se && touch $@
 
 $(WD)/flows.html: $(SD)/flows.r $(WD)/state-hogBalanceSheetDec2000Dec2001.csv $(WD)/shipment-flows-origins-on-rows-dests-on-columns.csv $(WD)/flagWeeklyReports $(WD)/flagData
 	cd $(WD) && cp $< . && $(RS) -e "library(knitr); spin(\"flows.r\")" >$(<F).so 2>$(<F).se

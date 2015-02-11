@@ -12,6 +12,7 @@ library(RColorBrewer)
 library(reshape2)
 library(scales)
 library(vegan)
+source('custom-plot-functions.r')
 
 Sys.setlocale("LC_TIME", "C") #Needed for identical()
 Sys.setlocale("LC_COLLATE", "C")
@@ -332,103 +333,12 @@ get_endpoints <- function(state){
                xend=map_data$x[i1] - 1.5, yend=map_data$y[i1] + 0.3)
 }
 
-make_choropleth <- function(fill_var=c('Cases', 'Inventory'), trans='log10'){
-    fill <- match.arg(fill_var)
-    g <- ggplot(map_data)
-    g <- g + geom_map(aes_string(map_id='state', fill=fill), color='dark grey', size=0.2, map=state_map)
-    if(fill=='Cases'){
-        g <- g + scale_fill_gradient(trans=trans, high="#4E2527", low="#FA644E")
-    } else {
-        g <- g + scale_fill_gradient(trans=trans, high="#132B43", low="#459CDA")
-    }
-    # expand_limits necessary to prevent error: argument "env" is missing
-    g <- g + expand_limits(x = state_map$long, y = state_map$lat)
-    g <- g + coord_map("azequalarea",orientation=c(30.82,-98.57,0))
-    g <- g + theme_clean()
-    g <- g + theme(legend.position = "top")
-    g <- g + guides(fill = guide_colorbar(barwidth = 10, barheight = 0.5))
-    g <- g + geom_text(aes(x=x, y=y, label=label), size=1.9, color='dark grey')
-    g <- g + geom_segment(data=get_endpoints('NH'), aes(x=x, y=y, xend=xend-.2, yend=yend),
-                          size=0.25, color='dark olive green')
-    g <- g + geom_segment(data=get_endpoints('MA'), aes(x=x, y=y, xend=xend-.2, yend=yend),
-                          size=0.25, color='dark olive green')
-    g <- g + geom_segment(data=get_endpoints('RI'),
-                          aes(x=x-.1, y=y, xend=xend+.4, yend=yend), size=0.25,
-                          color='dark olive green')
-    g <- g + geom_segment(data=get_endpoints('DE'),
-                          aes(x=x, y=y, xend=xend+.2, yend=yend-.1),
-                          size=0.25, color='dark olive green')
-    g <- g + geom_segment(data=get_endpoints('CT'),
-                          aes(x=x, y=y, xend=xend+.2, yend=yend-.1), size=0.25,
-                          color='dark olive green')
-    g <- g + geom_segment(data=get_endpoints('NJ'),
-                          aes(x=x, y=y, xend=xend+.2, yend=yend-.1), size=0.25,
-                          color='dark olive green')
-    g <- g + geom_segment(data=get_endpoints('MD'),
-                          aes(x=x, y=y, xend=xend+.2, yend=yend-.1), size=0.25,
-                          color='dark olive green')
-    g
-}
-
 g <- make_choropleth(fill_var='Cases')
 ggsave(filename='cases-choropleth.pdf', plot=g, width=8.6/2.54, height=8.6/2.54)
 g <- make_choropleth('Inventory')
 ggsave(filename='inventory-choropleth.pdf', plot=g, width=8.6/2.54, height=8.6/2.54)
 
 ### ggPairs
-
-## Custom function to suppress X and Y tick labels at corner plots as
-## well as gridlines. Also, translate the variable names to those used
-## for plotting.
-ebo_ggally_diagAxis <-
-    function (data, mapping, labelSize = 5, labelXPercent = 0.5, 
-              labelYPercent = 0.55, labelHJust = 0.5, labelVJust = 0.5, 
-              gridLabelSize = 4, suppressY=FALSE, suppressX=FALSE, ...) 
-{
-    mapping$y <- NULL
-    numer <- !((is.factor(data[, as.character(mapping$x)])) || 
-               (is.character(data[, as.character(mapping$x)])))
-    if (numer) {
-        label <- switch(mapping$x, 'cor'='CC',
-                        'shipment'='log10(flows)',
-                        'gcd'='-GCD')
-        if(mapping$x=='gcd'){
-            # to avoid crowding in small figures
-            data <- data/1000
-        }
-        xmin <- min(data[, as.character(mapping$x)], na.rm = TRUE)
-        xmax <- max(data[, as.character(mapping$x)], na.rm = TRUE)
-        xrange <- c(xmin - 0.01 * (xmax - xmin), xmax + 0.01 * 
-                    (xmax - xmin))
-        p <- ggally_text(label = label, mapping = aes(col = "grey50"), 
-                         xrange = xrange, yrange = xrange, size = labelSize, 
-                         xP = labelXPercent, yP = labelYPercent, hjust = labelHJust, 
-                         vjust = labelVJust)
-        p <- p + theme(panel.grid.major=element_blank())
-        axisBreaks <- GGally:::get_x_axis_labels(p, xrange)
-        if(suppressY){
-            test <- axisBreaks$yPos == min(axisBreaks$yPos)
-            axisBreaks <- axisBreaks[test, ]
-        }
-        if(suppressX){
-            test <- axisBreaks$xPos == min(axisBreaks$xPos)
-            axisBreaks <- axisBreaks[test, ]
-        }
-        if(!all(suppressX, suppressY)){
-            pLabs <- p + geom_text(data = axisBreaks,
-                                   mapping = aes_string(x = "xPos", y = "yPos", label = "lab", hjust = "hjust", vjust = "vjust"),
-                                   col = "grey50", size = gridLabelSize)
-        } else {
-            pLabs <- p
-        }
-    }
-    else {
-        stop('not implemented')
-    }
-    pLabs$subType = "internal"
-    pLabs$type = "label"
-    pLabs
-}
 
 mats2 <- mats[1:3]
 getData <- function(matName, sym, rankv){
@@ -455,58 +365,6 @@ theme_update(panel.grid.major=element_blank(), panel.grid.minor=element_blank(),
              axis.ticks=element_blank(), panel.border=element_blank(),
              axis.line=element_blank())
 
-makePlotMat <- function(dfl, type=c('directed', 'undirected'),
-                        transform=c('ranked', 'original'), labelBreaks=FALSE, gridLabelSize=4,
-                        ...){
-    type <- match.arg(type)
-    transform <- match.arg(transform)
-    df <- dfl[[transform]][[type]]
-    symmetrize <- ifelse(type=='directed', FALSE, TRUE)
-    method <- ifelse(transform=='ranked', 'spearman', 'pearson')
-    pm <- ggpairs(df, alpha=0.4, axisLabels="internal", ...)
-    pal <- brewer.pal(n=9, 'Blues')
-    for (i in 1:(length(mats2) - 1)){
-        for(j in (i+1):length(mats2)){
-            sel <- data.frame(M1=mats[i], M2=mats[j],
-                              method=method, symmetrize=symmetrize)
-            mg <- merge(sel, des, all.y=FALSE)
-            symp <- symnum(mg$pValues, corr = FALSE,
-                           cutpoints = c(0, .001,.01,.05, .1, 1),
-                           symbols = c("***","**","*","."," "))
-            r <- round(mg$r, 2)
-            colNumber <- round(r*9, 0)
-            label <- paste(r, symp)
-            plt <- ggplot() + geom_text(label=label, aes(x=0.5, y=0.5), colour='black')
-            plt <- plt + xlim(c(0,1)) + ylim(c(0,1))
-            plt <- plt + theme(panel.background=element_rect(fill=pal[colNumber]),
-                               legend.position='none')
-            plt <- plt + labs(x=NULL,y=NULL)
-            pm <- putPlot(pm, plt, i, j)        
-        }
-    }
-    if(labelBreaks){
-        for(i in seq_along(mats2)){
-            if(i == 1){
-                g <- ebo_ggally_diagAxis(pm$data, mapping=list(x=mats2[i], y=mats2[i]),
-                                 suppressX=FALSE, suppressY=TRUE, gridLabelSize=gridLabelSize)
-            } else if (i == length(mats2)){
-                g <- ebo_ggally_diagAxis(pm$data, mapping=list(x=mats2[i], y=mats2[i]),
-                                         suppressX=TRUE, suppressY=FALSE, gridLabelSize=gridLabelSize)
-            } else {
-                g <- ebo_ggally_diagAxis(pm$data, mapping=list(x=mats2[i], y=mats2[i]),
-                                         suppressX=FALSE, suppressY=FALSE, gridLabelSize=gridLabelSize)                
-            }
-            pm <- putPlot(pm, g, i, i)
-        }
-    } else {
-        for(i in seq_along(mats2)){
-            g <- ebo_ggally_diagAxis(pm$data, mapping=list(x=mats2[i], y=mats2[i]),
-                                         suppressX=TRUE, suppressY=TRUE)
-            pm <- putPlot(pm, g, i, i)
-        }
-    }
-    pm
-}
 
 pm <- makePlotMat(dfl=matData, type='directed', transform='ranked')
 pdf(file='ggpairs-spearman-directed.pdf', width=8.6/2.54, height=8.6/2.54) 
@@ -520,6 +378,7 @@ dev.off()
 
 pm <- makePlotMat(dfl=matData, type='directed', transform='original',
                   labelBreaks=TRUE, gridLabelSize=2.5)
+plotMatDirectedPearson <- pm
 pdf(file='ggpairs-pearson-directed.pdf', width=9.5/2.54, height=6.6/2.54) 
 print(pm)
 dev.off()
@@ -538,130 +397,7 @@ pdf('diagnostics.pdf')
 plot(m)
 dev.off()
 
-### correlelogram                   
-
-#mcor <- mantel.correlog(D.eco=CC, D.geo=epl, r.type='pearson')
-
-
-### heat map
-
-image.plot.ebo <- function (..., add = FALSE, nlevel = 64, horizontal = FALSE,
-                            legend.shrink = 0.9, legend.width = 1.2,
-                            legend.mar = ifelse(horizontal, 3.1, 5.1),
-                            legend.lab = NULL, legend.line = 2,
-                            graphics.reset = FALSE, bigplot = NULL,
-                            smallplot = NULL, legend.only = FALSE,
-                            col = tim.colors(nlevel), lab.breaks = NULL,
-                            axis.args = NULL, legend.args = NULL,
-                            midpoint = FALSE, border = NA, lwd = 1,
-                            panelLab=NULL) {
-    old.par <- par(no.readonly = TRUE)
-    info <- imageplot.info(...)
-    if (add) {
-        big.plot <- old.par$plt
-    }
-    if (legend.only) {
-        graphics.reset <- TRUE
-    }
-    if (is.null(legend.mar)) {
-        legend.mar <- ifelse(horizontal, 3.1, 5.1)
-    }
-    temp <- imageplot.setup(add = add, legend.shrink = legend.shrink, 
-                            legend.width = legend.width, legend.mar = legend.mar, 
-                            horizontal = horizontal, bigplot = bigplot, smallplot = smallplot)
-    smallplot <- temp$smallplot
-    bigplot <- temp$bigplot
-    if (!legend.only) {
-        if (!add) {
-            par(plt = bigplot)
-        }
-        if (!info$poly.grid) {
-            image(..., add = add, col = col, axes=FALSE)
-            addAxis1 <- function(x, y, z,...){
-                labs <- paste(names(y), c('', '      '))
-                axis(1, at=y, labels = labs, las = 2, line = -0.5, tick = 0, 
-        cex.axis = 0.8)
-            }
-            addAxis1(...)
-            addAxis2 <- function(x, y, z,...){
-                labs <- paste(names(x), c('', '      '))
-                axis(2, at=x, labels = labs, las = 1, line = -0.5, tick = 0, 
-        cex.axis = 0.8)
-            }
-            addAxis2(...)
-            mtext(panelLab, side=2, las=2, at=par()$usr[2], line=par()$mar[2] - 1, cex=1.5)
-        }
-        else {
-            poly.image(..., add = add, col = col, midpoint = midpoint, 
-                       border = border, lwd.poly = lwd)
-        }
-        big.par <- par(no.readonly = TRUE)
-    }
-    if ((smallplot[2] < smallplot[1]) | (smallplot[4] < smallplot[3])) {
-        par(old.par)
-        stop("plot region too small to add legend\n")
-    }
-    ix <- 1
-    minz <- info$zlim[1]
-    maxz <- info$zlim[2]
-    binwidth <- (maxz - minz)/nlevel
-    midpoints <- seq(minz + binwidth/2, maxz - binwidth/2, by = binwidth)
-    iy <- midpoints
-    iz <- matrix(iy, nrow = 1, ncol = length(iy))
-    breaks <- list(...)$breaks
-    par(new = TRUE, pty = "m", plt = smallplot, err = -1)
-    if (!is.null(breaks) & !is.null(lab.breaks)) {
-        axis.args <- c(list(side = ifelse(horizontal, 1, 4), 
-                            mgp = c(3, 1, 0), las = ifelse(horizontal, 0, 2), 
-                            at = breaks, labels = lab.breaks), axis.args)
-    }
-    else {
-        axis.args <- c(list(side = ifelse(horizontal, 1, 4), 
-                            mgp = c(3, 1, 0), las = ifelse(horizontal, 0, 2)), 
-                       axis.args)
-    }
-    if (!horizontal) {
-        if (is.null(breaks)) {
-            image(ix, iy, iz, xaxt = "n", yaxt = "n", xlab = "", 
-                  ylab = "", col = col)
-        }
-        else {
-            image(ix, iy, iz, xaxt = "n", yaxt = "n", xlab = "", 
-                  ylab = "", col = col, breaks = breaks)
-        }
-    }
-    else {
-        if (is.null(breaks)) {
-            image(iy, ix, t(iz), xaxt = "n", yaxt = "n", xlab = "", 
-                  ylab = "", col = col)
-        }
-        else {
-            image(iy, ix, t(iz), xaxt = "n", yaxt = "n", xlab = "", 
-                  ylab = "", col = col, breaks = breaks)
-        }
-    }
-    do.call("axis", axis.args)
-    box()
-    if (!is.null(legend.lab)) {
-        legend.args <- list(text = legend.lab, side = ifelse(horizontal, 
-                                                   1, 4), line = legend.line)
-    }
-    if (!is.null(legend.args)) {
-        do.call(mtext, legend.args)
-    }
-    mfg.save <- par()$mfg
-    if (graphics.reset | add) {
-        par(old.par)
-        par(mfg = mfg.save, new = FALSE)
-        invisible()
-    }
-    else {
-        par(big.par)
-        par(plt = big.par$plt, xpd = FALSE)
-        par(mfg = mfg.save, new = FALSE)
-        invisible()
-    }
-}
+## image plots
 
 pdf('cors-heatmap.pdf')
 orderings <- heatmap(data.matrix(epl), scale='none')
@@ -694,6 +430,7 @@ makeImagePlot(M=data.matrix(CCnoDiag), orderings=orderings, xlab='Leading state'
               legend.args=list(text='Cross correlation', line=2.9, side=4), panelLab='B')
 dev.off()
 
+### time series
 
 mts <- melt(caseData, id='week')
 keepers <- c('MN', 'KS',
@@ -713,7 +450,7 @@ tmpf <- function(df){
     g <- g + facet_wrap(~variable, ncol=2, scales='free_y')
     g <- g + scale_x_date()
     g <- g + scale_y_discrete(breaks=pretty_breaks(n=2))
-    g <- g + xlab('Date') + ylab('Cases')
+    g <- g + xlab('2013-2014 Date') + ylab('Cases')
     g <- g + theme_classic()
     g <- g + theme(strip.background = element_blank(),
                    strip.text.x = element_blank())
@@ -724,5 +461,36 @@ tmpf <- function(df){
 }
 
 g <- tmpf(mts)
+ggsave('ts.pdf', width=8.6/2.54, height=6/2.54)
 
-ggsave('ts.pdf', width=8.6/2.54, height=6/2.54) 
+### composite time series and scatterplot matrix
+
+tmpf <- function(){
+    grid.newpage()
+    pushViewport(viewport(layout = grid.layout(1, 2, widths = c(9.5, 8.6),
+                              heights=c(6.6))))
+    lay <- grid.layout(1,2, widths=unit(c(8.6,8.6), 'cm'),
+                       heights=unit(c(6), 'cm'))
+    grid.newpage()
+    pushViewport(viewport(layout=lay))
+    pushViewport(viewport(layout.pos.col=1, layout.pos.row=1))
+    myPrintGGpairs(plotMatDirectedPearson, newpage=FALSE)
+    grid.text(label="A", x=unit(0, "npc") - unit(1.5, "lines"),
+              y=unit(1, "npc"), just= "left")
+    popViewport()
+    pushViewport(viewport(layout.pos.col=2, layout.pos.row=1))
+    print(g, newpage=FALSE)
+    grid.text(label="B", x=unit(0, "npc"), y=unit(1, "npc"), just= "left")
+    popViewport()
+}
+
+cairo_ps(filename = 'plotMatrixWithTimeSeries.eps', width = 19/2.54, height = 6.6/2.54)
+tmpf()
+dev.off()
+
+cairo_pdf(filename = 'plotMatrixWithTimeSeries.pdf', width = 19/2.54, height = 6.6/2.54)
+tmpf()
+dev.off()
+
+
+
