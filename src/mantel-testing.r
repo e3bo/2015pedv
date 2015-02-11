@@ -226,6 +226,8 @@ sink('mantel-table.txt')
 pander(des)
 sink()
 
+save.image(file='mantel-testing-checkpoint1.RData')
+
 ## plotting
 
 ### jflowmap
@@ -461,7 +463,7 @@ makePlotMat <- function(dfl, type=c('directed', 'undirected'),
     df <- dfl[[transform]][[type]]
     symmetrize <- ifelse(type=='directed', FALSE, TRUE)
     method <- ifelse(transform=='ranked', 'spearman', 'pearson')
-    pm <- ggpairs(df, alpha=0.4, ...)
+    pm <- ggpairs(df, alpha=0.4, axisLabels="internal", ...)
     pal <- brewer.pal(n=9, 'Blues')
     for (i in 1:(length(mats2) - 1)){
         for(j in (i+1):length(mats2)){
