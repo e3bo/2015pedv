@@ -932,43 +932,24 @@ invisible(latex(statsdf, file='stats-table.tex'))
 #' ## Stability selection
 #'
 #' Stability selection seems more appopriate for identifying important
-#' variables than cross-validation.
-#+
+#' variables than cross-validation. We will check for sensitivity to
+#' alpha.
 
-resDecWk <- stabpath(x=xf, y=mgAvg$largeDec, alpha=0.8, weakness=.5,
-                     family='binomial', steps=1000)
-plot(resDecWk, type='pcer')
-resNumWk <- stabpath(x=subxf, y=log(sub$cases), alpha=0.8, weakness=0.5,
-                     family='gaussian', steps=1000)
-plot(resNumWk, type='pcer')
-resAnyWk <- stabpath(x=xf, y=mgAvg$anyCases, alpha=0.8, weakness=0.5,
-                     family='binomial', steps=1000)
-plot(resAnyWk, error=0.05, type='pcer')
+tmpf <- function(alpha,...){
+    stabpath(alpha=alpha, weakness=1, steps=1000, ...)
+}
+tmpff <- function(spec){
+    alphas <- c(0.01,.2,.5,.8,1)
+    names(alphas)=paste('alpha', format(alphas), sep='=')
+    lapply(alphas, tmpf, y=spec$y, family=spec$family, x=spec$x)
+}
+specs <- list(litterRateDecrease=list(y=mgAvg$largeDec, family='binomial', x=xf),
+              cumCases=list(y=log(sub$cases), family='gaussian', x=subxf),
+              anyCases=list(y=mgAvg$anyCases, family='binomial', x=xf))
+par(mfrow=c(3,5))
+res <- lapply(specs, tmpff)
+stab <- lapply(res, function(x) lapply(x, plot, type='pcer', error=0.05))
+tmpfff <- function(x) lapply(x, '[[', 'stable')
+lapply(stab, tmpfff)
 
-#' When using lasso, reg 4 gets selected even for the pig litter
-#' decrease model. Perhaps this is correct or perhaps this is an
-#' artifact of region 4 being one of the few variables uncorrelated
-#' with inventory, which improves it's selection probability.
-#+
-resDecLass <- stabpath(x=xf, y=mgAvg$largeDec, alpha=1, weakness=0.8, family='binomial', steps=1000)
-plot(resDecLass, error=0.05, type='pcer')
-
-#' On the one hand, using weakness < 1 seems conservative. On the
-#' other, I've not seen any work on the effect of weakness when using
-#' elastic net. So what happens with weakness=1?
-#+
-resDec <- stabpath(x=xf, y=mgAvg$largeDec, alpha=0.8, weakness=1,
-                   family='binomial', steps=1000)
-plot(resDec, type='pcer')
-resNum <- stabpath(x=subxf, y=log(sub$cases), alpha=0.8, weakness=1,
-                   family='gaussian', steps=1000)
-plot(resNum, type='pcer')
-resAny <- stabpath(x=xf, y=mgAvg$anyCases, alpha=0.8, weakness=1,
-                   family='binomial', steps=1000)
-plot(resAny, error=0.05, type='pcer')
-
-#' Some of the variables correlated with inventory are considered
-#' stable. Perhaps the weakness counteracts the grouping effects of
-#' the elastic net to some exent.
-#+
 save.image('pedv-cum.RData')
