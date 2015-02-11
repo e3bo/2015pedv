@@ -121,7 +121,7 @@ nhood <- as.matrix(g2[nms,nms])
 
 ## Get shipment flows
 
-ep <- read.csv(file.path(dataDir, 'edge-proportionalities.csv'))
+epO <- ep <- read.csv(file.path(dataDir, 'shipment-flows-origins-on-rows-dests-on-columns.csv'),row.names=1)
 key <- match(colnames(observed), colnames(ep))
 ep <- ep[key, key]
 rownames(ep) <- colnames(ep)
@@ -211,7 +211,7 @@ methods <- c('spearman', 'pearson')
 symmetrize <- c(TRUE, FALSE)
 des <- expand.grid(M1=mats, M2=mats, method=methods, symmetrize=symmetrize, stringsAsFactors=FALSE)
 des <- des[des$M1 != des$M2, ]
-des$permutations <- 10000
+des$permutations <- 10
 
 res <- list()
 for(i in seq_len(nrow(des))){
@@ -234,7 +234,7 @@ orientation <- c(30.82,-98.57,0)
 #scale of 1 does not allow good edge-bundling with this projection
 scale <- 100
 
-adjmatrix <- data.matrix(epO)
+adjmatrix <- data.matrix(epO[state.abb, state.abb])
 diag(adjmatrix) <- 0
 g <- graph.adjacency(adjmatrix, mode='directed', weighted='flow')
 stopifnot(colnames(adjmatrix) == V(g)$name)
@@ -683,7 +683,7 @@ pdf('matrices.pdf', width=8.7/2.54, height=12/2.54)
 layout(matrix(1:2, ncol=1))
 par(mar=c(4,4.5,.5,.5))
 makeImagePlot(M=data.matrix(epl), orderings=orderings, xlab='Destination', ylab='Source',
-              legend.args=list(text=expression(paste(Log[10], '(swine shipped)')),
+              legend.args=list(text=expression(paste(Log[10], '(transport flow)')),
                   line=2.9, side=4), panelLab='A')
 par(mar=c(4,4.5,1,.5))
 CCnoDiag <- CC

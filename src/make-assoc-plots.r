@@ -1,3 +1,8 @@
+#+setup, include=FALSE, cache=FALSE
+library(knitr)
+opts_chunk$set(fig.path='figure-make-assoc-plots/', fig.align='center', fig.show='hold')
+
+#+
 library(car)
 library(DescTools)
 library(vcd)
