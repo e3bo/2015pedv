@@ -377,7 +377,7 @@ print(pm)
 dev.off()
 
 pm <- makePlotMat(dfl=matData, type='directed', transform='original',
-                  labelBreaks=TRUE, gridLabelSize=2.5)
+                  labelBreaks=TRUE, gridLabelSize=2.0)
 plotMatDirectedPearson <- pm
 pdf(file='ggpairs-pearson-directed.pdf', width=9.5/2.54, height=6.6/2.54) 
 print(pm)
@@ -454,10 +454,10 @@ tmpf <- function(df){
     g <- g + theme_classic()
     g <- g + theme(strip.background = element_blank(),
                    strip.text.x = element_blank())
-    g <- g + theme(plot.margin=unit(c(0,2,0,0),"mm"))
+    g <- g + theme(plot.margin=unit(c(0,2,2,0),"mm"))
     g <- g + geom_text(data=labdf, hjust=0, vjust=1,
                        aes(x=minx, y=maxy, label=variable))
-    g
+    g <- g + theme(axis.title.x = element_text(vjust=-0.5))
 }
 
 g <- tmpf(mts)
@@ -468,7 +468,7 @@ ggsave('ts.pdf', width=8.6/2.54, height=6/2.54)
 tmpf <- function(){
     grid.newpage()
     pushViewport(viewport(layout = grid.layout(1, 2, widths = c(9.5, 8.6),
-                              heights=c(6.6))))
+                              heights=c(6.0))))
     lay <- grid.layout(1,2, widths=unit(c(8.6,8.6), 'cm'),
                        heights=unit(c(6), 'cm'))
     grid.newpage()
@@ -484,11 +484,11 @@ tmpf <- function(){
     popViewport()
 }
 
-cairo_ps(filename = 'plotMatrixWithTimeSeries.eps', width = 19/2.54, height = 6.6/2.54)
+cairo_ps(filename = 'plotMatrixWithTimeSeries.eps', width = 19/2.54, height = 6.4/2.54)
 tmpf()
 dev.off()
 
-cairo_pdf(filename = 'plotMatrixWithTimeSeries.pdf', width = 19/2.54, height = 6.6/2.54)
+cairo_pdf(filename = 'plotMatrixWithTimeSeries.pdf', width = 19/2.54, height = 6.4/2.54)
 tmpf()
 dev.off()
 
