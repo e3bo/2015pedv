@@ -38,10 +38,10 @@ centers <- c(week=mean(om$weekCent),
             undirected=mean(log(om$undirectedFlow)),
             directeted=mean(log(om$directedFlow)))
 
+fund <- fortify(m$glmeundirhmax, data=model.frame(m$glmeundirhmax))
 stopifnot(all.equal(attributes(fund$logUndirectedFlowScaled)[["scaled:center"]], centers[['undirected']]))
 stopifnot(all.equal(attributes(fund$logUndirectedFlowScaled)[["scaled:scale"]][["75%"]], scales[['undirected.75%']]))
 
-fund <- fortify(m$glmeundirhmax, data=model.frame(m$glmeundirhmax))
 theme_set(new=theme_classic())
 fund$flow <- exp(scales['undirected.75%'] * as.numeric(fund$logUndirectedFlowScaled) + centers['undirected'])
 fund$predCases <- exp(fund$.fitted)
