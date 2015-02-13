@@ -43,15 +43,17 @@ stopifnot(all.equal(attributes(fund$logUndirectedFlowScaled)[["scaled:center"]],
 stopifnot(all.equal(attributes(fund$logUndirectedFlowScaled)[["scaled:scale"]][["75%"]], scales[['undirected.75%']]))
 
 theme_set(new=theme_classic())
-fund$flow <- exp(scales['undirected.75%'] * as.numeric(fund$logUndirectedFlowScaled) + centers['undirected'])
+fund$log10UndirectedFlow <- log10(exp(scales['undirected.75%'] * as.numeric(fund$logUndirectedFlowScaled) + centers['undirected']))
 fund$predCases <- exp(fund$.fitted)
-fund$smoothpred <- predict(loess(predCases~flow, data=fund))
+fund$smoothpred <- predict(loess(predCases~log10UndirectedFlow, data=fund, span=.5))
+fund$casesJittered <- runif(fund$cases, min=-1, max=1)*0.2 + fund$cases
 
-g <- ggplot(data=fund, aes(x=flow, y=predCases))
+g <- ggplot(data=fund, aes(x=log10UndirectedFlow, y=casesJittered))
+g <- g + geom_point(col='red', alpha=.5)
 g <- g + geom_line(aes(y=smoothpred))
-g <- g + geom_point(aes(x=I(flow + runif(flow, min=-5e5, max=5e5)), y=cases), col='red', alpha=0.5)
-g <- g + labs(x='Flow (swine / year)', y='Cases')
-g <- g + coord_trans(y="log1p") + ylim(0,100)
+g <- g + labs(x='Log10(transport flow)', y='Cases')
+g <- g + coord_trans(y="log1p")
+
 ggsave('flows-prediction.eps', width=4, height=4, pointsize=12, device=cairo_ps)
 ggsave('flows-prediction.pdf', width=4, height=4, pointsize=12, device=cairo_pdf)
 

@@ -212,7 +212,7 @@ methods <- c('spearman', 'pearson')
 symmetrize <- c(TRUE, FALSE)
 des <- expand.grid(M1=mats, M2=mats, method=methods, symmetrize=symmetrize, stringsAsFactors=FALSE)
 des <- des[des$M1 != des$M2, ]
-des$permutations <- 10
+des$permutations <- 10000
 
 res <- list()
 for(i in seq_len(nrow(des))){
