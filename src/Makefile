@@ -6,10 +6,10 @@ VPATH = $(SD):$(WD)
 all: sim-panel.pdf
 
 sim-panel.pdf: cor-sim-study-plots.r corSims-layer1.RData
-	cd $(WD) && $(SD)/$< >$<.so 2>$<.se
+	cd $(WD) && $< >$(<F).so 2>$(<F).se
 
 corSims-layer1.RData: corSims-layer1.r corSims-layer0.RData
-	cd $(WD) && $(SD)/$< >$<.so 2>$<.se
+	cd $(WD) && $< >$(<F).so 2>$(<F).se
 
 corSims-layer0.RData: corSims-layer0.r flagSimulatorInstalled
 	cd $(WD) && $< >$(<F).so 2>$(<F).se
