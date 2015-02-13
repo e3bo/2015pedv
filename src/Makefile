@@ -15,7 +15,7 @@ corSims-layer0.RData: corSims-layer0.r flagSimulatorInstalled
 	cd $(WD) && $< >$(<F).so 2>$(<F).se
 
 flagSimulatorInstalled: $(shell find /root/src/duoDynamics)
-	cd $(WD) && R CMD build $(SD)/duoDynamics && R CMD INSTALL duoDynamics_1.0.tar.gz && touch $@
+	cd $(WD) && R CMD build $(SD)/duoDynamics && R CMD INSTALL duoDynamics_1.0.tar.gz && copy $(SD)/.BatchJobs.R $(WD)/ && touch $@
 
 $(WD)/flagMantel: $(SD)/mantel-testing.r $(SD)/custom-plot-functions.r $(WD)/flagData $(WD)/flagWeeklyReports $(WD)/flagPedvCum
 	cd $(WD) && cp $< . && cp $(SD)/custom-plot-functions.r . && ./$(<F) >$(<F).so 2>$(<F).se && touch $@
