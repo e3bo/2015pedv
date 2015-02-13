@@ -31,8 +31,8 @@ g <- g + geom_point(aes(x=I(runif(nrow(fund), min=-.1,max=.1) + exp(logUndirecte
                         y=cases), col='black', alpha=0.5)
 g <- g + labs(x='Flow (swine / pairs / year)', y='Cases')
 g <- g + coord_trans(y="log1p") + ylim(0,100)
-ggsave('flows-prediction.eps', width=4, height=4, pointsize=18, device=cairo_ps)
-ggsave('flows-prediction.pdf', width=4, height=4, pointsize=18, device=cairo_pdf)
+ggsave('flows-prediction.eps', width=4, height=4, pointsize=12, device=cairo_ps)
+ggsave('flows-prediction.pdf', width=4, height=4, pointsize=12, device=cairo_pdf)
 
 ## Plots of fixed effects
 

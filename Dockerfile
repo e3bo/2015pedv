@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y -q --no-install-recommends \
   python3-pandas
 
 RUN install2.r --error \
+  BatchExperiments \
   car \
   coda \
   c060 \
@@ -17,6 +18,7 @@ RUN install2.r --error \
   GGally \
   ggplot2 \
   glmnet \
+  grid \
   Hmisc \
   igraph \
   knitr \
