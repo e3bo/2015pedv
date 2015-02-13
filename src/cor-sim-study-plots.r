@@ -91,15 +91,23 @@ tmpf <- function(){
     pushViewport(viewport(layout=lay))
     pushViewport(viewport(layout.pos.col=1, layout.pos.row=1))
     print(pR0, newpage=FALSE)
+    grid.text(label="A", x=unit(0, "npc") - unit(0.25, "lines"),
+              y=unit(1, "npc"), just= "left")
     popViewport()
     pushViewport(viewport(layout.pos.col=2, layout.pos.row=1))
     print(pCoupFac + labs(y=NULL), newpage=FALSE)
+    grid.text(label="B", x=unit(0, "npc") - unit(0., "lines"),
+              y=unit(1, "npc"), just= "left")
     popViewport()
     pushViewport(viewport(layout.pos.col=3, layout.pos.row=1))
     print(pNedges + labs(y=NULL), newpage=FALSE)
+    grid.text(label="C", x=unit(0, "npc") - unit(0., "lines"),
+              y=unit(1, "npc"), just= "left")
     popViewport()
     pushViewport(viewport(layout.pos.col=4, layout.pos.row=1))
     print(pCohesion + labs(y=NULL), newpage=FALSE)
+    grid.text(label="D", x=unit(0, "npc") - unit(0., "lines"),
+              y=unit(1, "npc"), just= "left")
     popViewport()
     pushViewport(viewport(layout.pos.col=5, layout.pos.row=1))
     lay <- grid.layout(5,4, widths=unit(c(.25,.2, 2.2,.5), 'null'),
@@ -127,7 +135,7 @@ tmpf <- function(){
     grid.text(label='Reciprocally\nunbalanced', gp=gpar(fontsize=10))
     popViewport()
     pushViewport(viewport(layout.pos.col=3, layout.pos.row=1))
-    grid.text(label='Wiring scheme', gp=gpar(fontsize=12, fontface=2))
+    grid.text(label='Wiring scheme', gp=gpar(fontsize=12, fontface=1))
     popViewport()
     pushViewport(viewport(layout.pos.col=2, layout.pos.row=2))
     grid.circle(gp=gpar(fill=colScale["degreeBalanced"], alpha=0.75, col="transparent"))
