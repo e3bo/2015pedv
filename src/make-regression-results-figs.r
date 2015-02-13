@@ -19,17 +19,38 @@ tmpf <- function(x) {
     glmmadmb(x, data=data, family='nbinom')
 }
 mFin <- lapply(fFin, tmpf)
+save.image('flows-checkpoint4.RData')
 
 ## Plot of predicted cases vs flow
 
-fund <- fortify(m$glmeundirhmax, data=model.frame(m$glmeundirhmax))
-theme_set(new=theme_classic())
+scales <- c(week=iqr(om$weekCent),
+            internal=iqr(log(om$internalFlow)),
+            cmedDense=iqr(log(om$cmedDense*om$nFarms*om$nFarms)),
+            undirected=iqr(log(om$undirectedFlow)),
+            directeted=iqr(log(om$directedFlow)))
+sink(file='scales.txt')
+print(scales)
+sink()
 
-g <- ggplot(data=fund, aes(x=exp(logUndirectedFlowScaled), y=exp(.fitted)))
-g <- g + geom_smooth(method='loess', alpha=0, size=2, color='black')
-g <- g + geom_point(aes(x=I(runif(nrow(fund), min=-.1,max=.1) + exp(logUndirectedFlowScaled)),
-                        y=cases), col='black', alpha=0.5)
-g <- g + labs(x='Flow (swine / pairs / year)', y='Cases')
+centers <- c(week=mean(om$weekCent),
+            internal=mean(log(om$internalFlow)),
+            cmedDense=mean(log(om$cmedDense*om$nFarms*om$nFarms)),
+            undirected=mean(log(om$undirectedFlow)),
+            directeted=mean(log(om$directedFlow)))
+
+fund <- fortify(m$glmeundirhmax, data=model.frame(m$glmeundirhmax))
+stopifnot(all.equal(attributes(fund$logUndirectedFlowScaled)[["scaled:center"]], centers[['undirected']]))
+stopifnot(all.equal(attributes(fund$logUndirectedFlowScaled)[["scaled:scale"]][["75%"]], scales[['undirected.75%']]))
+
+theme_set(new=theme_classic())
+fund$flow <- exp(scales['undirected.75%'] * as.numeric(fund$logUndirectedFlowScaled) + centers['undirected'])
+fund$predCases <- exp(fund$.fitted)
+fund$smoothpred <- predict(loess(predCases~flow, data=fund))
+
+g <- ggplot(data=fund, aes(x=flow, y=predCases))
+g <- g + geom_line(aes(y=smoothpred))
+g <- g + geom_point(aes(x=I(flow + runif(flow, min=-5e5, max=5e5)), y=cases), col='red', alpha=0.5)
+g <- g + labs(x='Flow (swine / year)', y='Cases')
 g <- g + coord_trans(y="log1p") + ylim(0,100)
 ggsave('flows-prediction.eps', width=4, height=4, pointsize=12, device=cairo_ps)
 ggsave('flows-prediction.pdf', width=4, height=4, pointsize=12, device=cairo_pdf)
@@ -125,30 +146,27 @@ tmpf <- function() {
   tab <- gsub('(\\\\)\\s?(\n)', '\\1\\\\hline\\2', tab)
   tab <- gsub('(\\n)(\\{\\\\bf Flow term\\})', '\\1\\\\hline\\2', tab)
   cat(tab, file='tab.tex')
+  list(aic=aic, tab=tab)
 }
-tmpf()
-
-Scales <- C(week=iqr(om$weekCent),
-            internal=iqr(log(om$internalFlow)),
-            cmedDense=iqr(log(om$cmedDense*om$nFarms*om$nFarms)),
-            undirected=iqr(log(om$undirectedFlow)),
-            directeted=iqr(log(om$directedFlow)))
-sink(file='scales.txt')
-print(scales)
-sink()
+tables <- tmpf()
 
 ## Dotplot of AICs
 
-flowTerm <- c(glmeundirhmax='Within-state + undirected between state',
-              glmedirhmax='Within-state + directed between state',
-              glmehmax='Within-state only',
-              nbme='Within-state only, fixed other risks ',
-              nbmeN='No flow, fixed other risks')
-
+tmpf <- function() {
+    tab <- tables$tab
+    aic <- tables$aic
+    flowTerm <- c(glmeundirhmax='Within-state + undirected between state',
+                  glmedirhmax='Within-state + directed between state',
+                  glmehmax='Within-state only',
+                  nbme='Within-state only, fixed other risks ',
+                  nbmeN='No flow, fixed other risks')
+    labels <- flowTerm[rownames(tab)]
+    dotchart2(tables$aic, labels=labels, xlab='AIC (i.e., Estimated information loss)', dotsize=2)
+}
 png('aic.png', width=7*res, height=4*res, res=res)
-dotchart2(aic, labels=flowTerm[rownames(tab)], xlab='AIC (i.e., Estimated information loss)', dotsize=2)
+tmpf()
 dev.off()
 
-save.image('flows-checkpoint4.RData')
+save.image('flows-checkpoint5.RData')
 
                                              

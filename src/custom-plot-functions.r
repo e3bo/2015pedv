@@ -2,7 +2,7 @@
 ## well as gridlines. Also, translate the variable names to those used
 ## for plotting.
 ebo_ggally_diagAxis <-
-    function (data, mapping, labelSize = 5, labelXPercent = 0.5, 
+    function (data, mapping, labelSize = 4, labelXPercent = 0.55, 
               labelYPercent = 0.55, labelHJust = 0.5, labelVJust = 0.5, 
               gridLabelSize = 4, suppressY=FALSE, suppressX=FALSE, ...) 
 {
