@@ -467,11 +467,8 @@ ggsave('ts.pdf', width=8.6/2.54, height=6/2.54)
 
 tmpf <- function(){
     grid.newpage()
-    pushViewport(viewport(layout = grid.layout(1, 2, widths = c(9.5, 8.6),
-                              heights=c(6.0))))
     lay <- grid.layout(1,2, widths=unit(c(8.6,8.6), 'cm'),
                        heights=unit(c(6), 'cm'))
-    grid.newpage()
     pushViewport(viewport(layout=lay))
     pushViewport(viewport(layout.pos.col=1, layout.pos.row=1))
     myPrintGGpairs(plotMatDirectedPearson, newpage=FALSE)

@@ -18,6 +18,7 @@ RUN install2.r --error \
   GGally \
   ggplot2 \
   glmnet \
+  gridBase \
   Hmisc \
   igraph \
   knitr \
