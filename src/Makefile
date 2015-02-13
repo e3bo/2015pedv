@@ -2,7 +2,13 @@ RS = '/usr/bin/Rscript'
 WD = /root/work
 SD = /root/src
 
-all: $(WD)/flagMantel
+all: $(WD)/sim-panel.pdf
+
+$(WD)/sim-panel.pdf: $(SD)/cor-sim-study-plots.r $(WD)/corSims-layer1.RData
+	cd $(WD) && $< >$(<F).so 2>$(<F).se
+
+$(WD)/corSims-layer1.RData: $(SD)/corSims-layer1.r $(WD)/corSims-layer0.RData
+	cd $(WD) && $< >$(<F).so 2>$(<F).se
 
 $(WD)/flagMantel: $(SD)/mantel-testing.r $(SD)/custom-plot-functions.r $(WD)/flagData $(WD)/flagWeeklyReports $(WD)/flagPedvCum
 	cd $(WD) && cp $< . && cp $(SD)/custom-plot-functions.r . && ./$(<F) >$(<F).so 2>$(<F).se && touch $@

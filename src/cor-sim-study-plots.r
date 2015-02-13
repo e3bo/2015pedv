@@ -1,10 +1,12 @@
+#!/usr/bin/Rscript
+
 library(ggplot2)
 library(grid)
 
 stat_sum_df <- function(fun, geom="crossbar", ...) {
     stat_summary(fun.data=fun, colour="red", geom=geom, width=0.2, ...)
 }
-load('/home/eamon/work-data/2014/01/28/corSims-layer1.RData')
+load('corSims-layer1.RData')
 
 test <- rdf$expectedIntros == 1 & rdf$couplingFactor == 1
 df <- rdf[test,]

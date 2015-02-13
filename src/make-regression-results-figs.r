@@ -49,8 +49,8 @@ fund$smoothpred <- predict(loess(predCases~log10UndirectedFlow, data=fund, span=
 fund$casesJittered <- runif(fund$cases, min=-1, max=1)*0.2 + fund$cases
 
 g <- ggplot(data=fund, aes(x=log10UndirectedFlow, y=casesJittered))
-g <- g + geom_point(col='red', alpha=.5)
-g <- g + geom_line(aes(y=smoothpred))
+g <- g + geom_point(col="#4477AA", alpha=.5)
+g <- g + geom_line(aes(y=smoothpred), col='red')
 g <- g + labs(x='Log10(transport flow)', y='Cases')
 g <- g + coord_trans(y="log1p")
 
@@ -81,7 +81,7 @@ sds <- cbind(sds, baseline=0)
 
 tmpf <- function() {
     longnames <- c(flow='Scaled transport flow', inf='Cases last week', week='Scaled week', dense='Scaled farm density', baseline='Baseline risk') 
-    pal <- c('black', 'orange', 'blue')
+    pal <- c("blue"="#4477AA", "red"="#DDCC77", "yellow"="#CC6677")
     pch <- 15:17
     for(i in seq_len(nrow(ests))){
         coefplot2(ests[i, ], sds[i, ], varnames=longnames[colnames(ests)],
