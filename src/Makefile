@@ -1,14 +1,21 @@
 RS = '/usr/bin/Rscript'
 WD = /root/work
 SD = /root/src
+VPATH = $(SD):$(WD)
 
-all: $(WD)/sim-panel.pdf
+all: sim-panel.pdf
 
-$(WD)/sim-panel.pdf: $(SD)/cor-sim-study-plots.r $(WD)/corSims-layer1.RData
+sim-panel.pdf: cor-sim-study-plots.r corSims-layer1.RData
+	cd $(WD) && $(SD)/$< >$<.so 2>$<.se
+
+corSims-layer1.RData: corSims-layer1.r corSims-layer0.RData
+	cd $(WD) && $(SD)/$< >$<.so 2>$<.se
+
+corSims-layer0.RData: corSims-layer0.r flagSimulatorInstalled
 	cd $(WD) && $< >$(<F).so 2>$(<F).se
 
-$(WD)/corSims-layer1.RData: $(SD)/corSims-layer1.r $(WD)/corSims-layer0.RData
-	cd $(WD) && $< >$(<F).so 2>$(<F).se
+flagSimulatorInstalled: $(shell find /root/src/duoDynamics)
+	R CMD INSTALL duoDynamcs_1.0.tar.gz && touch $(WD)/flagSimulatorInstalled
 
 $(WD)/flagMantel: $(SD)/mantel-testing.r $(SD)/custom-plot-functions.r $(WD)/flagData $(WD)/flagWeeklyReports $(WD)/flagPedvCum
 	cd $(WD) && cp $< . && cp $(SD)/custom-plot-functions.r . && ./$(<F) >$(<F).so 2>$(<F).se && touch $@

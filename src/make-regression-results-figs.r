@@ -80,7 +80,8 @@ ests <- cbind(ests, baseline=c(hund$maximum, hdir$maximum, hint$maximum))
 sds <- cbind(sds, baseline=0)
 
 tmpf <- function() {
-    longnames <- c(flow='Scaled transport flow', inf='Cases last week', week='Scaled week', dense='Scaled farm density', baseline='Baseline risk') 
+    longnames <- c(flow='Scaled transport flow', inf='Cases last week',
+                   week='Scaled week', dense='Scaled farm density', baseline='Baseline risk') 
     pal <- c("blue"="#4477AA", "red"="#DDCC77", "yellow"="#CC6677")
     pch <- 15:17
     for(i in seq_len(nrow(ests))){
