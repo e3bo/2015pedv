@@ -3,7 +3,7 @@ WD = /root/work
 SD = /root/src
 VPATH = $(SD):$(WD)
 
-all: sim-panel.pdf
+all: sim-panel.pdf flagMantel
 
 sim-panel.pdf: cor-sim-study-plots.r corSims-layer1.RData
 	cd $(WD) && $< >$(<F).so 2>$(<F).se
@@ -17,32 +17,32 @@ corSims-layer0.RData: corSims-layer0.r flagSimulatorInstalled
 flagSimulatorInstalled: $(shell find /root/src/duoDynamics)
 	cd $(WD) && R CMD build $(SD)/duoDynamics && R CMD INSTALL duoDynamics_1.0.tar.gz && cp $(SD)/.BatchJobs.R $(WD)/ && touch $@
 
-$(WD)/flagMantel: $(SD)/mantel-testing.r $(SD)/custom-plot-functions.r $(WD)/flagData $(WD)/flagWeeklyReports $(WD)/flagPedvCum
-	cd $(WD) && cp $< . && cp $(SD)/custom-plot-functions.r . && ./$(<F) >$(<F).so 2>$(<F).se && touch $@
+flagMantel: mantel-testing.r custom-plot-functions.r flagData flagWeeklyReports flagPedvCum
+	cd $(WD) && cp $(SD)/custom-plot-functions.r . && $< >$(<F).so 2>$(<F).se && touch $@
 
-$(WD)/flagAssocPlots: $(SD)/make-assoc-plots.r $(WD)/flagPedvCum
+flagAssocPlots: make-assoc-plots.r flagPedvCum
 	cd $(WD) && cp $< . && $(RS) -e "library(knitr); spin(\"make-assoc-plots.r\")" >$(<F).so 2>$(<F).se && touch $@
 
-$(WD)/flagPedvCum: $(SD)/pedv-cum.r $(WD)/flagWeeklyReports $(WD)/shipment-flows-origins-on-rows-dests-on-columns.csv $(WD)/state-hogBalanceSheetDec2011Dec2012.csv $(WD)/flagData
+flagPedvCum: pedv-cum.r flagWeeklyReports shipment-flows-origins-on-rows-dests-on-columns.csv state-hogBalanceSheetDec2011Dec2012.csv flagData
 	cd $(WD) && cp $< . && $(RS) -e "library(knitr); spin(\"pedv-cum.r\")" >$(<F).so 2>$(<F).se && touch $@
 
-$(WD)/flagTsirFigs: $(SD)/make-regression-results-figs.r $(WD)/flows.html
-	cd $(WD) && cp $< . && ./$(<F) >$(<F).so 2>$(<F).se && touch $@
+flagTsirFigs: make-regression-results-figs.r flows.html
+	cd $(WD) && $< >$(<F).so 2>$(<F).se && touch $@
 
-$(WD)/flows.html: $(SD)/flows.r $(WD)/state-hogBalanceSheetDec2000Dec2001.csv $(WD)/shipment-flows-origins-on-rows-dests-on-columns.csv $(WD)/flagWeeklyReports $(WD)/flagData
-	cd $(WD) && cp $< . && $(RS) -e "library(knitr); spin(\"flows.r\")" >$(<F).so 2>$(<F).se
+flows.html: flows.r state-hogBalanceSheetDec2000Dec2001.csv shipment-flows-origins-on-rows-dests-on-columns.csv flagWeeklyReports flagData
+	cd $(WD) cp $< . && $(RS) -e "library(knitr); spin(\"flows.r\")" >$(<F).so 2>$(<F).se
 
-$(WD)/state-hogBalanceSheetDec2000Dec2001.csv: $(SD)/get-balance-sheet-csv.sh
+state-hogBalanceSheetDec2000Dec2001.csv: get-balance-sheet-csv.sh
 	cd $(WD) && $<
 
-$(WD)/state-hogBalanceSheetDec2011Dec2012.csv: $(SD)/get-balance-sheet-2012-csv.sh
+state-hogBalanceSheetDec2011Dec2012.csv: get-balance-sheet-2012-csv.sh
 	cd $(WD) && $<
 
-$(WD)/shipment-flows-origins-on-rows-dests-on-columns.csv: $(SD)/clean-shipment-matrix.r
+shipment-flows-origins-on-rows-dests-on-columns.csv: clean-shipment-matrix.r
 	cd $(WD) && $<
 
-$(WD)/flagWeeklyReports: $(SD)/ped-weekly-report-scraper-py3.py
+flagWeeklyReports: ped-weekly-report-scraper-py3.py
 	cd $(WD) && $< && touch $@
 
-$(WD)/flagData:
+flagData:
 	cd $(WD) && cp -p ../data/* . && touch $@
