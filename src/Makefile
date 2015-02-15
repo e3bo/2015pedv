@@ -1,18 +1,19 @@
 RS = '/usr/bin/Rscript'
 WD = /root/work
 SD = /root/src
+DD = /root/data
 VPATH = $(SD):$(WD)
 
 all: flagMantel sim-panel.pdf flagAssocPlots flagTsirFigs
 
-sim-panel.pdf: cor-sim-study-plots.r corSims-layer1.RData
+sim-panel.pdf: cor-sim-study-plots.r flagSims1
 	$< >$(<F).so 2>$(<F).se
 
-corSims-layer1.RData: corSims-layer1.r corSims-layer0.RData
-	$< >$(<F).so 2>$(<F).se
+flagSims1: corSims-layer1.r flagSims1
+	$< >$(<F).so 2>$(<F).se && touch $@
 
-corSims-layer0.RData: corSims-layer0.r flagSimulatorInstalled
-	$< >$(<F).so 2>$(<F).se
+flagSims0: corSims-layer0.r flagSimulatorInstalled
+	$< >$(<F).so 2>$(<F).se && touch $@
 
 flagSimulatorInstalled: $(shell find /root/src/duoDynamics) .BatchJobs.R
 	R CMD build $(SD)/duoDynamics && R CMD INSTALL duoDynamics_1.0.tar.gz && cp $(SD)/.BatchJobs.R . && touch $@
@@ -45,4 +46,4 @@ flagWeeklyReports: ped-weekly-report-scraper-py3.py
 	$< && touch $@
 
 flagData:
-	cp -p ../data/* . && touch $@
+	cp -p $(DD)/* . && touch $@
