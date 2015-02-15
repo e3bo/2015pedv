@@ -3,7 +3,7 @@ WD = /root/work
 SD = /root/src
 VPATH = $(SD):$(WD)
 
-all: sim-panel.pdf flagMantel
+all: flagMantel sim-panel.pdf flagAssocPlots flagTsirFigs
 
 sim-panel.pdf: cor-sim-study-plots.r corSims-layer1.RData
 	$< >$(<F).so 2>$(<F).se
