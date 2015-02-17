@@ -19,6 +19,7 @@ RUN install2.r --error \
   ggplot2 \
   glmnet \
   gridBase \
+  grImport \
   Hmisc \
   igraph \
   knitr \

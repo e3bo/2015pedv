@@ -1,8 +1,9 @@
+#!/usr/bin/Rscript
+
 library(grImport)
 library(plyr)
 library(reshape2)
 
-setwd('/home/eamon/src/2015pedv/work')
 pages <- c(5:6,10:11)
 tmpf <- function(x) paste0('pdftops -f ', x, ' -l ', x,
                            ' SECD_Situation_Report_150212.pdf p', x, '.ps')
@@ -211,4 +212,4 @@ mgCum <- ddply(mg, c('variable'), tmpf)
 print('Correlation test of cumulative values:')
 cor.test(mgCum$confPresum, mgCum$accessions, method='spearman')
 
-save.image('table-scraper.r')
+save.image('accessions-premises-correlation.r')
