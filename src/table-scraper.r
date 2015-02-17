@@ -1,7 +1,8 @@
+library(grImport)
 library(plyr)
 library(reshape2)
 
-setwd('/home/eamon/src/2015pedv/data')
+setwd('/home/eamon/src/2015pedv/work')
 pages <- c(5:6,10:11)
 tmpf <- function(x) paste0('pdftops -f ', x, ' -l ', x,
                            ' SECD_Situation_Report_150212.pdf p', x, '.ps')
@@ -107,7 +108,7 @@ m8 <- mlt[3:4]
 
 getVals <- function(x) {
     M <- do.call(rbind, x)
-    test <- M[, 'col'] != 'week' & !(M[, 'row'] %in% c('headers', 'Title', 'total'))
+    test <- M[, 'col'] != 'week' & !(M[, 'row'] %in% c('headers', 'Title'))
     M[test,]
 }
 
@@ -116,7 +117,7 @@ tmpf <- function(m){
     vals <- strsplit(V[, 'apld'], '/')
     vals <- t(sapply(vals, as.numeric))
     colnames(vals) <- c('confirmed', 'presumptive')
-    tab3 <- data.frame(V, vals[rownames(mltt), ])
+    tab3 <- data.frame(V, vals[rownames(V), ])
     tab3$confPresum <- tab3$confirmed + tab3$presumptive
     tab3
 }
@@ -144,13 +145,55 @@ getDates <- function(x) {
 dt3 <- getDates(m3)
 dt8 <- getDates(m8)
 
-tab3 <- merge(tab3, dt3)
-tab8 <- merge(tab8, dt8)
+tab3 <- merge(tab3, dt3, all.x=TRUE)
+tab8 <- merge(tab8, dt8, all.x=TRUE)
 
-tab3w <- dcast(tab3, date~col, value.var="confPresum")
+tab3w <- dcast(tab3[tab3$row != 'total', ], date~col, value.var="confPresum")
 tab3w[is.na(tab3w)] <- 0
-tab8w <- dcast(tab8, date~col, value.var="accessions")
+
+tmpf <- function(){
+    tots <- colSums(tab3w[ ,-1])
+    tt <- tab3[tab3$row == 'total', ]
+    given <- tt$confPresum
+    names(given) <- tt$col
+    given['TX'] <- given['TX'] + 1 #based on visual inspection
+    given['total'] <- given['total'] + 1
+    stopifnot(all(tots == given[names(tots)]))
+}
+
+tab8w <- dcast(tab8[tab8$row != 'total', ], date~col, value.var="accessions")
 tab8w[is.na(tab8w)] <- 0
+
+tmpf <- function(){
+    tots <- colSums(tab8w[ ,-1])
+    tt <- tab8[tab8$row == 'total', ]
+    given <- tt$accessions
+    names(given) <- tt$col
+    given['total'] <- 3050 #based on visual inspection
+    stopifnot(all(tots == given[names(tots)]))
+}
+
+stopifnot(all(rowSums(tab3w[,-c(1,29)]) == tab3w$total))
+stopifnot(all(rowSums(tab8w[-36,-c(1,32)]) == tab3w$total[-36]))
+## Last row off by one, we check that our total matches sum of table entries here
+tmpf <- function() {
+    givenLast <- c(0,1,0,0,40,0,8,3,1,0,2,11,11,0,17,0,2,0,0,1,3,0,3,0,4,3,0,0,1,1)
+    last <- as.numeric(tab8w[36,colLabs[[4]][-c(1,2)]])
+    stopifnot(last == givenLast)
+}
+
+spotChecks <- function(){
+    cols <- colLabs[[4]][-c(1,2)]
+    obsTab8Jan11 <- c(0,1,3,0,49,1,6,2,2,1,1,17,6,0,9,0,2,0,0,1,4,1,0,0,6,2,1,0,1,3)
+    stopifnot(all(tab8w[tab8w$date == '2015-01-11',cols] == obsTab8Jan11))
+    obsTab8Nov16 <- c(0,1,1,2,6,1,6,0,14,0,2,3,4,1,5,0,4,0,0,1,14,0,0,0,8,1,0,0,2,7)
+    stopifnot(all(tab8w[tab8w$date == '2014-11-16',cols] == obsTab8Nov16))
+    cols <- colLabs[[2]][-c(1,2)]
+    obsTab3Jan4 <- c(0,0,0,0,26,2,1,0,0,0,2,1,0,6,1,0,0,1,5,1,0,0,3,0,0,0,0)
+    stopifnot(all(tab3w[tab3w$date == '2015-01-04',cols] == obsTab3Jan4))
+    obsTab3June1 <- c(0,0,0,0,13,3,2,0,0,7,3,8,0,5,1,0,0,1,1,2,0,0,0,0,0,0,0)
+    stopifnot(all(tab3w[tab3w$date == '2014-06-01',cols] == obsTab3June1))
+}
 
 m8 <- melt(tab8w, id.var='date', value.name='accessions')
 m3 <- melt(tab3w, id.var='date', value.name='confPresum')
