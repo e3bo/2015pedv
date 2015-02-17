@@ -158,8 +158,6 @@ mg <- merge(m3, m8)
 test <- mg$variable=='total'
 mg <- mg[!test, ]
 
-
-
 print('Correlation test of weekly counts of accessions vs. confirmed + presumptive premises:')
 cor.test(mg$confPresum, mg$accessions, method='spearman')
 
