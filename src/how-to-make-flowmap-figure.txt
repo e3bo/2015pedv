@@ -1,0 +1,27 @@
+
+Author: Eamon O'Dea
+Date: Feb. 17, 2015
+
+1. Obtain a copy of JFlowmap with the custom color schemes I made, or
+use version 0.16.6 from the [official
+website](https://code.google.com/p/jflowmap/) if you don't care about
+the colors.
+
+2. Start up the program with the flows configuration in a directory
+with the other files included in that configuration. Some of them are
+included in the data directory of this repository and others get
+produced by the mantel.r script.
+
+  java -jar jflowmap.jar ./flow.jfmv
+
+Note that "flows.jfmv" does not seem to be recognized as
+"./flows.jfmv".
+
+3. Open up the settings panel and turn off the end markers. Then
+perform edge bundling with the default settings and export an svg. You
+might have to adjust the view to get the legend to be the right size.
+
+4. Repeat steps 2 and 3 with the crossCorrelation.jfmv input file.
+
+5. Create the final figure using Inkscape to import the components,
+arrange them, and export PDF and PS.
