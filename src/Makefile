@@ -12,7 +12,7 @@ accessions-premises-correlation.r.so: accessions-premises-correlation.r flagData
 sim-panel.pdf: cor-sim-study-plots.r flagSims1
 	$< >$(<F).so 2>$(<F).se
 
-flagSims1: corSims-layer1.r flagSims1
+flagSims1: corSims-layer1.r flagSims0
 	$< >$(<F).so 2>$(<F).se && touch $@
 
 flagSims0: corSims-layer0.r flagSimulatorInstalled
