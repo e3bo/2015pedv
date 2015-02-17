@@ -178,7 +178,7 @@ tmpf <- function(){
 }
 
 stopifnot(all(rowSums(tab3w[,-c(1,29)]) == tab3w$total))
-stopifnot(all(rowSums(tab8w[-36,-c(1,32)]) == tab3w$total[-36]))
+stopifnot(all(rowSums(tab8w[-36,-c(1,32)]) == tab8w$total[-36]))
 ## Last row off by one, we check that our total matches sum of table entries here
 tmpf <- function() {
     givenLast <- c(0,1,0,0,40,0,8,3,1,0,2,11,11,0,17,0,2,0,0,1,3,0,3,0,4,3,0,0,1,1)
