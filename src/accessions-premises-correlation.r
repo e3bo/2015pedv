@@ -4,6 +4,9 @@ library(grImport)
 library(plyr)
 library(reshape2)
 
+Sys.setlocale("LC_TIME", "C") #Needed for identical()
+Sys.setlocale("LC_COLLATE", "C")
+
 pages <- c(5:6,10:11)
 tmpf <- function(x) paste0('pdftops -f ', x, ' -l ', x,
                            ' SECD_Situation_Report_150212.pdf p', x, '.ps')
