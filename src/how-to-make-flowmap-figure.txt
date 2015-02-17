@@ -14,8 +14,8 @@ produced by the mantel.r script.
 
   java -jar jflowmap.jar ./flow.jfmv
 
-Note that "flows.jfmv" does not seem to be recognized as
-"./flows.jfmv".
+Note that "flow.jfmv" does not seem to be recognized as
+"./flow.jfmv".
 
 3. Open up the settings panel and turn off the end markers. Then
 perform edge bundling with the default settings and export an svg. You

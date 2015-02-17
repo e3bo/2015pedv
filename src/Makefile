@@ -4,10 +4,10 @@ SD = /root/src
 DD = /root/data
 VPATH = $(SD):$(WD)
 
+all: flagMantel sim-panel.pdf flagAssocPlots flagTsirFigs accessions-premises-correlation.r.so
+
 accessions-premises-correlation.r.so: accessions-premises-correlation.r flagData
 	$< >$(<F).so 2>$(<F).se
-
-all: flagMantel sim-panel.pdf flagAssocPlots flagTsirFigs
 
 sim-panel.pdf: cor-sim-study-plots.r flagSims1
 	$< >$(<F).so 2>$(<F).se
