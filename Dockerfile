@@ -5,7 +5,8 @@ RUN apt-get update && apt-get install -y -q --no-install-recommends \
   poppler-utils \
   python3-lxml \
   python3-pkg-resources \
-  python3-pandas
+  python3-pandas \
+  r-cran-xml
 
 RUN install2.r --error \
   BatchExperiments \
