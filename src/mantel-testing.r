@@ -227,7 +227,38 @@ sink('mantel-table.txt')
 pander(des)
 sink()
 
+doPartialTest <- function(M1, M2, M3, symmetrize=FALSE, ...){
+    x <- getMat(M1)
+    y <- getMat(M2)
+    z <- getMat(M3)
+    if(symmetrize){
+        x <- (x + t(x))*0.5
+        y <- (y + t(y))*0.5
+    }
+    mantel.partial(x, y, z, ...)
+}
+
+desp <- data.frame(M1='shipment', M2='cor', M3='gcd', symmetrize=c(TRUE, FALSE),
+                   permutations=1000, stringsAsFactors=FALSE)
+
+resp <- list()
+for(i in seq_len(nrow(desp))){
+    print(i)
+    resp[[i]] <- do.call(doPartialTest, as.list(desp[i,]))
+}
+
+desp$r <- sapply(resp, '[[', 'statistic')
+desp$pValues <- sapply(resp, '[[', 'signif')
+
+sink('mantel-partial-table.txt')
+pander(desp)
+sink()
+
+
 save.image(file='mantel-testing-checkpoint1.RData')
+
+
+
 
 ## plotting
 
