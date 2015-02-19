@@ -13,9 +13,9 @@ hdir="/root"
 docker run -v ${ddir}:${hdir}/data:ro \
        -v ${sdir}:${hdir}/src:ro \
        -v ${wkdir}:${hdir}/work \
-       eamon/2015pedv /bin/bash -c "cd /root/work && make -f /root/src/Makefile"
+       eamon/2015pedv:v0.1 /bin/bash -c "cd /root/work && make -f /root/src/Makefile"
 
-# Currently, $wdir and its contents are always owned by root, so
+echo "Currently, $wdir and its contents are always owned by root, so you might want to"
 user=$(id -u)
 group=$(id -g)
-sudo chown -hR ${user}:${group} $wkdir 
+echo "     sudo chown -hR ${user}:${group} $wkdir "
