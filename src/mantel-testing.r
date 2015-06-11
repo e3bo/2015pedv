@@ -481,7 +481,7 @@ tmpf <- function(df){
     g <- g + facet_wrap(~variable, ncol=2, scales='free_y')
     g <- g + scale_x_date()
     g <- g + scale_y_discrete(breaks=pretty_breaks(n=2))
-    g <- g + xlab('2013-2014 Date') + ylab('Cases')
+    g <- g + xlab('2013-2014 Date') + ylab('Positive accessions')
     g <- g + theme_classic()
     g <- g + theme(strip.background = element_blank(),
                    strip.text.x = element_blank())
