@@ -503,12 +503,13 @@ tmpf <- function(){
     pushViewport(viewport(layout=lay))
     pushViewport(viewport(layout.pos.col=1, layout.pos.row=1))
     myPrintGGpairs(plotMatDirectedPearson, newpage=FALSE)
-    grid.text(label="A", x=unit(0, "npc") - unit(1.5, "lines"),
-              y=unit(1, "npc"), just= "left")
+    grid.text(label="a", x=unit(0, "npc") - unit(1.5, "lines"),
+              y=unit(1, "npc"), just= "left", gp=gpar(fontsize=12))
     popViewport()
     pushViewport(viewport(layout.pos.col=2, layout.pos.row=1))
     print(g, newpage=FALSE)
-    grid.text(label="B", x=unit(0, "npc"), y=unit(1, "npc"), just= "left")
+    grid.text(label="b", x=unit(0, "npc"), y=unit(1, "npc"),
+              just= "left",  gp=gpar(fontsize=12))
     popViewport()
 }
 

@@ -2,9 +2,9 @@
 ## well as gridlines. Also, translate the variable names to those used
 ## for plotting.
 ebo_ggally_diagAxis <-
-    function (data, mapping, labelSize = 4, labelXPercent = 0.55, 
+    function (data, mapping, labelSize = 3, labelXPercent = 0.55, 
               labelYPercent = 0.55, labelHJust = 0.5, labelVJust = 0.5, 
-              gridLabelSize = 4, suppressY=FALSE, suppressX=FALSE, ...) 
+              gridLabelSize = 3, suppressY=FALSE, suppressX=FALSE, ...) 
 {
     mapping$y <- NULL
     numer <- !((is.factor(data[, as.character(mapping$x)])) || 
@@ -12,7 +12,7 @@ ebo_ggally_diagAxis <-
     if (numer) {
         label <- switch(mapping$x, 'cor'='CC',
                         'shipment'='log10(flows)',
-                        'gcd'='-GCD')
+                        'gcd'='-distance')
         if(mapping$x=='gcd'){
             # to avoid crowding in small figures
             data <- data/1000
