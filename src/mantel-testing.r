@@ -398,25 +398,25 @@ theme_update(panel.grid.major=element_blank(), panel.grid.minor=element_blank(),
 
 
 pm <- makePlotMat(dfl=matData, type='directed', transform='ranked')
-pdf(file='ggpairs-spearman-directed.pdf', width=8.6/2.54, height=8.6/2.54) 
+pdf(file='ggpairs-spearman-directed.pdf', width=8.6/2.54, height=8.6/2.54)
 print(pm)
 dev.off()
 
 pm <- makePlotMat(dfl=matData, type='undirected', transform='ranked')
-pdf(file='ggpairs-spearman-undirected.pdf', width=8.6/2.54, height=8.6/2.54) 
+pdf(file='ggpairs-spearman-undirected.pdf', width=8.6/2.54, height=8.6/2.54)
 print(pm)
 dev.off()
 
 pm <- makePlotMat(dfl=matData, type='directed', transform='original',
                   labelBreaks=TRUE, gridLabelSize=2.0)
 plotMatDirectedPearson <- pm
-pdf(file='ggpairs-pearson-directed.pdf', width=9.5/2.54, height=6.6/2.54) 
+pdf(file='ggpairs-pearson-directed.pdf', width=9.5/2.54, height=6.6/2.54)
 print(pm)
 dev.off()
 
 pm <- makePlotMat(dfl=matData, type='undirected', transform='original',
                   labelBreaks=TRUE)
-pdf(file='ggpairs-pearson-undirected.pdf', width=11.4/2.54, height=1.2*8.6/2.54) 
+pdf(file='ggpairs-pearson-undirected.pdf', width=11.4/2.54, height=1.2*8.6/2.54)
 print(pm)
 dev.off()
 
@@ -457,7 +457,7 @@ makeImagePlot(M=data.matrix(epl), orderings=orderings, xlab='Destination', ylab=
 par(mar=c(4,4.5,1,.5))
 CCnoDiag <- CC
 diag(CCnoDiag) <- NA
-makeImagePlot(M=data.matrix(CCnoDiag), orderings=orderings, xlab='Leading state', ylab='Lagging state', 
+makeImagePlot(M=data.matrix(CCnoDiag), orderings=orderings, xlab='Leading state', ylab='Lagging state',
               legend.args=list(text='Cross correlation', line=2.9, side=4), panelLab='B')
 dev.off()
 
@@ -486,12 +486,15 @@ tmpf <- function(df){
     g <- g + theme(strip.background = element_blank(),
                    strip.text.x = element_blank())
     g <- g + theme(plot.margin=unit(c(0,2,2,0),"mm"))
-    g <- g + geom_text(data=labdf, hjust=0, vjust=1,
+    g <- g + geom_text(data=labdf, hjust=0, vjust=1, size=10 * 0.35,
                        aes(x=minx, y=maxy, label=variable))
     g <- g + theme(axis.title.x = element_text(vjust=-0.5))
+    g <- g + theme(text = element_text(size=10))
 }
 
 g <- tmpf(mts)
+
+
 ggsave('ts.pdf', width=8.6/2.54, height=6/2.54)
 
 ### composite time series and scatterplot matrix
@@ -504,12 +507,12 @@ tmpf <- function(){
     pushViewport(viewport(layout.pos.col=1, layout.pos.row=1))
     myPrintGGpairs(plotMatDirectedPearson, newpage=FALSE)
     grid.text(label="a", x=unit(0, "npc") - unit(1.5, "lines"),
-              y=unit(1, "npc"), just= "left", gp=gpar(fontsize=12))
+              y=unit(1, "npc"), just= "left", gp=gpar(fontsize=10))
     popViewport()
     pushViewport(viewport(layout.pos.col=2, layout.pos.row=1))
     print(g, newpage=FALSE)
     grid.text(label="b", x=unit(0, "npc"), y=unit(1, "npc"),
-              just= "left",  gp=gpar(fontsize=12))
+              just= "left",  gp=gpar(fontsize=10))
     popViewport()
 }
 
@@ -520,6 +523,3 @@ dev.off()
 cairo_pdf(filename = 'plotMatrixWithTimeSeries.pdf', width = 19/2.54, height = 6.4/2.54)
 tmpf()
 dev.off()
-
-
-

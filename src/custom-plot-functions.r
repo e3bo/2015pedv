@@ -2,28 +2,28 @@
 ## well as gridlines. Also, translate the variable names to those used
 ## for plotting.
 ebo_ggally_diagAxis <-
-    function (data, mapping, labelSize = 3, labelXPercent = 0.55, 
-              labelYPercent = 0.55, labelHJust = 0.5, labelVJust = 0.5, 
-              gridLabelSize = 3, suppressY=FALSE, suppressX=FALSE, ...) 
+    function (data, mapping, labelSize = 3, labelXPercent = 0.55,
+              labelYPercent = 0.55, labelHJust = 0.5, labelVJust = 0.5,
+              gridLabelSize = 3, suppressY=FALSE, suppressX=FALSE, ...)
 {
     mapping$y <- NULL
-    numer <- !((is.factor(data[, as.character(mapping$x)])) || 
+    numer <- !((is.factor(data[, as.character(mapping$x)])) ||
                (is.character(data[, as.character(mapping$x)])))
     if (numer) {
-        label <- switch(mapping$x, 'cor'='CC',
-                        'shipment'='log10(flows)',
-                        'gcd'='-distance')
+        label <- switch(mapping$x, 'cor'='cross-\ncorrelation',
+                        'shipment'='log10(#swine / y)',
+                        'gcd'='-distance\n(1,000 km)')
         if(mapping$x=='gcd'){
             # to avoid crowding in small figures
             data <- data/1000
         }
         xmin <- min(data[, as.character(mapping$x)], na.rm = TRUE)
         xmax <- max(data[, as.character(mapping$x)], na.rm = TRUE)
-        xrange <- c(xmin - 0.01 * (xmax - xmin), xmax + 0.01 * 
+        xrange <- c(xmin - 0.01 * (xmax - xmin), xmax + 0.01 *
                     (xmax - xmin))
-        p <- ggally_text(label = label, mapping = aes(col = "grey50"), 
-                         xrange = xrange, yrange = xrange, size = labelSize, 
-                         xP = labelXPercent, yP = labelYPercent, hjust = labelHJust, 
+        p <- ggally_text(label = label, mapping = aes(col = "grey50"),
+                         xrange = xrange, yrange = xrange, size = labelSize,
+                         xP = labelXPercent, yP = labelYPercent, hjust = labelHJust,
                          vjust = labelVJust)
         p <- p + theme(panel.grid.major=element_blank())
         axisBreaks <- GGally:::get_x_axis_labels(p, xrange)
@@ -52,18 +52,18 @@ ebo_ggally_diagAxis <-
 }
 
 myPrintGGpairs <-
-    function (x, leftWidthProportion = 0.2, bottomHeightProportion = 0.1, 
-              spacingProportion = 0.03, showStrips = NULL, newpage=TRUE, ...) 
+    function (x, leftWidthProportion = 0.2, bottomHeightProportion = 0.1,
+              spacingProportion = 0.03, showStrips = NULL, newpage=TRUE, ...)
 {
     ## adapted from GGally:::print.ggpairs
-    vplayout <- function (x, y) 
+    vplayout <- function (x, y)
     {
         viewport(layout.pos.row = x, layout.pos.col = y)
     }
 
-    is_blank_plot <- function (p) 
+    is_blank_plot <- function (p)
     {
-        if (!is.null(p$subType) && !is.null(p$type)) 
+        if (!is.null(p$subType) && !is.null(p$type))
             p$subType == "blank" && p$type == "blank"
         else FALSE
     }
@@ -71,59 +71,59 @@ myPrintGGpairs <-
     if (identical(plotObj$axisLabels, "internal")) {
         v1 <- viewport(y = unit(0.5, "npc") + unit(1, "lines"),
                        x = unit(0.5, "npc") - unit(1, "lines"),
-                       width = unit(1, "npc") - unit(1, "lines"), height = unit(1, 
+                       width = unit(1, "npc") - unit(1, "lines"), height = unit(1,
                                                                       "npc") - unit(2, "lines"))
     }
     else {
-        v1 <- viewport(width = unit(1, "npc") - unit(3, "lines"), 
+        v1 <- viewport(width = unit(1, "npc") - unit(3, "lines"),
                        height = unit(1, "npc") - unit(3, "lines"))
     }
     numCol <- length(plotObj$columns)
     if (identical(plotObj$axisLabels, "show")) {
         showLabels <- TRUE
-        viewPortWidths <- c(leftWidthProportion, 1, rep(c(spacingProportion, 
+        viewPortWidths <- c(leftWidthProportion, 1, rep(c(spacingProportion,
                                                           1), numCol - 1))
-        viewPortHeights <- c(rep(c(1, spacingProportion), numCol - 
+        viewPortHeights <- c(rep(c(1, spacingProportion), numCol -
                                  1), 1, bottomHeightProportion)
     }
     else {
         showLabels <- FALSE
-        viewPortWidths <- c(1, rep(c(spacingProportion, 1), numCol - 
+        viewPortWidths <- c(1, rep(c(spacingProportion, 1), numCol -
                                    1))
-        viewPortHeights <- c(rep(c(1, spacingProportion), numCol - 
+        viewPortHeights <- c(rep(c(1, spacingProportion), numCol -
                                  1), 1)
     }
     viewPortCount <- length(viewPortWidths)
-    v2 <- viewport(layout = grid.layout(viewPortCount, viewPortCount, 
+    v2 <- viewport(layout = grid.layout(viewPortCount, viewPortCount,
                        widths = viewPortWidths, heights = viewPortHeights))
     if(newpage) grid.newpage()
     if (plotObj$title != "") {
-        pushViewport(viewport(height = unit(1, "npc") - unit(0.4, 
+        pushViewport(viewport(height = unit(1, "npc") - unit(0.4,
                                   "lines")))
-        grid.text(plotObj$title, x = 0.5, y = 1, just = c(0.5, 
+        grid.text(plotObj$title, x = 0.5, y = 1, just = c(0.5,
                                                      1), gp = gpar(fontsize = 15))
         popViewport()
     }
     if (!identical(plotObj$axisLabels, "internal")) {
-        pushViewport(viewport(width = unit(1, "npc") - unit(2, 
+        pushViewport(viewport(width = unit(1, "npc") - unit(2,
                                   "lines"), height = unit(1, "npc") - unit(3, "lines")))
-        pushViewport(viewport(layout = grid.layout(viewPortCount, 
+        pushViewport(viewport(layout = grid.layout(viewPortCount,
                                   viewPortCount, widths = viewPortWidths, heights = viewPortHeights)))
         for (i in 1:numCol) {
-            grid.text(plotObj$columnLabels[i], 0, 0.5, rot = 90, 
-                      just = c("centre", "centre"), vp = vplayout(as.numeric(i) * 
+            grid.text(plotObj$columnLabels[i], 0, 0.5, rot = 90,
+                      just = c("centre", "centre"), vp = vplayout(as.numeric(i) *
                                                         2 - 1, 1))
         }
         popViewport()
         popViewport()
-        pushViewport(viewport(width = unit(1, "npc") - unit(3, 
+        pushViewport(viewport(width = unit(1, "npc") - unit(3,
                                   "lines"), height = unit(1, "npc") - unit(2, "lines")))
-        pushViewport(viewport(layout = grid.layout(viewPortCount, 
+        pushViewport(viewport(layout = grid.layout(viewPortCount,
                                   viewPortCount, widths = viewPortWidths, heights = viewPortHeights)))
         for (i in 1:numCol) {
-            grid.text(plotObj$columnLabels[i], 0.5, 0, just = c("centre", 
-                                                           "centre"), vp = vplayout(ifelse(showLabels, 2 * 
-                                                                          numCol, 2 * numCol - 1), ifelse(showLabels, 2 * 
+            grid.text(plotObj$columnLabels[i], 0.5, 0, just = c("centre",
+                                                           "centre"), vp = vplayout(ifelse(showLabels, 2 *
+                                                                          numCol, 2 * numCol - 1), ifelse(showLabels, 2 *
                                                                                                           i, 2 * i - 1)))
         }
         popViewport()
@@ -145,11 +145,11 @@ myPrintGGpairs <-
                 pAxisLabels <- gtable_filter(pGtable, "axis-l")
                 grobLength <- length(pAxisLabels$grobs)
                 leftAxisLayoutHeight <- rep(c(0.1, 1), grobLength)[-1]
-                leftAxisLayoutHeightUnits <- rep(c("lines", "null"), 
+                leftAxisLayoutHeightUnits <- rep(c("lines", "null"),
                                                  grobLength)[-1]
-                vpLAxis <- viewport(layout = grid.layout(nrow = 2 * 
-                                        grobLength - 1, ncol = 1, widths = unit(1, 
-                                                                      "null"), heights = unit(leftAxisLayoutHeight, 
+                vpLAxis <- viewport(layout = grid.layout(nrow = 2 *
+                                        grobLength - 1, ncol = 1, widths = unit(1,
+                                                                      "null"), heights = unit(leftAxisLayoutHeight,
                                                                                    leftAxisLayoutHeightUnits)))
                 pushViewport(vplayout(rowPos * 2 - 1, 1))
                 pushViewport(vpLAxis)
@@ -168,11 +168,11 @@ myPrintGGpairs <-
                 pAxisLabels <- gtable_filter(pGtable, "axis-b")
                 grobLength <- length(pAxisLabels$grobs)
                 botAxisLayoutWidth <- rep(c(0.1, 1), grobLength)[-1]
-                botAxisLayoutWidthUnits <- rep(c("lines", "null"), 
+                botAxisLayoutWidthUnits <- rep(c("lines", "null"),
                                                grobLength)[-1]
-                vpBAxis <- viewport(layout = grid.layout(nrow = 1, 
-                                        ncol = 2 * grobLength - 1, heights = unit(1, 
-                                                                       "null"), widths = unit(botAxisLayoutWidth, 
+                vpBAxis <- viewport(layout = grid.layout(nrow = 1,
+                                        ncol = 2 * grobLength - 1, heights = unit(1,
+                                                                       "null"), widths = unit(botAxisLayoutWidth,
                                                                                     botAxisLayoutWidthUnits)))
                 pushViewport(vplayout(2 * numCol, 2 * columnPos))
                 pushViewport(vpBAxis)
@@ -210,7 +210,7 @@ myPrintGGpairs <-
             layoutTB <- layoutInfo[, c("t", "b")]
             layoutLR <- layoutInfo[, c("l", "r")]
             pPanel <- pGtable[min(layoutTB):max(layoutTB), min(layoutLR):max(layoutLR)]
-            pushViewport(vplayout(2 * rowPos - 1, ifelse(showLabels, 
+            pushViewport(vplayout(2 * rowPos - 1, ifelse(showLabels,
                                                          2 * columnPos, 2 * columnPos - 1)))
             suppressMessages(suppressWarnings(grid.draw(pPanel)))
             popViewport()
@@ -241,8 +241,8 @@ image.plot.ebo <- function (..., add = FALSE, nlevel = 64, horizontal = FALSE,
     if (is.null(legend.mar)) {
         legend.mar <- ifelse(horizontal, 3.1, 5.1)
     }
-    temp <- imageplot.setup(add = add, legend.shrink = legend.shrink, 
-                            legend.width = legend.width, legend.mar = legend.mar, 
+    temp <- imageplot.setup(add = add, legend.shrink = legend.shrink,
+                            legend.width = legend.width, legend.mar = legend.mar,
                             horizontal = horizontal, bigplot = bigplot, smallplot = smallplot)
     smallplot <- temp$smallplot
     bigplot <- temp$bigplot
@@ -254,20 +254,20 @@ image.plot.ebo <- function (..., add = FALSE, nlevel = 64, horizontal = FALSE,
             image(..., add = add, col = col, axes=FALSE)
             addAxis1 <- function(x, y, z,...){
                 labs <- paste(names(y), c('', '      '))
-                axis(1, at=y, labels = labs, las = 2, line = -0.5, tick = 0, 
+                axis(1, at=y, labels = labs, las = 2, line = -0.5, tick = 0,
         cex.axis = 0.8)
             }
             addAxis1(...)
             addAxis2 <- function(x, y, z,...){
                 labs <- paste(names(x), c('', '      '))
-                axis(2, at=x, labels = labs, las = 1, line = -0.5, tick = 0, 
+                axis(2, at=x, labels = labs, las = 1, line = -0.5, tick = 0,
         cex.axis = 0.8)
             }
             addAxis2(...)
             mtext(panelLab, side=2, las=2, at=par()$usr[2], line=par()$mar[2] - 1, cex=1.5)
         }
         else {
-            poly.image(..., add = add, col = col, midpoint = midpoint, 
+            poly.image(..., add = add, col = col, midpoint = midpoint,
                        border = border, lwd.poly = lwd)
         }
         big.par <- par(no.readonly = TRUE)
@@ -286,39 +286,39 @@ image.plot.ebo <- function (..., add = FALSE, nlevel = 64, horizontal = FALSE,
     breaks <- list(...)$breaks
     par(new = TRUE, pty = "m", plt = smallplot, err = -1)
     if (!is.null(breaks) & !is.null(lab.breaks)) {
-        axis.args <- c(list(side = ifelse(horizontal, 1, 4), 
-                            mgp = c(3, 1, 0), las = ifelse(horizontal, 0, 2), 
+        axis.args <- c(list(side = ifelse(horizontal, 1, 4),
+                            mgp = c(3, 1, 0), las = ifelse(horizontal, 0, 2),
                             at = breaks, labels = lab.breaks), axis.args)
     }
     else {
-        axis.args <- c(list(side = ifelse(horizontal, 1, 4), 
-                            mgp = c(3, 1, 0), las = ifelse(horizontal, 0, 2)), 
+        axis.args <- c(list(side = ifelse(horizontal, 1, 4),
+                            mgp = c(3, 1, 0), las = ifelse(horizontal, 0, 2)),
                        axis.args)
     }
     if (!horizontal) {
         if (is.null(breaks)) {
-            image(ix, iy, iz, xaxt = "n", yaxt = "n", xlab = "", 
+            image(ix, iy, iz, xaxt = "n", yaxt = "n", xlab = "",
                   ylab = "", col = col)
         }
         else {
-            image(ix, iy, iz, xaxt = "n", yaxt = "n", xlab = "", 
+            image(ix, iy, iz, xaxt = "n", yaxt = "n", xlab = "",
                   ylab = "", col = col, breaks = breaks)
         }
     }
     else {
         if (is.null(breaks)) {
-            image(iy, ix, t(iz), xaxt = "n", yaxt = "n", xlab = "", 
+            image(iy, ix, t(iz), xaxt = "n", yaxt = "n", xlab = "",
                   ylab = "", col = col)
         }
         else {
-            image(iy, ix, t(iz), xaxt = "n", yaxt = "n", xlab = "", 
+            image(iy, ix, t(iz), xaxt = "n", yaxt = "n", xlab = "",
                   ylab = "", col = col, breaks = breaks)
         }
     }
     do.call("axis", axis.args)
     box()
     if (!is.null(legend.lab)) {
-        legend.args <- list(text = legend.lab, side = ifelse(horizontal, 
+        legend.args <- list(text = legend.lab, side = ifelse(horizontal,
                                                    1, 4), line = legend.line)
     }
     if (!is.null(legend.args)) {
@@ -397,12 +397,13 @@ makePlotMat <- function(dfl, type=c('directed', 'undirected'),
             r <- round(mg$r, 2)
             colNumber <- round(r*9, 0)
             label <- paste(r, symp)
-            plt <- ggplot() + geom_text(label=label, aes(x=0.5, y=0.5), colour='black')
+            plt <- ggplot() + geom_text(label=label, aes(x=0.5, y=0.5), colour='black',
+                                        size=10 * 0.3)
             plt <- plt + xlim(c(0,1)) + ylim(c(0,1))
             plt <- plt + theme(panel.background=element_rect(fill=pal[colNumber]),
                                legend.position='none')
             plt <- plt + labs(x=NULL,y=NULL)
-            pm <- putPlot(pm, plt, i, j)        
+            pm <- putPlot(pm, plt, i, j)
         }
     }
     if(labelBreaks){
@@ -415,7 +416,7 @@ makePlotMat <- function(dfl, type=c('directed', 'undirected'),
                                          suppressX=TRUE, suppressY=FALSE, gridLabelSize=gridLabelSize)
             } else {
                 g <- ebo_ggally_diagAxis(pm$data, mapping=list(x=mats2[i], y=mats2[i]),
-                                         suppressX=FALSE, suppressY=FALSE, gridLabelSize=gridLabelSize)                
+                                         suppressX=FALSE, suppressY=FALSE, gridLabelSize=gridLabelSize)
             }
             pm <- putPlot(pm, g, i, i)
         }
