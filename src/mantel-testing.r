@@ -476,8 +476,8 @@ labdf$minx[labdf$variable == 'OK'] <- as.Date('2013-11-01')
 
 tmpf <- function(df){
     g <- ggplot(df, aes(x=x, y=value, group=variable))
-    g <- g + geom_hline(yintercept=0, size=0.5, col='grey')
-    g <- g + geom_step(direction="vh")
+    g <- g + geom_hline(yintercept=0, size=0.25, col='grey')
+    g <- g + geom_step(direction="vh", size=0.25)
     g <- g + facet_wrap(~variable, ncol=2, scales='free_y')
     g <- g + scale_x_date()
     g <- g + scale_y_discrete(breaks=pretty_breaks(n=2))
@@ -490,6 +490,7 @@ tmpf <- function(df){
                        aes(x=minx, y=maxy, label=variable))
     g <- g + theme(axis.title.x = element_text(vjust=-0.5))
     g <- g + theme(text = element_text(size=10))
+    g <- g + theme(line = element_line(size=0.25))
 }
 
 g <- tmpf(mts)
