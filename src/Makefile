@@ -18,7 +18,7 @@ flagSims1: corSims-layer1.r flagSims0
 flagSims0: corSims-layer0.r flagSimulatorInstalled
 	$< >$(<F).so 2>$(<F).se && touch $@
 
-flagSimulatorInstalled: $(shell find /root/src/duoDynamics) .BatchJobs.R
+flagSimulatorInstalled: $(shell find $(SD)/duoDynamics) .BatchJobs.R
 	R CMD build $(SD)/duoDynamics && R CMD INSTALL duoDynamics_1.0.tar.gz && cp $(SD)/.BatchJobs.R . && touch $@
 
 flagMantel: mantel-testing.r custom-plot-functions.r flagData flagWeeklyReports flagPedvCum
