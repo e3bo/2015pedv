@@ -452,13 +452,13 @@ pdf('matrices.pdf', width=8.7/2.54, height=12/2.54)
 layout(matrix(1:2, ncol=1))
 par(mar=c(4,4.5,.5,.5))
 makeImagePlot(M=data.matrix(epl), orderings=orderings, xlab='Destination', ylab='Source',
-              legend.args=list(text=expression(paste(Log[10], '(transport flow)')),
-                  line=2.9, side=4), panelLab='A')
+              legend.args=list(text=expression(paste(Log[10], '(#swine / y)')),
+                  line=2.9, side=4), panelLab='a')
 par(mar=c(4,4.5,1,.5))
 CCnoDiag <- CC
 diag(CCnoDiag) <- NA
 makeImagePlot(M=data.matrix(CCnoDiag), orderings=orderings, xlab='Leading state', ylab='Lagging state',
-              legend.args=list(text='Cross correlation', line=2.9, side=4), panelLab='B')
+              legend.args=list(text='Cross correlation', line=2.9, side=4), panelLab='b')
 dev.off()
 
 ### time series

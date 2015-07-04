@@ -10,7 +10,7 @@ ebo_ggally_diagAxis <-
     numer <- !((is.factor(data[, as.character(mapping$x)])) ||
                (is.character(data[, as.character(mapping$x)])))
     if (numer) {
-        label <- switch(mapping$x, 'cor'='Cross-\ncorrelation',
+        label <- switch(mapping$x, 'cor'='Cross\ncorrelation',
                         'shipment'='Log10(#swine / y)',
                         'gcd'='-Distance\n(1,000 km)')
         if(mapping$x=='gcd'){
@@ -264,7 +264,7 @@ image.plot.ebo <- function (..., add = FALSE, nlevel = 64, horizontal = FALSE,
         cex.axis = 0.8)
             }
             addAxis2(...)
-            mtext(panelLab, side=2, las=2, at=par()$usr[2], line=par()$mar[2] - 1, cex=1.5)
+            mtext(panelLab, side=2, las=2, at=par()$usr[2], line=par()$mar[2] - 1, cex=1)
         }
         else {
             poly.image(..., add = add, col = col, midpoint = midpoint,

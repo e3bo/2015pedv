@@ -140,10 +140,10 @@ tmpf <- function() {
   tf <- format.df(tab)
   align <- paste(attr(tf, "col.just"), collapse="|")
   align <- paste('|', align, '|', sep='')
-  longnames <- c(flowTerm='\\bf Flow term', baseline='\\bf Fit $\\eta$',
-                 disp='\\bf Intercept', df='\\bf d.f.', llik='\\bf Log lik.',
-                 deltaAIC='\\bf $\\Delta$ AIC', resd='\\bf $\\hat{\\sigma}$',
-                 int='{\\bf Intercept}')
+  longnames <- c(flowTerm='Flow term', baseline='Fit $\\eta$?',
+                 disp='$\\hat{\\theta}$', df='d.f.', llik='Log lik.',
+                 deltaAIC='$\\Delta$ AIC', resd='$\\hat{\\sigma}$',
+                 int='Intercept')
   colnames(tab) <- longnames[colnames(tf)]
   tab <- latexTabular(tab, helvetica=FALSE, align=align, translate=FALSE,
                    cdec=c(0,0,1,2,2,0,1,1))
