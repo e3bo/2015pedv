@@ -51,8 +51,10 @@ fund$casesJittered <- runif(fund$cases, min=-1, max=1)*0.2 + fund$cases
 g <- ggplot(data=fund, aes(x=log10UndirectedFlow, y=casesJittered))
 g <- g + geom_point(col="#4477AA", alpha=.5)
 g <- g + geom_line(aes(y=smoothpred), col='red')
-g <- g + labs(x='Log10(transport flow)', y='Cases')
+g <- g + labs(x='Log10(#swine / y)', y='Positive accessions')
 g <- g + coord_trans(y="log1p")
+g <- g + theme(text = element_text(size=10))
+g <- g + theme(line = element_line(size=0.25))
 
 ggsave('flows-prediction.eps', width=4, height=4, pointsize=12, device=cairo_ps)
 ggsave('flows-prediction.pdf', width=4, height=4, pointsize=12, device=cairo_pdf)
@@ -80,14 +82,14 @@ ests <- cbind(ests, baseline=c(hund$maximum, hdir$maximum, hint$maximum))
 sds <- cbind(sds, baseline=0)
 
 tmpf <- function() {
-    longnames <- c(flow='Scaled transport flow', inf='Cases last week',
-                   week='Scaled week', dense='Scaled farm density', baseline='Baseline risk') 
+    longnames <- c(flow='Scaled log10(#swine / y)', inf='Positive accessions last week',
+                   week='Scaled week', dense='Scaled #farms / km^2', baseline='Baseline risk') 
     pal <- c("blue"="#4477AA", "red"="#DDCC77", "yellow"="#CC6677")
     pch <- 15:17
     for(i in seq_len(nrow(ests))){
         coefplot2(ests[i, ], sds[i, ], varnames=longnames[colnames(ests)],
                   offset=(i-1)/10, col=pal[i], add=i>1, pch=pch[i],
-                  main="Regression estimates")
+                  main="Regression estimates", cex.main=1, font.main=1)
     }
     legend('topright', legend=c('undirected', 'directed', 'none'), col=pal, pch=pch, title='Interstate flow')
 }

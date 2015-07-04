@@ -23,6 +23,7 @@ g <- g + scale_color_manual(values=colScale)
 g <- g + stat_sum_df("mean_cl_normal", geom = "smooth")
 g <- g + scale_y_continuous(limits=c(-0.15,0.85))
 g <- g + theme_classic()
+g <- g + theme(text = element_text(size=10))
 ## Because label from adjacent plot gets partially covered with opaque background
 g <- g + theme(plot.background = element_rect(fill = "transparent",colour = NA))
 pCohesion <- g + theme(legend.position='none')
@@ -35,6 +36,7 @@ g <- g + stat_sum_df("mean_cl_normal", geom = "smooth")
 g <- g + scale_color_manual(values=colScale)
 g <- g + scale_y_continuous(limits=c(-0.15,0.85))
 g <- g + theme_classic()
+g <- g + theme(text = element_text(size=10))
 #g <- g + theme(axis.title.x=element_text(hjust=1))
 pNedges <- g + theme(legend.position='none')
 
@@ -47,6 +49,7 @@ g <- g + labs(x='R0 baseline\n', y='Cross correlation')
 g <- g + scale_x_log10(breaks=c(.5,1,2))
 g <- g + scale_y_continuous(limits=c(-0.15,0.85))
 g <- g + theme_classic()
+g <- g + theme(text = element_text(size=10))
 pR0 <- g
 
 test <- rdf$expectedIntros == 1 & rdf$R0baseline == 1
@@ -61,6 +64,7 @@ g <- g + labs(x='Capacity\nfactor', y='Cross correlation')
 g <- g + scale_x_log10(breaks=c(.5,1,2))
 g <- g + scale_y_continuous(limits=c(-0.15,0.85))
 g <- g + theme_classic()
+g <- g + theme(text = element_text(size=10))
 pCoupFac <- g
 
 # make wiring diagrams
@@ -91,22 +95,22 @@ tmpf <- function(){
     pushViewport(viewport(layout=lay))
     pushViewport(viewport(layout.pos.col=1, layout.pos.row=1))
     print(pR0, newpage=FALSE)
-    grid.text(label="A", x=unit(0, "npc") - unit(0.2, "lines"),
+    grid.text(label="a", x=unit(0, "npc") - unit(0.2, "lines"),
               y=unit(.95, "npc"), just= "left")
     popViewport()
     pushViewport(viewport(layout.pos.col=2, layout.pos.row=1))
     print(pCoupFac + labs(y=NULL), newpage=FALSE)
-    grid.text(label="B", x=unit(0, "npc") - unit(0., "lines"),
+    grid.text(label="b", x=unit(0, "npc") - unit(0., "lines"),
               y=unit(.95, "npc"), just= "left")
     popViewport()
     pushViewport(viewport(layout.pos.col=3, layout.pos.row=1))
     print(pNedges + labs(y=NULL), newpage=FALSE)
-    grid.text(label="C", x=unit(0, "npc") - unit(0., "lines"),
+    grid.text(label="c", x=unit(0, "npc") - unit(0., "lines"),
               y=unit(.95, "npc"), just= "left")
     popViewport()
     pushViewport(viewport(layout.pos.col=4, layout.pos.row=1))
     print(pCohesion + labs(y=NULL), newpage=FALSE)
-    grid.text(label="D", x=unit(0, "npc") - unit(0., "lines"),
+    grid.text(label="d", x=unit(0, "npc") - unit(0., "lines"),
               y=unit(.95, "npc"), just= "left")
     popViewport()
     pushViewport(viewport(layout.pos.col=5, layout.pos.row=1))
@@ -135,7 +139,7 @@ tmpf <- function(){
     grid.text(label='Reciprocally\nunbalanced', gp=gpar(fontsize=10))
     popViewport()
     pushViewport(viewport(layout.pos.col=3, layout.pos.row=1))
-    grid.text(label='Wiring scheme', gp=gpar(fontsize=12, fontface=1))
+    grid.text(label='Wiring scheme', gp=gpar(fontsize=10, fontface=1))
     popViewport()
     pushViewport(viewport(layout.pos.col=2, layout.pos.row=2))
     grid.circle(gp=gpar(fill=colScale["degreeBalanced"], alpha=0.75, col="transparent"))

@@ -10,9 +10,9 @@ ebo_ggally_diagAxis <-
     numer <- !((is.factor(data[, as.character(mapping$x)])) ||
                (is.character(data[, as.character(mapping$x)])))
     if (numer) {
-        label <- switch(mapping$x, 'cor'='cross-\ncorrelation',
-                        'shipment'='log10(#swine / y)',
-                        'gcd'='-distance\n(1,000 km)')
+        label <- switch(mapping$x, 'cor'='Cross-\ncorrelation',
+                        'shipment'='Log10(#swine / y)',
+                        'gcd'='-Distance\n(1,000 km)')
         if(mapping$x=='gcd'){
             # to avoid crowding in small figures
             data <- data/1000
