@@ -192,6 +192,11 @@ for(i in seq_len(n)){
 
 colnames(centerDists) <- rownames(centerDists) <- colnames(CC)
 
+getDesc <- function(x) {
+  M <- getMat(x)
+  M[upper.tri(M)]
+}
+
 ## hypothesis tesing
 
 getMat <- function(x) switch(x, 'shipment'=epl, 'cor'=CC,
@@ -226,6 +231,14 @@ des$pValues <- sapply(res, '[[', 'signif')
 sink('mantel-table.txt')
 pander(des)
 sink()
+
+## get Descriptive stats
+
+desc <- sapply(c('shipment', 'cor', 'gcd'), getDesc)
+latex(describe(desc), file='mantel-describe.tex')
+
+## partial tests
+
 
 doPartialTest <- function(M1, M2, M3, symmetrize=FALSE, ...){
     x <- getMat(M1)
