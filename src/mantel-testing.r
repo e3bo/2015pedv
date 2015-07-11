@@ -3,6 +3,7 @@
 library(fields)
 library(GGally)
 library(ggplot2)
+library(Hmisc)
 library(igraph)
 library(mapproj)
 library(maps)
@@ -235,7 +236,7 @@ sink()
 ## get Descriptive stats
 
 desc <- sapply(c('shipment', 'cor', 'gcd'), getDesc)
-latex(describe(desc), file='mantel-describe.tex')
+invisible(latex(describe(desc), file='mantel-describe.tex'))
 
 ## partial tests
 

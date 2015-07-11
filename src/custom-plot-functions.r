@@ -377,7 +377,7 @@ make_choropleth <- function(fill_var=c('Cases', 'Inventory'), trans='log10'){
 }
 
 makePlotMat <- function(dfl, type=c('directed', 'undirected'),
-                        transform=c('ranked', 'original'), labelBreaks=FALSE, gridLabelSize=4,
+                        transform=c('ranked', 'original'), labelBreaks=FALSE, gridLabelSize=4, useSymp=FALSE,
                         ...){
     type <- match.arg(type)
     transform <- match.arg(transform)
@@ -396,7 +396,11 @@ makePlotMat <- function(dfl, type=c('directed', 'undirected'),
                            symbols = c("***","**","*","."," "))
             r <- round(mg$r, 2)
             colNumber <- round(r*9, 0)
-            label <- paste(r, symp)
+            if (useSymp){
+              label <- paste(r, symp, sep='\n')
+            } else {
+              label <- paste(r, signif(mg$pValues, digits=2), sep='\n')
+            }
             plt <- ggplot() + geom_text(label=label, aes(x=0.5, y=0.5), colour='black',
                                         size=10 * 0.3)
             plt <- plt + xlim(c(0,1)) + ylim(c(0,1))
