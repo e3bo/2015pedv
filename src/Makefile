@@ -4,7 +4,7 @@ SD = /root/src
 DD = /root/data
 VPATH = $(SD):$(WD)
 
-all: accessions-premises-correlation.r.so flagMantel flagAssocPlots flagTsirFigs sim-panel.pdf
+all: accessions-premises-correlation.r.so flagMantelPlots flagAssocPlots flagTsirFigs sim-panel.pdf
 
 accessions-premises-correlation.r.so: accessions-premises-correlation.r flagData
 	$< >$(<F).so 2>$(<F).se
@@ -21,8 +21,11 @@ flagSims0: corSims-layer0.r flagSimulatorInstalled
 flagSimulatorInstalled: $(shell find $(SD)/duoDynamics) .BatchJobs.R
 	R CMD build $(SD)/duoDynamics && R CMD INSTALL duoDynamics_1.0.tar.gz && cp $(SD)/.BatchJobs.R . && touch $@
 
-flagMantel: mantel-testing.r custom-plot-functions.r flagData flagWeeklyReports flagPedvCum
+flagMantelPlots: mantel-plots.r custom-plot-functions.r flagMantel
 	cp $(SD)/custom-plot-functions.r . && $< >$(<F).so 2>$(<F).se && touch $@
+
+flagMantel: mantel-testing.r flagData flagWeeklyReports flagPedvCum
+	$< >$(<F).so 2>$(<F).se && touch $@
 
 flagAssocPlots: make-assoc-plots.r flagPedvCum
 	cp $< . && $(RS) -e "library(knitr); spin(\"make-assoc-plots.r\")" >$(<F).so 2>$(<F).se && touch $@

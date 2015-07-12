@@ -149,7 +149,7 @@ tmpf <- function() {
                    cdec=c(0,0,1,2,2,0,1,1))
   tab <- gsub('\\\\multicolumn\\{1\\}\\{c\\}', '', tab)
   tab <- gsub('(\\\\)\\s?(\n)', '\\1\\\\hline\\2', tab)
-  tab <- gsub('(\\n)(\\{\\\\bf Flow term\\})', '\\1\\\\hline\\2', tab)
+  tab <- gsub('(\\n)(\\{Flow term\\})', '\\1\\\\hline\\2', tab)
   cat(tab, file='tab.tex')
   list(aic=aic, tab=tab)
 }

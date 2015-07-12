@@ -399,7 +399,8 @@ makePlotMat <- function(dfl, type=c('directed', 'undirected'),
             if (useSymp){
               label <- paste(r, symp, sep='\n')
             } else {
-              label <- paste(r, signif(mg$pValues, digits=2), sep='\n')
+              p <- signif(mg$pValues, digits=2)
+              label <- paste0('r = ', r, '\n', 'p = ', p, sep='\n')
             }
             plt <- ggplot() + geom_text(label=label, aes(x=0.5, y=0.5), colour='black',
                                         size=10 * 0.3)
