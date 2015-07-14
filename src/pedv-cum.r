@@ -28,7 +28,7 @@ tmpf <- function(){
   cens <- read.csv(censPath,strip.white=TRUE, na.strings='(D)',
                    stringsAsFactors=FALSE)
   # The introduction to the reports says '-' represents 0 and (D) means deleted for privacy
-  tmpf <- function(x) {  
+  tmpf <- function(x) {
       if(is.character(x)){
           ret <- ifelse(x=='-', 0, x)
           type.convert(ret)
@@ -49,13 +49,13 @@ tmpf <- function(){
   smallFarms <- stateCounts[test,]
   test <- stateCounts$ITEM == "Total inventory"
   allFarms <- stateCounts[test,]
-  
+
   stopifnot(allFarms$GEO == smallFarms$GEO)
   ind <- grep('.*Farms', colnames(allFarms))
   nonSmallFarms <- allFarms
   nonSmallFarms[,ind] <- allFarms[,ind] - smallFarms[,ind]
   nonSmallFarms$ITEM <- NULL
-  
+
   nonSmallFarms
 }
 stateData <- tmpf()
@@ -83,7 +83,7 @@ tmpf <- function(){
   cens <- read.csv(censPath,strip.white=TRUE, na.strings='(D)',
                    stringsAsFactors=FALSE)
 # The introduction to the reports says '-' represents 0 and (D) means deleted for privacy
-  tmpf <- function(x) {  
+  tmpf <- function(x) {
       if(is.character(x)){
           ret <- ifelse(x=='-', 0, x)
           type.convert(ret)
@@ -96,7 +96,7 @@ tmpf <- function(){
   test <- cens$STCOFIPS %in% county.fips$fips
   cens <- cens[test,]
   ind <- grep('farms, 2007)$', cens$ITEM)
-  cens <- cens[ind,]  
+  cens <- cens[ind,]
   cens
 }
 countyData <- tmpf()
@@ -131,7 +131,7 @@ stateCty <- ddply(mg, 'STFIPS', summarize, totNonSmall=sum(nonSmallFarms),
 data(state.fips, package='maps')
 key <- match(stateCty$STFIPS, state.fips$fips)
 stateCty$abb <- state.fips$abb[key]
-                                   
+
 #' Case data
 #+
 caseData <- list()
@@ -181,7 +181,7 @@ ctsTot <- ddply(cts, 'State', summarize, cases=sum(cases))
 #' Shipment flows data
 #+
 flowMatGet <- function(){
-    fp <- file.path('shipment-flows-origins-on-rows-dests-on-columns.csv')                    
+    fp <- file.path('shipment-flows-origins-on-rows-dests-on-columns.csv')
     ep <- read.csv(fp, row.names=1)
     ep <- t(ep)
     key <- na.omit(match(unique(counts$State), colnames(ep)))
@@ -232,7 +232,7 @@ vecGet <- function(symmetric=FALSE, normOutput=FALSE){
     vecs <- data.frame(State=rownames(vecs), vecs)
     lab <- paste('isSym', symmetric, 'andIsNormed', normOutput, 'andPow', sep='')
     tmpf <- function(x) paste(lab, x, sep='')
-    names(vecs)[-1] <- sapply(powers, tmpf)    
+    names(vecs)[-1] <- sapply(powers, tmpf)
     vecs
 }
 args <- expand.grid(symmetric=c(TRUE, FALSE), normOutput=c(TRUE, FALSE))
@@ -272,7 +272,7 @@ bal['Hawaii','inshipments'] <- 0
 #' each state provides the number of operations of each type in each
 #' state. The age distribution of pigs on each farm are calculated as
 #' follows.
-#' 
+#'
 #' Parameters taken from Stalder (2013) "Pork industry productivity analysis".
 #+
 agtGet <- function(){
@@ -298,7 +298,7 @@ agt <- agtGet()
 #' and the residence time in each production stage. We now create an
 #' age distribution for each type of farm based on the age classes
 #' present in that farm.
-#+ 
+#+
 M0 <- cbind(c(1, 0, 0, 1),
             c(1, 1, 1, 1),
             c(0, 0, 1, 0),
@@ -441,9 +441,9 @@ for(i in seq_along(foo)){
 rm(powers, foo)
 
 #' ## Analysis
-#' 
+#'
 #' Examine colinearity
-#' 
+#'
 #+ , fig.width=11.11, fig.height=11.11, out.width=800, out.height=800
 getPreds <- function(df, transform=c('identity', 'log'),
                      predNames=c('totNonSmall', 'mDense',
@@ -470,7 +470,7 @@ scatterplotMatrix(xlog, transform=FALSE, cex.labels=1.5, pch=16,
 #' isSymFALSEisNormedTRUE* predictors). Vermont only ships to itself,
 #' so a random walk gets trapped there in those cases. Clearly that is
 #' a bad model so we'll remove them.
-#' 
+#'
 #+
 getOtherPreds <- function(D, X){
     xEig <-  D[, grep('^isSym', colnames(D))]
@@ -531,7 +531,7 @@ pcAll1 <- prcomp(xxlog[, b>0], scale=TRUE)
 biplot(pcAll1)
 
 #' Check prediction error by alpha
-#+ 
+#+
 plot3Alphas <- function(fitList, alphas, which=4:6, ...){
  ## Adpated from http://www.stanford.edu/~hastie/glmnet/glmnet_alpha.html
  opar <- par(mfrow = c(2, 2))
@@ -578,7 +578,7 @@ tmpf <- function(alpha){
 }
 cvsBin <- lapply(alphas, tmpf)
 lsBin <- lapply(cvsBin, '[[', 'lambda.1se')
-mapply(function(x, y) x$cvm[which(x$lambda == y)], x=cvsBin, y=lsBin) 
+mapply(function(x, y) x$cvm[which(x$lambda == y)], x=cvsBin, y=lsBin)
 layout(matrix(1:6, ncol=3))
 tmpf <- function(x,y) {
     main <- substitute(expression(paste(alpha, '=', y)), list(y=y))
@@ -587,8 +587,8 @@ tmpf <- function(x,y) {
 invisible(mapply(tmpf, x=cvsBin, y=alphas))
 
 #' Visualization of coefficients
-#' 
-#+ 
+#'
+#+
 coefplot <- function(fitList, preds, which=3:6){
   coefMat <- sapply(fitList, function(x) as.numeric(coef(x)))[-1,]
   rownames(coefMat) <- rownames(coef(fitList[[1]]))[-1]
@@ -804,7 +804,7 @@ cor.test(mgAvg$reg1, mgAvg$inventory2012)
 #' is not worth presenting the eigenvector results, which will take a
 #' while to properly describe and not really change the
 #' conclusions. So, let's do a final round of fitting without them.
-#' 
+#'
 #' ## Fits without eigenvector predictors
 #+
 xf <- xxlogAvg[, -grep('^isSym', colnames(xx))]
@@ -873,7 +873,7 @@ likFit <- likfit(coords=locAvg, data=sEp, cov.model='exponential', ini.cov.pars=
 lines(likFit)
 
 #' Pig-litter--decrease model
-#' 
+#'
 #+
 alphas <- 0:5/5
 mgAvg$largeDec <- mgAvg$percentDecrease > 2
@@ -914,7 +914,7 @@ getFitStats <- function(x){
     res$cvm <- x$cvm[ind2]
     res$cvsd <- x$cvsd[ind2]
     res$nobs <- ft$nobs
-    res    
+    res
 }
 mods <- list(loglog=cvsPosF, litter=cvsBinFD, presence=cvsBinF)
 tmpf <- function(x){
@@ -936,10 +936,10 @@ invisible(latex(statsdf, file='stats-table.tex'))
 #' alpha.
 
 tmpf <- function(alpha,...){
-    stabpath(alpha=alpha, weakness=1, steps=1000, ...)
+    stabpath(alpha=alpha, weakness=1, steps=1000, size=0.632, ...)
 }
 tmpff <- function(spec){
-    alphas <- c(0.01,.2,.5,.8,1)
+    alphas <- c(0.01, 0.2, 0.5, 0.8, 1)
     names(alphas)=paste('alpha', format(alphas), sep='=')
     lapply(alphas, tmpf, y=spec$y, family=spec$family, x=spec$x)
 }
@@ -951,5 +951,13 @@ res <- lapply(specs, tmpff)
 stab <- lapply(res, function(x) lapply(x, plot, type='pcer', error=0.05))
 tmpfff <- function(x) lapply(x, '[[', 'stable')
 lapply(stab, tmpfff)
+
+## get Descriptive stats
+
+df1 <- data.frame(litterRate=specs$litterRateDecrease$y, anyCases=specs$anyCases$y, specs$anyCases$x)
+invisible(latex(describe(df1), file='stability-describe-df1.tex'))
+
+df2 <- data.frame(cumCases=specs$cumCases$y, specs$cumCases$x)
+invisible(latex(describe(df2), file='stability-describe-df2.tex'))
 
 save.image('pedv-cum.RData')
