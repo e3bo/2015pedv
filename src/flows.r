@@ -684,13 +684,20 @@ m$admbN <- glmmadmb(f$admbN, data=omcc, family='nbinom')
 likRatio(m$admbN, m$admb0)
 save.image('flows-checkpoint2.RData')
 date()
-rm(omcc)
 
 #' glmmADMB also supports the inclusion of the flow terms.
 #'
 #' Output the descriptive stats for this test
 
-invisible(latex(describe(omcc), file='tsir-describe.tex'))
+omcc$logInternalFlowScaled <- as.numeric(omcc$logInternalFlowScaled)
+omcc$clogCases1wa <- as.numeric(omcc$clogCases1wa)
+omcc$logCmedDenseScaled <- as.numeric(omcc$logCmedDenseScaled)
+omcc$weekCent <- as.numeric(omcc$weekCent)
+desc <- describe(omcc[, c('cases', 'clogCases1wa', 'logCmedDenseScaled',
+                          'logInternalFlowScaled', 'weekCent', 'stateF',
+                          'offCen')])
+invisible(latex(describe(desc), file='tsir-describe.tex'))
+rm(omcc)
 
 #'
 #'
