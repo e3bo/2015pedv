@@ -682,8 +682,6 @@ signif(sapply(list(m$nbme, m$admb, m$admb0, m$admb200), fixef), 3)
 f$admbN <- update(f$admb, . ~ . - logInternalFlowScaled)
 m$admbN <- glmmadmb(f$admbN, data=omcc, family='nbinom')
 likRatio(m$admbN, m$admb0)
-save.image('flows-checkpoint2.RData')
-date()
 
 #' glmmADMB also supports the inclusion of the flow terms.
 #'
@@ -696,11 +694,12 @@ omcc$weekCent <- as.numeric(omcc$weekCent)
 desc <- describe(omcc[, c('cases', 'clogCases1wa', 'logCmedDenseScaled',
                           'logInternalFlowScaled', 'weekCent', 'stateF',
                           'offCen')])
-invisible(latex(describe(desc), file='tsir-describe.tex'))
+invisible(latex(desc, file='tsir-describe.tex'))
+
+save.image('flows-checkpoint2.RData')
+date()
 rm(omcc)
 
-#'
-#'
 #' Next we plot the response distribution simplify to get some feeling
 #' for our fitted model's behavior.
 
