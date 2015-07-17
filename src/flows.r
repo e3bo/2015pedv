@@ -10,6 +10,7 @@ Sys.setlocale("LC_COLLATE", "C")
 set.seed(4253)
 library(lme4)
 library(car)
+library(Hmisc)
 library(pscl)
 library(glmmADMB)
 library(plyr)
@@ -30,7 +31,7 @@ tmpf <- function(){
   cens <- read.csv('table-12-hogs-and-pigs-by-county.csv',strip.white=TRUE, na.strings='(D)',
                    stringsAsFactors=FALSE)
 # The introduction to the reports says '-' represents 0 and (D) means deleted for privacy
-  tmpf <- function(x) {  
+  tmpf <- function(x) {
       if(is.character(x)){
           ret <- ifelse(x=='-', 0, x)
           type.convert(ret)
@@ -43,7 +44,7 @@ tmpf <- function(){
   test <- cens$STCOFIPS %in% county.fips$fips
   cens <- cens[test,]
   ind <- grep('farms, 2007)$', cens$ITEM)
-  cens <- cens[ind,]  
+  cens <- cens[ind,]
   cens
 }
 countyData <- tmpf()
@@ -70,7 +71,7 @@ tmpf <- function(){
     cens <- read.csv(censPath,strip.white=TRUE, na.strings='(D)',
                      stringsAsFactors=FALSE)
     # The introduction to the reports says '-' represents 0 and (D) means deleted for privacy
-    tmpf <- function(x) {  
+    tmpf <- function(x) {
         if(is.character(x)){
             ret <- ifelse(x=='-', 0, x)
             type.convert(ret)
@@ -89,7 +90,7 @@ tmpf <- function(){
 }
 farmsSales <- tmpf()
 
-#' Farms and inventory 
+#' Farms and inventory
 
 tmpf <- function(){
     censPath <- file.path('table19-2002.csv')
@@ -372,12 +373,12 @@ likRatio(m$lmeN, m$lme)
 tmpf <- function() {
     df <- model.frame(m$lme)
     iqry <- quantile(df$"clog(cases)", probs=c(.1, .9))
-    effectSize <- fixef(m$lme)['logInternalFlowScaled'] 
+    effectSize <- fixef(m$lme)['logInternalFlowScaled']
     effectSize/diff(iqry)
 }
 tmpf()
 #' The effect size is non-negligible.
-#' 
+#'
 #' A count model would be more appropriate for the discrete outcome.
 
 f$ct <- update(f$lm, cases ~ .)
@@ -547,7 +548,7 @@ tmpf <- function() {
     mods <- list(m$nb)
     omni <- filterInf(m$nb, om)
     while(!is.null(omni)) {
-        omnip <- omni        
+        omnip <- omni
         mnbni <- glm.nb(f$ct, data=omnip)
         omni <- filterInf(mnbni, omni)
         i <- i + 1
@@ -575,7 +576,7 @@ clusteredBoot <- function(data, statistic, B, cluster){
     nc <- length(clusters)
     Obsno <- split(1:n, cluster)
     pb <- txtProgressBar(min=1,max=B)
-    drawStat <- function(x) {        
+    drawStat <- function(x) {
         setTxtProgressBar(pb, x)
         j <- sample(clusters, nc, replace=TRUE)
         obs <- unlist(Obsno[j])
@@ -681,12 +682,24 @@ signif(sapply(list(m$nbme, m$admb, m$admb0, m$admb200), fixef), 3)
 f$admbN <- update(f$admb, . ~ . - logInternalFlowScaled)
 m$admbN <- glmmadmb(f$admbN, data=omcc, family='nbinom')
 likRatio(m$admbN, m$admb0)
+
+#' glmmADMB also supports the inclusion of the flow terms.
+#'
+#' Output the descriptive stats for this test
+
+omcc$logInternalFlowScaled <- as.numeric(omcc$logInternalFlowScaled)
+omcc$clogCases1wa <- as.numeric(omcc$clogCases1wa)
+omcc$logCmedDenseScaled <- as.numeric(omcc$logCmedDenseScaled)
+omcc$weekCent <- as.numeric(omcc$weekCent)
+desc <- describe(omcc[, c('cases', 'clogCases1wa', 'logCmedDenseScaled',
+                          'logInternalFlowScaled', 'weekCent', 'stateF',
+                          'offCen')])
+invisible(latex(desc, file='tsir-describe.tex'))
+
 save.image('flows-checkpoint2.RData')
 date()
 rm(omcc)
 
-#' glmmADMB also supports the inclusion of the flow terms.
-#'
 #' Next we plot the response distribution simplify to get some feeling
 #' for our fitted model's behavior.
 
@@ -795,7 +808,7 @@ tmpf <- function() {
     om$undirectedFlow <- wcUnd$Fsum[om$state]
     om$logUndirectedFlowScaled <- scaleiqr(log(om$undirectedFlow))
     om$clogCases1waUnd <- clog(om$casesLastWeekUndirectedFlowWeighted)
-    rownames(om) <- paste(om$week, om$state, sep='.')    
+    rownames(om) <- paste(om$week, om$state, sep='.')
     om
 }
 om <- tmpf()
@@ -832,7 +845,7 @@ sapply(m[c('nbmeundir', 'admbundir')], fixef)
 sort(sapply(m[c('nbme', 'nbmedir', 'nbmeundir')], AIC))
 
 #' The undirected flow matrix has the lowest AIC.
-#' 
+#'
 #' One shortcoming of the above comparison is that we are not
 #' optimizing the baseline hazard, and so the result may be sensitive
 #' to our initial and somewhat arbitrary setting. So next we optimize
@@ -854,7 +867,7 @@ fund <- function(x,data) {
     fit <- glmmadmb(fm, data=data[!is.na(data$logInf), ], family='nbinom')
     ll <- as.numeric(logLik(fit))
     print(paste(signif(c(x, ll), 5), collapse=","))
-    ll    
+    ll
 }
 (hund <- optimize(f=fund, interval=c(0.01, 5), data=om, tol=0.1, maximum=TRUE))
 
@@ -864,7 +877,7 @@ fdir <- function(x,data) {
     fit <- glmmadmb(fm, data=data[!is.na(data$logInf), ], family='nbinom')
     ll <- as.numeric(logLik(fit))
     print(paste(signif(c(x, ll), 5), collapse=","))
-    ll    
+    ll
 }
 (hdir <- optimize(f=fdir, interval=c(0.01, 5), data=om, tol=0.1, maximum=TRUE))
 
@@ -911,27 +924,27 @@ D <- rbind(cbind(fmint[, cols], foi=fmint$logInfInt,
 #+ fig.width=14, fig.height=14, dev.args=list(pointsize=18)
 g <- ggplot(D, aes(.fitted, .scresid, colour=flow.type))
 g <- g + geom_point() + facet_wrap(~stateF, scales='free') + geom_hline(yintercept=0)
-g 
+g
 
 g <- ggplot(D, aes(foi, .scresid))
 g <- g + geom_point(colour='blue') + facet_grid(.~flow.type)
 g <- g + geom_line(aes(group=stateF), alpha=0.4) + geom_smooth(method="loess", span=.9)
-g 
+g
 
 g <- ggplot(D, aes(flow.measure, .scresid))
 g <- g + geom_point(colour='blue') + facet_grid(.~flow.type)
 g <- g + geom_line(aes(group=stateF), alpha=0.4) + geom_smooth(method="loess", span=.9)
-g 
+g
 
 g <- ggplot(D, aes(logCmedDenseScaled, .scresid))
 g <- g + geom_point(colour='blue') + facet_grid(.~flow.type)
 g <- g + geom_line(aes(group=stateF), alpha=0.4) + geom_smooth(method="loess", span=.9)
-g 
+g
 
 g <- ggplot(D, aes(weekCent, .scresid))
 g <- g + geom_point(colour='blue') + facet_grid(.~flow.type)
 g <- g + geom_line(aes(group=stateF), alpha=0.4) + geom_smooth(method="loess", span=.9)
-g 
+g
 
 #' None of the models have large trends in the Pearson residuals
 #' againt the predictors.
@@ -939,7 +952,7 @@ g
 #+ fig.width=14, fig.height=14, dev.args=list(pointsize=18)
 ggplot(D, aes(stateF, .scresid, colour=flow.type)) + geom_boxplot() + geom_hline(yintercept=0)
 
-ggplot(D, aes(flow.type, .scresid, colour=flow.type)) + geom_violin() 
+ggplot(D, aes(flow.type, .scresid, colour=flow.type)) + geom_violin()
 
 #' The distributions of Pearson residuals also look similar.
 
