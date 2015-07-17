@@ -82,7 +82,7 @@ ests <- cbind(ests, baseline=c(hund$maximum, hdir$maximum, hint$maximum))
 sds <- cbind(sds, baseline=0)
 
 tmpf <- function() {
-    longnames <- c(flow='Scaled log(flow)', inf='Positive accessions last week',
+    longnames <- c(flow='Scaled log(flow)', inf='Log(positive accessions)',
                    week='Centered week', dense='Scaled log(farm density)', baseline='Baseline risk')
     pal <- c("blue"="#4477AA", "red"="#DDCC77", "yellow"="#CC6677")
     pch <- 15:17
