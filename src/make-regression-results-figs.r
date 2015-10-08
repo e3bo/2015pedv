@@ -69,7 +69,7 @@ extractEsts <- function(pattern, type) {
   res <- list()
   mapply(function(x, y) x[y, type], ct, inds)
 }
-  
+
 patterns <- list(flow='Flow', dense='logCmedDenseScaled', week='weekCent', inf='Inf')
 ests <- sapply(patterns, extractEsts, type='Estimate')
 sds <- sapply(patterns, extractEsts, type='Std. Error')
@@ -82,8 +82,8 @@ ests <- cbind(ests, baseline=c(hund$maximum, hdir$maximum, hint$maximum))
 sds <- cbind(sds, baseline=0)
 
 tmpf <- function() {
-    longnames <- c(flow='Scaled log10(#swine / y)', inf='Positive accessions last week',
-                   week='Scaled week', dense='Scaled #farms / km^2', baseline='Baseline risk') 
+    longnames <- c(flow='Scaled log(flow)', inf='Log(positive accessions)',
+                   week='Centered week', dense='Scaled log(farm density)', baseline='Baseline risk')
     pal <- c("blue"="#4477AA", "red"="#DDCC77", "yellow"="#CC6677")
     pch <- 15:17
     for(i in seq_len(nrow(ests))){
@@ -174,4 +174,4 @@ dev.off()
 
 save.image('flows-checkpoint5.RData')
 
-                                             
+

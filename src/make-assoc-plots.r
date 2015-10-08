@@ -2,10 +2,11 @@
 library(knitr)
 opts_chunk$set(fig.path='figure-make-assoc-plots/', fig.align='center', fig.show='hold')
 
-#+
 library(car)
 library(DescTools)
+library(Hmisc)
 library(vcd)
+
 load('mgAge.RData')
 set.seed(3234)
 
@@ -27,6 +28,7 @@ assoc(ct, shade=TRUE, labeling_args=list(rot_labels=c(0,0,90,0),
 dev.off()
 Desc(ct)
 Assocs(ct)
+invisible(latex(describe(ct), file='age-state-indepedence.tex'))
 
 #' See if model probablities of suckling cases are predictive of observed.
 #'
@@ -50,12 +52,16 @@ text(x=pThe,y=pEmp, labels=rownames(wt))
 
 #' Not particularly. Let's address this more carefully with a logistic
 #' regression.
-#+
-m <- glm(cs~1 + pThe, family=binomial)
+m <- glm(cs ~ 1 + pThe, family=binomial)
 summary(m)
 par(mfrow=c(2,2))
 plot(m)
 outlierTest(m)
+
+#' Get the descriptive stats
+
+df <- data.frame(prob.suckling=pEmp, n.all.ages=rowSums(cs), sampling.prob.suckling=pThe)
+invisible(latex(describe(df), file='logistic-model-suckling-sampling.tex'))
 
 #' There's no effect, but the diagnostics indicate that NC, OK, and IA
 #' are having large effects on the fit, and IA and NC are

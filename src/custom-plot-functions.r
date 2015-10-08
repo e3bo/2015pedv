@@ -377,8 +377,8 @@ make_choropleth <- function(fill_var=c('Cases', 'Inventory'), trans='log10'){
 }
 
 makePlotMat <- function(dfl, type=c('directed', 'undirected'),
-                        transform=c('ranked', 'original'), labelBreaks=FALSE, gridLabelSize=4, useSymp=FALSE,
-                        ...){
+                        transform=c('ranked', 'original'), labelBreaks=FALSE, gridLabelSize=4,
+                        useSymp=FALSE, ...){
     type <- match.arg(type)
     transform <- match.arg(transform)
     df <- dfl[[transform]][[type]]
