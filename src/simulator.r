@@ -1,6 +1,6 @@
 #+setup, include=FALSE, cache=FALSE
 library(knitr)
-opts_chunk$set(fig.path='flows-figures/', fig.align='center', fig.show='hold')
+opts_chunk$set(fig.path='simulator-figures/', fig.align='center', fig.show='hold')
 options(replace.assign=TRUE,width=80)
 Sys.setlocale("LC_TIME", "C") #Needed for identical()
 Sys.setlocale("LC_COLLATE", "C")
@@ -10,6 +10,8 @@ Sys.setlocale("LC_COLLATE", "C")
 set.seed(4253)
 library(plyr)
 library(maptools)
+library(raster)
+library(rgdal)
 print(sessionInfo())
 
 #' ## Load data
@@ -114,17 +116,24 @@ fiAll <- tmpf()
 balanceSheet <- read.csv('state-hogBalanceSheetDec2000Dec2001.csv',
                          na.strings='-', row.names=1, colClasses=c(state2='NULL'))
 
-cb <- readShapeSpatial("cb_2014_us_county_500k")
 
-tmpf <- function(){
-    sf <- countyData$STFIPS
-    sf <- formatC(sf, flag="0", format="d", width=2)
-    test1 <- cb@data[, 'STATEFP'] %in% sf
-    cf <- countyData$COFIPS
-    cf <- formatC(cf, flag="0", format="d", width=3)
-    test2 <- cb@data[, 'COUNTYFP'] %in% cf
-    test <- test1 & test2
-    cb[test, ]
+ea.proj <- "+proj=laea +lat_0=45 +lon_0=-100 +x_0=0 +y_0=0 +a=6370997 +b=6370997 +units=m +no_defs" ## NAD83 Lambert Azimuthal Equal Area
+
+## cb.proj <- "+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs" ## from .proj file
+## cb <- readShapeSpatial("cb_2014_us_county_500k/cb_2014_us_county_500k")
+##                         proj4string=CRS(cb.proj))
+cb <- readOGR('cb_2014_us_county_500k', 'cb_2014_us_county_500k')
+cb.ea <- spTransform(cb, ea.proj)
+
+tmpf <- function(geo=cb.ea){
+  sf <- countyData$STFIPS
+  cf <- countyData$COFIPS
+  sf <- formatC(sf, flag="0", format="d", width=2)
+  cf <- formatC(cf, flag="0", format="d", width=3)
+  test1 <- geo@data[, 'STATEFP'] %in% sf
+  test2 <- geo@data[, 'COUNTYFP'] %in% cf
+  test <- test1 & test2
+  geo[test, ]
 }
 cb2 <- tmpf()
 
@@ -137,7 +146,7 @@ getSamp <- function(spdf=cb2, cfps, sfps, n, plot.samp=FALSE){
         samp <- NULL
     } else {
         cfps <- formatC(cfps, flag="0", format="d", width=3)
-        sfps <- formatC(sfps, flag="0", format="d", width=2)    
+        sfps <- formatC(sfps, flag="0", format="d", width=2)
         ind <- which(spdf@data[, 'COUNTYFP']==cfps & spdf@data[, 'STATEFP']==sfps)
         cty.poly <- spdf[ind, ]
         samp <- spsample(cty.poly, type='random', n=n, iter=10)
@@ -153,9 +162,25 @@ testSamplingOfMultiPolygonCounties <- function(){
    getSamp(cfps=21, sfps=25, n=100, plot.samp=TRUE)
 }
 
-samps <- mapply(getSamp, cfps=countyData$COFIPS, sfps=countyData$STFIPS,
-                n=countyData$DATA, SIMPLIFY=FALSE)
+testSamplingOfCountiesWithHoles <- function(){
+   getSamp(cfps=15, sfps=51, n=100, plot.samp=TRUE)
+}
 
+coord.samps <- mapply(getSamp, cfps=countyData$COFIPS, sfps=countyData$STFIPS,
+                      n=countyData$DATA, SIMPLIFY=FALSE)
+
+r <- raster(cb2)
+res(r) <- 1600 * 10
+adj <- adjacent(r, 1:ncell(r), directions=8) ## this could be quickly calculated as needed
+
+tmpf <- function(xy) {
+  if(is.null(xy)) {
+    NULL
+  } else {
+    cellFromXY(object=r, xy=xy)
+  }
+}
+cell.samps <- lapply(coord.samps, tmpf)
 
 #'
 #' #' ## Data preparation
