@@ -171,7 +171,7 @@ coord.samps <- mapply(getSamp, cfps=countyData$COFIPS, sfps=countyData$STFIPS,
 
 r <- raster(cb2)
 res(r) <- 1600 * 10
-adj <- adjacent(r, 1:ncell(r), directions=8) ## this could be quickly calculated as needed
+##adj <- adjacent(r, 1:ncell(r), directions=8) ## this could be quickly calculated as needed
 
 tmpf <- function(xy) {
   if(is.null(xy)) {
@@ -182,8 +182,70 @@ tmpf <- function(xy) {
 }
 cell.samps <- lapply(coord.samps, tmpf)
 
+## plot cell counts
+tab <- table(unlist(cell.samps))
+r[as.integer(names(tab))] <- tab
+plot(r)
+
+## convert fips to abbreviation
+stfips.rle <- list(lengths=countyData$DATA, values=countyData$STFIPS)
+data(state.fips, package='maps')
+key <- match(countyData$STFIPS, state.fips$fips)
+countyData$abb <- as.character(state.fips$abb[key])
+
+## create agent data structures
+
+adf <- data.frame(cell=unlist(cell.samps),
+                  abb=rep(countyData$abb, times=countyData$DATA),
+                  infection.time=NA,
+                  recovery.time=NA)
+sp.nbs <- vector('list', length=nrow(adf))
+
+## initialize infections
+
+cases <- which(adf$cell %in% c(27799))
+
+get.nbs <- function(cell, rast=r) {
+  nb <- adjacent(x=rast, cell, directions=8)
+  nb.cells <- nb[, 'to']
+  which(adf$cell %in% c(cell, nb.cells))
+}
+sp.nbs[cases] <- lapply(adf$cell[cases], get.nbs)
+adf$infection.time[cases] <- 0
+
+nsteps <- 2
+step <- 1
+tprob <- 0.01
+rprob <- 0.5
+
+while(step < nsteps){
+  new.cases <- repeat.cases <- integer(0)
+  for (case in cases){
+    contacts <- sp.nbs[[case]]
+    rand <- runif(n=length(contacts))
+    test <- rand < tprob
+    if(any(test)){
+      new.cases <- c(new.cases, contacts[test])
+    }
+    rand2 <- runif(n=1)
+    if(rand2 > rprob){
+      repeat.cases <- c(repeat.cases, case)
+    } else {
+      adf$recovery.time[case] <- step
+    }
+  }
+  sp.nbs[new.cases] <- lapply(adf$cell[new.cases], get.nbs)
+  adf$infection.time[new.cases] <- step
+  cases <- c(new.cases, repeat.cases)
+  cat('step: ', step, '\n')
+  step <- step + 1
+}
+
+
+
+
 #'
-#' #' ## Data preparation
+#' ## Data preparation
 
 #' Derive state-level summaries of county-level data
 
