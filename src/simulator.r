@@ -171,7 +171,9 @@ coord.samps <- mapply(getSamp, cfps=countyData$COFIPS, sfps=countyData$STFIPS,
 
 r <- raster(cb2)
 res(r) <- 1600 * 10
-##adj <- adjacent(r, 1:ncell(r), directions=8) ## this could be quickly calculated as needed
+#adj <- adjacent(r, 1:ncell(r), directions=8) ## this could be quickly calculated as needed
+
+
 
 tmpf <- function(xy) {
   if(is.null(xy)) {
@@ -201,19 +203,27 @@ adf <- data.frame(cell=unlist(cell.samps),
                   recovery.time=NA)
 sp.nbs <- vector('list', length=nrow(adf))
 
+occupied.cells <- unique(adf$cell)
+cell2id <- lapply(occupied.cells, function(x) which(adf$cell == x))
+names(cell2id) <- occupied.cells
+
 ## initialize infections
 
-cases <- which(adf$cell %in% c(27799))
+                                        #cases <- which(adf$cell %in% c(27799))
+adf$infection.time <- NA
+adf$recovery.time <- NA
+cases <- sample.int(nrow(adf), 10)
 
 get.nbs <- function(cell, rast=r) {
   nb <- adjacent(x=rast, cell, directions=8)
   nb.cells <- nb[, 'to']
-  which(adf$cell %in% c(cell, nb.cells))
+  cell.names <- as.character(c(cell, nb.cells))
+  unlist(cell2id[cell.names])
 }
 sp.nbs[cases] <- lapply(adf$cell[cases], get.nbs)
 adf$infection.time[cases] <- 0
 
-nsteps <- 2
+nsteps <- 20
 step <- 1
 tprob <- 0.01
 rprob <- 0.5
@@ -222,6 +232,8 @@ while(step < nsteps){
   new.cases <- repeat.cases <- integer(0)
   for (case in cases){
     contacts <- sp.nbs[[case]]
+    is.susceptible <- is.na(adf$infection.time[contacts])
+    contacts <- contacts[is.susceptible]
     rand <- runif(n=length(contacts))
     test <- rand < tprob
     if(any(test)){
@@ -234,15 +246,23 @@ while(step < nsteps){
       adf$recovery.time[case] <- step
     }
   }
-  sp.nbs[new.cases] <- lapply(adf$cell[new.cases], get.nbs)
+  print(system.time(sp.nbs[new.cases] <- lapply(adf$cell[new.cases], get.nbs)))
   adf$infection.time[new.cases] <- step
   cases <- c(new.cases, repeat.cases)
   cat('step: ', step, '\n')
   step <- step + 1
 }
 
+## tabulation of case counts
 
+step <- seq(1, to=nsteps)
 
+events.by.state <- function(x, what) {
+  tapply(adf[[what]] < x, adf$abb, sum, na.rm=TRUE)
+}
+cum.infections <- sapply(step, events.by.state, what='infection.time')
+cum.recoveries <- sapply(step, events.by.state, what='recovery.time')
+no.infected <- cum.infections - cum.recoveries
 
 #'
 #' ## Data preparation
