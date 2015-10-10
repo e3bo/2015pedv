@@ -12,6 +12,7 @@ library(plyr)
 library(maptools)
 library(raster)
 library(rgdal)
+library(igraph)
 print(sessionInfo())
 
 #' ## Load data
@@ -106,11 +107,43 @@ adf <- data.frame(cell=unlist(cell.samps),
                   abb=rep(countyData$abb, times=countyData$DATA),
                   infection.time=NA,
                   recovery.time=NA)
+
 sp.nbs <- vector('list', length=nrow(adf))
 
 occupied.cells <- unique(adf$cell)
 cell2id <- lapply(occupied.cells, function(x) which(adf$cell == x))
 names(cell2id) <- occupied.cells
+
+#' calc weight for sbm
+
+
+
+tmpf <- function(rel='directed') {
+    fmo <- flowMat[state.abb, state.abb]
+    diag(fmo) <- flows[state.abb, 'impInternalFlow']
+    Fund <- fmo + t(fmo)
+    Fdir <- fmo
+                                            #Fdir[i, j] == head sent to i from j
+    if(rel == 'directed') {
+        F <- fmo
+    } else {
+        F <- fmo + t(fmo)
+    }
+    Fsum <- rowSums(F)
+    Fnorm <- F/Fsum
+    n <- fiAll[state.abb, ]$X2002.Farms
+    W <- Fnorm * n
+    W <- t(t(W) / n)
+}
+wcDir <- tmpf('directed')
+wcUnd <- tmpf('undirected')
+
+adf <- adf[order(adf$abb), ]
+state.tots <- rle(as.character(adf$abb))
+wcDir <- wcDir[names(state.tots), names(state.tots)]
+
+g <- sample_sbm(sum(state.tots), pref.matrix=wcDir / 1000,
+                block.sizes=state.tots, directed=TRUE)
 
 ## initialize infections
 
@@ -128,19 +161,30 @@ get.nbs <- function(cell, rast=r) {
 sp.nbs[cases] <- lapply(adf$cell[cases], get.nbs)
 adf$infection.time[cases] <- 0
 
-nsteps <- 20
+nsteps <- 38
 step <- 1
 tprob <- 0.01
+tprob.net <- .001
 rprob <- 0.5
 
 while(step < nsteps){
   new.cases <- repeat.cases <- integer(0)
   for (case in cases){
+    ## spatial transmission
     contacts <- sp.nbs[[case]]
     is.susceptible <- is.na(adf$infection.time[contacts])
     contacts <- contacts[is.susceptible]
     rand <- runif(n=length(contacts))
     test <- rand < tprob
+    if(any(test)){
+      new.cases <- c(new.cases, contacts[test])
+    }
+    ## network transmission
+    contacts <- neighbors(g, v=case, mode='out')
+    is.susceptible <- is.na(adf$infection.time[contacts])
+    contacts <- contacts[is.susceptible]
+    rand <- runif(n=length(contacts))
+    test <- rand < tprob.net
     if(any(test)){
       new.cases <- c(new.cases, contacts[test])
     }
@@ -169,3 +213,4 @@ cum.infections <- sapply(step, events.by.state, what='infection.time')
 cum.recoveries <- sapply(step, events.by.state, what='recovery.time')
 no.infected <- cum.infections - cum.recoveries
 
+sts <- ts(t(no.infected))
