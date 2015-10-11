@@ -116,8 +116,6 @@ names(cell2id) <- occupied.cells
 
 #' calc weight for sbm
 
-
-
 tmpf <- function(rel='directed') {
     fmo <- flowMat[state.abb, state.abb]
     diag(fmo) <- flows[state.abb, 'impInternalFlow']
@@ -140,10 +138,10 @@ wcUnd <- tmpf('undirected')
 
 adf <- adf[order(adf$abb), ]
 state.tots <- rle(as.character(adf$abb))
-wcDir <- wcDir[names(state.tots), names(state.tots)]
+wcDir <- wcDir[state.tots$values, state.tots$values]
 
-g <- sample_sbm(sum(state.tots), pref.matrix=wcDir / 1000,
-                block.sizes=state.tots, directed=TRUE)
+g <- sample_sbm(sum(state.tots$lengths), pref.matrix=wcDir / 1000,
+                block.sizes=state.tots$lengths, directed=TRUE)
 
 ## initialize infections
 
@@ -213,4 +211,5 @@ cum.infections <- sapply(step, events.by.state, what='infection.time')
 cum.recoveries <- sapply(step, events.by.state, what='recovery.time')
 no.infected <- cum.infections - cum.recoveries
 
+matplot(step, t(no.infected), type='l')
 sts <- ts(t(no.infected))
