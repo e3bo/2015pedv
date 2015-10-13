@@ -47,13 +47,13 @@ breaks <- mapply(tmpf, breaks, extra=c(0,0,1,1), SIMPLIFY=FALSE)
 tmpf <- function(x, upper, lower) {
     yb <- sort(x$ybreaks)
     n <- length(yb)
-    U <- max(yb) 
+    U <- max(yb)
     yb <- c(yb[1:(n-1)], U + 140*upper)
     n <- length(yb)
     L <- min(yb)
     yb <- c(L - 140*lower, yb[2:n])
     x$rowBreaks <- c(sort(yb), Inf)
-    x    
+    x
 }
 breaks <- mapply(tmpf, breaks, upper=list(0:2,0:2,c(0,1,4),c(0,3)),
                  lower=list(0,c(0,1,3),0,0:2), SIMPLIFY=FALSE)
@@ -214,5 +214,20 @@ tmpf <- function(x){
 mgCum <- ddply(mg, c('variable'), tmpf)
 print('Correlation test of cumulative values:')
 cor.test(mgCum$confPresum, mgCum$accessions, method='spearman')
+
+png('confirmedPresumptive-vs-accessions.png')
+plot(confPresum~accessions, data=mg)
+m <- lm(confPresum~accessions, data=mg)
+abline(m)
+dev.off()
+
+print("Linear model of positives vs acessions:")
+print(summary(m))
+
+print("The data:")
+print(mg)
+
+print("The means:")
+colMeans(mg[, 3:4])
 
 save.image('accessions-premises-correlation.r')

@@ -210,4 +210,5 @@ cum.infections <- sapply(step, events.by.state, what='infection.time')
 cum.recoveries <- sapply(step, events.by.state, what='recovery.time')
 no.infected <- cum.infections - cum.recoveries
 
+matplot(step, t(no.infected), type='l')
 sts <- ts(t(no.infected))
