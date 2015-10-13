@@ -1,11 +1,11 @@
+#!/usr/bin/Rscript
+
 library(maptools)
 library(surveillance)
 
-Sys.setlocale("LC_TIME", "C") #Needed for identical()
-Sys.setlocale("LC_COLLATE", "C")
+fl <- file.path('states-shapefile', 'states.shp')
 
-fl <- file.path('/', 'home', 'eamon', 'work-data', '2013', '11', '22', 'states.shp')
-mapst <- readShapePoly(fl, IDvar='STATE_ABBR')
+mapst <- readShapePoly(fl, IDvar='STATE_ABBR', proj4string=CRS("+init=epsg:4269"))
 map48 <- mapst[!as.character(mapst$STATE_ABBR) %in% c("AK", "HI"),]
 
 tmpf <- function(){
@@ -51,17 +51,32 @@ tmpf <- function() {
 }
 observed <- tmpf()
 
-
-
-source('flows-checkpoint2.RData')
 start <- unlist(isoWeekYear(as.Date(as.character(caseData$week[1]),
                                     format="%m/%d/%Y")))
 
-foo <- new('sts', epoch=1:nrow(observed), observed=observed, start=start,
-           freq=52, map=map48)
+pedv.sts <- new('sts', epoch=1:nrow(observed), observed=observed,
+                start=start, freq=52, map=map48)
 
-## animation
-#plot(foo, type=observed ~ 1 | unit * time)
+make.plot <- function(){
+    lab.obs <- ifelse(map48$STATE_ABBR %in% colnames(observed), as.character(map48$STATE_ABBR), "")
+    grid.newpage()
+    vp.grid <- viewport(layout=grid.layout(3,1))
+    pushViewport(vp.grid)
+    plot.panel <- function(tps, row, col){
+        pushViewport(viewport(layout.pos.col=col, layout.pos.row=row))
+        p <- plot(pedv.sts, type=observed ~ unit, tps=tps, labels=list(labels=lab.obs, cex=.7, font=3))
+        print(p, newpage=FALSE)
+        popViewport()
+    }
+    plot.panel(1:12, 1, 1)
+    plot.panel(13:26, 2, 1)
+    plot.panel(27:38, 3, 1)
+}
 
-plot(foo, type=observed ~ unit, tps=1:4)
-plot(foo, type=observed ~ unit, tps=1:4)
+cairo_ps(filename = 'accessions-on-maps.eps', width = 3.5, height = 7)
+make.plot()
+dev.off()
+
+cairo_pdf(filename = 'accessions-on-maps.pdf', width = 3.5, height = 7)
+make.plot()
+dev.off()

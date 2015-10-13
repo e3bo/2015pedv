@@ -4,7 +4,10 @@ SD = /root/src
 DD = /root/data
 VPATH = $(SD):$(WD)
 
-all: accessions-premises-correlation.r.so flagMantelPlots flagAssocPlots flagTsirFigs sim-panel.pdf
+all: accessions-premises-correlation.r.so flagMantelPlots flagAssocPlots flagTsirFigs sim-panel.pdf mapPlotSeries
+
+mapPlotSeries: map-series.r flagData
+	$< && touch $@
 
 accessions-premises-correlation.r.so: accessions-premises-correlation.r flagData
 	$< >$(<F).so 2>$(<F).se
@@ -52,4 +55,4 @@ flagWeeklyReports: ped-weekly-report-scraper-py3.py
 	$< && touch $@
 
 flagData:
-	cp -p $(DD)/* . && touch $@
+	cp -p $(DD)/* . && ln -s $(DD)/states-shapefile . && touch $@

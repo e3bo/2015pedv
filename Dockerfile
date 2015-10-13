@@ -1,4 +1,4 @@
-FROM r-base:3.1.2
+FROM r-base
 MAINTAINER Eamon O'Dea <[last name without apostrophe]35@gmail.com>
 
 RUN apt-get update && apt-get install -y -q --no-install-recommends \
@@ -28,6 +28,7 @@ RUN install2.r --error \
   lme4 \
   mapproj \
   maps \
+  maptools \
   pander \
   plyr \
   pscl \
@@ -35,6 +36,7 @@ RUN install2.r --error \
   reshape2 \
   RColorBrewer \
   scales \
+  surveillance \
   vcd \
   vegan \
 && rm -rf /tmp/download_packages/ /tmp/*.rds
