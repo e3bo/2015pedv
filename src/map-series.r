@@ -1,7 +1,12 @@
 #!/usr/bin/Rscript
 
+library(grid)
 library(maptools)
 library(surveillance)
+
+
+Sys.setlocale("LC_TIME", "C") #Needed for identical()
+Sys.setlocale("LC_COLLATE", "C")
 
 fl <- file.path('states-shapefile', 'states.shp')
 

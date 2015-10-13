@@ -13,7 +13,7 @@ hdir="/root"
 docker run -it -v ${ddir}:${hdir}/data:ro \
        -v ${sdir}:${hdir}/src:ro \
        -v ${wkdir}:${hdir}/work \
-       eamon/2015pedv:v0.1
+       eamon/2015pedv
 
 user=$(id -u)
 group=$(id -g)

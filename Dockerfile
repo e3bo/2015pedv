@@ -40,7 +40,9 @@ RUN install2.r --error \
   vcd \
   vegan \
 && rm -rf /tmp/download_packages/ /tmp/*.rds
-RUN install2.r --repos http://r-forge.r-project.org --error glmmADMB \
+
+RUN install2.r --error R2admb
+&& install2.r --repos http://glmmadmb.r-forge.r-project.org/repos --error glmmADMB \
 && install2.r --repos http://www.math.mcmaster.ca/bolker/R --error coefplot2 \
 && rm -rf /tmp/download_packages/ /tmp/*.rds
 
