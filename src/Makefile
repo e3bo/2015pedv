@@ -27,7 +27,7 @@ flagSimulatorInstalled: $(shell find $(SD)/duoDynamics) .BatchJobs.R
 flagMantelPlots: mantel-plots.r custom-plot-functions.r flagMantel
 	cp $(SD)/custom-plot-functions.r . && $< >$(<F).so 2>$(<F).se && touch $@
 
-flagMantel: mantel-testing.r flagData flagWeeklyReports flagPedvCum
+flagMantel: mantel-testing.r flagData flagWeeklyReports flagPedvCum flagCommonData
 	$< >$(<F).so 2>$(<F).se && touch $@
 
 flagAssocPlots: make-assoc-plots.r flagPedvCum
@@ -49,6 +49,9 @@ state-hogBalanceSheetDec2011Dec2012.csv: get-balance-sheet-2012-csv.sh
 	$<
 
 shipment-flows-origins-on-rows-dests-on-columns.csv: clean-shipment-matrix.r
+	$<
+
+flagCommonData: data-prep.r flagData
 	$<
 
 flagWeeklyReports: ped-weekly-report-scraper-py3.py
