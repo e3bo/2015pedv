@@ -24,7 +24,7 @@ orientation <- c(30.82,-98.57,0)
 #scale of 1 does not allow good edge-bundling with this projection
 scale <- 100
 
-adjmatrix <- data.matrix(epO[state.abb, state.abb])
+adjmatrix <- data.matrix(flows.matrix[state.abb, state.abb])
 diag(adjmatrix) <- 0
 g <- graph.adjacency(adjmatrix, mode='directed', weighted='flow')
 stopifnot(colnames(adjmatrix) == V(g)$name)
@@ -34,7 +34,7 @@ proj <- mapproject(x=state.center$x[key], y=state.center$y[key],
                    projection=projection, orientation=orientation)
 V(g)$x <- proj$x*scale
 V(g)$y <- proj$y*scale
-adjmatrix <- getMat('cor')
+adjmatrix <- pop.dyn.mats$lag1
 diag(adjmatrix) <- 0
 g2 <- graph.adjacency(adjmatrix, mode='directed', weighted='crossCorrelation')
 E(g2)$ccShifted <- E(g2)$crossCorrelation + 1
@@ -127,20 +127,21 @@ ggsave(filename='inventory-choropleth.pdf', plot=g, width=8.6/2.54, height=8.6/2
 
 ### ggPairs
 
-mats2 <- mats[1:3]
-getData <- function(matName, sym, rankv){
-    dists <- getMat(matName)
+mats2 <- list(shipment=pop.struct.mats$shipment, lag1=pop.dyn.mats$lag1,
+              gcd=pop.struct.mats$gcd)
+
+getData <- function(dists, sym, rankv){
     if(sym){
         dists <- (dists + t(dists))/2
     }
     ret <- as.vector(as.dist(dists))
     if(rankv){
         ret <- rank(ret)
-    }
+      }
     return(ret)
 }
 tmpf <- function(x, ...){
-    sapply(mats2, getData, sym=x, ...)
+  sapply(mats2, getData, sym=x, ...)
 }
 tmpff <- function(x) {
     lapply(c(undirected=TRUE, directed=FALSE), tmpf, rankv=x)
@@ -152,33 +153,36 @@ theme_update(panel.grid.major=element_blank(), panel.grid.minor=element_blank(),
              axis.ticks=element_blank(), panel.border=element_blank(),
              axis.line=element_blank())
 
-
-pm <- makePlotMat(dfl=matData, type='directed', transform='ranked')
+des.data <- rbind(des.dyn.vs.struct, des)
+pm <- makePlotMat(dfl=matData, type='directed', transform='ranked',
+                  des.data=des.data)
 pdf(file='ggpairs-spearman-directed.pdf', width=8.6/2.54, height=8.6/2.54)
 print(pm)
 dev.off()
 
-pm <- makePlotMat(dfl=matData, type='undirected', transform='ranked')
+pm <- makePlotMat(dfl=matData, type='undirected', transform='ranked',
+                  des.data=des.data)
 pdf(file='ggpairs-spearman-undirected.pdf', width=8.6/2.54, height=8.6/2.54)
 print(pm)
 dev.off()
 
 pm <- makePlotMat(dfl=matData, type='directed', transform='original',
-                  labelBreaks=TRUE, gridLabelSize=2.0)
+                  labelBreaks=TRUE, gridLabelSize=2.0, des.data=des.data)
 plotMatDirectedPearson <- pm
 pdf(file='ggpairs-pearson-directed.pdf', width=9.5/2.54, height=6.6/2.54)
 print(pm)
 dev.off()
 
 pm <- makePlotMat(dfl=matData, type='undirected', transform='original',
-                  labelBreaks=TRUE)
+                  labelBreaks=TRUE, des.data=des.data)
 pdf(file='ggpairs-pearson-undirected.pdf', width=11.4/2.54, height=1.2*8.6/2.54)
 print(pm)
 dev.off()
 
 ### diagnostics
 
-df <- data.frame(epl=unclass(as.dist(epl)), CC=unclass(as.dist(CC)))
+df <- data.frame(epl=unclass(as.dist(pop.struct.mats$shipment)),
+                     CC=unclass(as.dist(pop.dyn.mats$lag1)))
 m <- lm(CC~epl, data=df)
 pdf('diagnostics.pdf')
 plot(m)
@@ -187,7 +191,7 @@ dev.off()
 ## image plots
 
 pdf('cors-heatmap.pdf')
-orderings <- heatmap(data.matrix(epl), scale='none')
+orderings <- heatmap(data.matrix(pop.struct.mats$shipment), scale='none')
 dev.off()
 
 makeImagePlot <- function(M, orderings, ...){
@@ -200,18 +204,18 @@ makeImagePlot <- function(M, orderings, ...){
     yi <- 1:nc
     names(xi) <- colnames(x)
     names(yi) <- rownames(x)
-    image.plot.ebo(x=xi, y=yi, z=x, horizontal=FALSE,col=col, graphics.reset=TRUE, ...)
+    image.plot.ebo(x=xi, y=yi, z=x, horizontal=FALSE,
+                   col=col, graphics.reset=TRUE, ...)
 }
-
 
 pdf('matrices.pdf', width=8.7/2.54, height=12/2.54)
 layout(matrix(1:2, ncol=1))
 par(mar=c(4,4.5,.5,.5))
-makeImagePlot(M=data.matrix(epl), orderings=orderings, xlab='Destination', ylab='Source',
+makeImagePlot(M=data.matrix(pop.struct.mats$shipment), orderings=orderings, xlab='Destination', ylab='Source',
               legend.args=list(text=expression(paste(Log[10], '(#swine / y)')),
                   line=2.9, side=4), panelLab='a')
 par(mar=c(4,4.5,1,.5))
-CCnoDiag <- CC
+CCnoDiag <- pop.dyn.mats$lag1
 diag(CCnoDiag) <- NA
 makeImagePlot(M=data.matrix(CCnoDiag), orderings=orderings, xlab='Leading state', ylab='Lagging state',
               legend.args=list(text='Cross correlation', line=2.9, side=4), panelLab='b')
@@ -219,14 +223,14 @@ dev.off()
 
 ### time series
 
-mts <- melt(caseData, id='week')
+mts <- melt(real.case.data, id='week')
 keepers <- c('MN', 'KS',
              'IL', 'OK',
              'IA', 'NC')
 test <- mts$variable %in% keepers
 mts <- mts[test, ]
 mts$variable <- factor(mts$variable, levels=keepers)
-mts$x <- as.Date(as.character(mts$week), format='%m/%d/%Y')
+mts$x <- mts$week
 labdf <- ddply(mts, 'variable', summarize, minx=x[1], maxy=max(value))
 labdf$minx[labdf$variable == 'OK'] <- as.Date('2013-11-01')
 

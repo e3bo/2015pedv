@@ -10,7 +10,7 @@ ebo_ggally_diagAxis <-
     numer <- !((is.factor(data[, as.character(mapping$x)])) ||
                (is.character(data[, as.character(mapping$x)])))
     if (numer) {
-        label <- switch(mapping$x, 'cor'='Cross\ncorrelation',
+        label <- switch(mapping$x, 'lag1'='Cross\ncorrelation',
                         'shipment'='Log10(#swine / y)',
                         'gcd'='-Distance\n(1,000 km)')
         if(mapping$x=='gcd'){
@@ -378,7 +378,7 @@ make_choropleth <- function(fill_var=c('Cases', 'Inventory'), trans='log10'){
 
 makePlotMat <- function(dfl, type=c('directed', 'undirected'),
                         transform=c('ranked', 'original'), labelBreaks=FALSE, gridLabelSize=4,
-                        useSymp=FALSE, ...){
+                        useSymp=FALSE, des.data, ...){
     type <- match.arg(type)
     transform <- match.arg(transform)
     df <- dfl[[transform]][[type]]
@@ -388,9 +388,14 @@ makePlotMat <- function(dfl, type=c('directed', 'undirected'),
     pal <- brewer.pal(n=9, 'Blues')
     for (i in 1:(length(mats2) - 1)){
         for(j in (i+1):length(mats2)){
-            sel <- data.frame(M1=mats[i], M2=mats[j],
+            sel <- data.frame(M1=names(mats2[i]), M2=names(mats2[j]),
                               method=method, symmetrize=symmetrize)
-            mg <- merge(sel, des, all.y=FALSE)
+            mg <- merge(sel, des.data, all.y=FALSE)
+            if(nrow(mg) == 0){
+              sel <- data.frame(M2=names(mats2[i]), M1=names(mats2[j]),
+                                method=method, symmetrize=symmetrize)
+              mg <- merge(sel, des.data, all.y=FALSE)
+            }
             symp <- symnum(mg$pValues, corr = FALSE,
                            cutpoints = c(0, .001,.01,.05, .1, 1),
                            symbols = c("***","**","*","."," "))
@@ -414,21 +419,20 @@ makePlotMat <- function(dfl, type=c('directed', 'undirected'),
     if(labelBreaks){
         for(i in seq_along(mats2)){
             if(i == 1){
-                g <- ebo_ggally_diagAxis(pm$data, mapping=list(x=mats2[i], y=mats2[i]),
+                g <- ebo_ggally_diagAxis(pm$data, mapping=list(x=names(mats2)[i], y=names(mats2)[i]),
                                  suppressX=FALSE, suppressY=TRUE, gridLabelSize=gridLabelSize)
             } else if (i == length(mats2)){
-                g <- ebo_ggally_diagAxis(pm$data, mapping=list(x=mats2[i], y=mats2[i]),
+                g <- ebo_ggally_diagAxis(pm$data, mapping=list(x=names(mats2)[i], y=names(mats2)[i]),
                                          suppressX=TRUE, suppressY=FALSE, gridLabelSize=gridLabelSize)
             } else {
-                g <- ebo_ggally_diagAxis(pm$data, mapping=list(x=mats2[i], y=mats2[i]),
+                g <- ebo_ggally_diagAxis(pm$data, mapping=list(x=names(mats2)[i], y=names(mats2[i])),
                                          suppressX=FALSE, suppressY=FALSE, gridLabelSize=gridLabelSize)
             }
             pm <- putPlot(pm, g, i, i)
         }
     } else {
         for(i in seq_along(mats2)){
-            g <- ebo_ggally_diagAxis(pm$data, mapping=list(x=mats2[i], y=mats2[i]),
-                                         suppressX=TRUE, suppressY=TRUE)
+            g <- ebo_ggally_diagAxis(pm$data, mapping=list(x=names(mats2)[i], y=names(mats2)[i]),                                         suppressX=TRUE, suppressY=TRUE)
             pm <- putPlot(pm, g, i, i)
         }
     }
