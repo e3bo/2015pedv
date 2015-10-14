@@ -18,10 +18,34 @@ ep <- flows.matrix[nms, nms]
 epl <- log10(ep + 1)
 centerDists <- state.to.state.dists[nms, nms]
 
-GetCrossCorrs <- function(){
-    n <- ncol(observed)
+## Check cross correlations at different lags
+
+lags <- 0:10
+tmpf <- function(x, y){
+  sx <- observed[, x]
+  sy <- observed[, y]
+  ret <- ccf(sx, sy, plot=FALSE, demean=TRUE)
+  ret <- ret[lags, ]
+  ret$acf[, ,1]
+}
+grd <- expand.grid(x=1:ncol(observed), y=1:ncol(observed))
+grd <- grd[grd$x != grd$y, ]
+cross.cors <- mapply(x=grd$x, y=grd$y, tmpf)
+
+png('cross-cors-by-lag-boxplot.png')
+boxplot(t(cross.cors), names=lags, xlab='lag', ylab='cross-correlation')
+dev.off()
+
+lag.max.ind <- apply(cross.cors, 2, which.max)
+lag.max <- lags[lag.max.ind]
+png('counts-of-times-each-lag-was-max-for-a-pair.png')
+plot(table(lag.max))
+dev.off()
+
+GetCrossCorrs <- function(lag, obs=observed){
+    n <- ncol(obs)
     CC <- matrix(nrow=n, ncol=n)
-    getcc <- function(x,y, lag=1){
+    getcc <- function(x,y, lag){
         foo <- ccf(x, y, plot=FALSE)
         ind <- which(foo$lag == lag)
         foo$acf[ind]
@@ -31,48 +55,23 @@ GetCrossCorrs <- function(){
             ## CC[i,j] will be high if deviations from the mean in series i
             ## are shifted to the left of similar deviations to the mean in series j
             ## i.e. i's deviations are indicative of j's future deviations
-            CC[i,j] <- getcc(observed[,j], observed[,i])
+            CC[i, j] <- getcc(obs[, j], obs[, i], lag=lag)
         }
-    }
-    colnames(CC) <- rownames(CC) <- colnames(observed)
+      }
+    stopifnot(colnames(obs) == nms)
+    colnames(CC) <- rownames(CC) <- colnames(obs)
     CC
 }
+lags.sel <- 0:2
+CC <- lapply(lags.sel, GetCrossCorrs)
+names(CC) <- paste0('lag', lags.sel)
 
-CC <- GetCrossCorrs()
-CC <- CC[nms, nms]
+## Testing for association between distance matrices based on structure
 
-check_cc_directionality <- function(){
-    t <- 1:100 * .25
-    x <- sin(t)
-    ## y is shifted to the right
-    y <- sin(t-1)
+pop.struct.mats <- list('shipment'=epl, 'gcd'=-centerDists, 'sharedBord'=nhood)
+pop.dyn.mats <- CC
 
-    xylag1 <- getcc(x, y)
-    yxlag1 <- getcc(y,x)
-    main <- paste('getcc(x, y) ==', round(xylag1,2),
-                  '; getcc(y,x) == ', round(yxlag1,2))
-    if(xylag1 > yxlag1){
-        conc <- 'left arg delayed by lag'
-    } else{
-        conc <- 'right arg delayed by lag'
-    }
-    plot(x~t, type='l', ylab='f(t)', main=main, sub=conc)
-    lines(y~t, col=2)
-    legend('topright', col=1:2, legend=c('x', 'y'), lty=1)
-}
-
-png('direction-check.png')
-check_cc_directionality()
-dev.off()
-
-## Hypothesis tesing
-
-getMat <- function(x) switch(x, 'shipment'=epl, 'cor'=CC,
-                             'gcd'=-centerDists, 'sharedBord'=nhood)
-
-doTest <- function(M1, M2, symmetrize=FALSE, ...){
-    x <- getMat(M1)
-    y <- getMat(M2)
+doTest <- function(x, y, symmetrize=FALSE, ...){
     if(symmetrize){
         x <- (x + t(x)) * 0.5
         y <- (y + t(y)) * 0.5
@@ -80,42 +79,57 @@ doTest <- function(M1, M2, symmetrize=FALSE, ...){
     mantel(x, y, ...)
 }
 
-mats <- c('shipment', 'cor', 'gcd', 'sharedBord')
 methods <- c('spearman', 'pearson')
 symmetrize <- c(TRUE, FALSE)
-des <- expand.grid(M1=mats, M2=mats, method=methods, symmetrize=symmetrize,
+des <- expand.grid(M1=names(pop.struct.mats), M2=names(pop.struct.mats),
+                   method=methods, symmetrize=symmetrize,
                    stringsAsFactors=FALSE)
 des <- des[des$M1 != des$M2, ]
 des$permutations <- 10000
 
-res <- list()
-for(i in seq_len(nrow(des))){
-    print(i)
-    res[[i]] <- do.call(doTest, as.list(des[i,]))
-}
+res <- mapply(doTest, x=pop.struct.mats[des$M1], y=pop.struct.mats[des$M2],
+              symmetrize=des$symmetrize, permutations=des$permutations,
+              SIMPLIFY=FALSE)
 
 des$r <- sapply(res, '[[', 'statistic')
 des$pValues <- sapply(res, '[[', 'signif')
 
-sink('mantel-table.txt')
+sink('mantel-table-population-structure-matrices.txt')
 pander(des)
+sink()
+
+## Testing for associaton between distance matrices based on dynamics and structure
+
+des.dyn.vs.struct <- expand.grid(M1=names(pop.dyn.mats),
+                                 M2=names(pop.struct.mats),
+                                 method=methods, symmetrize=symmetrize,
+                                 stringsAsFactors=FALSE)
+des.dyn.vs.struct$permutations <- 10000
+
+res <- mapply(doTest, x=pop.dyn.mats[des.dyn.vs.struct$M1],
+              y=pop.struct.mats[des.dyn.vs.struct$M2],
+              symmetrize=des.dyn.vs.struct$symmetrize,
+              permutations=des.dyn.vs.struct$permutations,
+              SIMPLIFY=FALSE)
+
+des.dyn.vs.struct$r <- sapply(res, '[[', 'statistic')
+des.dyn.vs.struct$pValues <- sapply(res, '[[', 'signif')
+
+sink('mantel-table-population-structure-vs-dynamics-matrices.txt')
+pander(des.dyn.vs.struct)
 sink()
 
 ## get descriptive stats
 
-getDesc <- function(x) {
-  M <- getMat(x)
+getDesc <- function(M) {
   M[upper.tri(M)]
 }
-desc <- sapply(c('shipment', 'cor', 'gcd'), getDesc)
+desc <- sapply(c(pop.dyn.mats['lag1'], pop.struct.mats), getDesc)
 invisible(latex(describe(desc), file='mantel-describe.tex'))
 
 ## partial tests
 
-doPartialTest <- function(M1, M2, M3, symmetrize=FALSE, ...){
-    x <- getMat(M1)
-    y <- getMat(M2)
-    z <- getMat(M3)
+doPartialTest <- function(x, y, z, symmetrize=FALSE, ...){
     if(symmetrize){
         x <- (x + t(x)) * 0.5
         y <- (y + t(y)) * 0.5
@@ -123,15 +137,15 @@ doPartialTest <- function(M1, M2, M3, symmetrize=FALSE, ...){
     mantel.partial(x, y, z, ...)
 }
 
-desp <- data.frame(M1='shipment', M2='cor', M3='gcd',
+desp <- data.frame(M1='shipment', M2='lag0', M3='gcd',
                    symmetrize=c(TRUE, FALSE),
                    permutations=1000, stringsAsFactors=FALSE)
 
-resp <- list()
-for(i in seq_len(nrow(desp))){
-    print(i)
-    resp[[i]] <- do.call(doPartialTest, as.list(desp[i, ]))
-}
+resp <- mapply(doPartialTest, x=pop.struct.mats[desp$M1],
+               y=pop.dyn.mats[desp$M2], z=pop.struct.mats[desp$M3],
+               symmetrize=desp$symmetrize,
+               permutations=desp$permutations,
+               SIMPLIFY=FALSE)
 
 desp$r <- sapply(resp, '[[', 'statistic')
 desp$pValues <- sapply(resp, '[[', 'signif')
