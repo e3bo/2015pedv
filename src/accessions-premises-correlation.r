@@ -282,5 +282,4 @@ g <- g + theme(legend.justification=c(1,0), legend.position=c(1,0))
 
 ggsave('count-time-series-yr2014.pdf', plot=g, width=6.5, height=8)
 
-
-save.image('accessions-premises-correlation.r')
+save.image('accessions-premises-correlation.RData')
