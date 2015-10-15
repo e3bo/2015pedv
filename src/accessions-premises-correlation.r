@@ -3,6 +3,7 @@
 library(grImport)
 library(plyr)
 library(reshape2)
+library(ggplot2)
 
 Sys.setlocale("LC_TIME", "C") #Needed for identical()
 Sys.setlocale("LC_COLLATE", "C")
@@ -229,5 +230,57 @@ print(mg)
 
 print("The means:")
 colMeans(mg[, 3:4])
+
+agg <- aggregate(cbind(accessions, confPresum) ~ variable, data=mg, FUN=sum)
+agg$acc.per.conf <- agg$accessions / agg$confPresum
+agg <- agg[order(agg$accessions), ]
+print("accessions and confPresum by state:")
+print(agg)
+
+png('accessions-per-confirmed-for-each-state.png')
+plot(acc.per.conf~accessions, data=agg, ylab='accessions per confirmed+presumed premises')
+dev.off()
+
+
+## Look at confirmed and accessions
+
+tab3w2 <- dcast(tab3[tab3$row != 'total', ], date~col, value.var="confirmed")
+tab3w2[is.na(tab3w2)] <- 0
+
+stopifnot(rowSums(tab3w2[, -c(1, 29)]) == tab3w2$total)
+
+m32 <- melt(tab3w2, id.var='date', value.name='confirmed')
+mg2 <- merge(mg, m32)
+test <- mg2$variable=='total'
+mg2 <- mg2[!test, ]
+
+df <- melt(mg2, id=c('date', 'variable'),
+           measure.vars=c('confPresum', 'accessions', 'confirmed'),
+           variable.name='count.type', value.name='count')
+
+g <- ggplot(data=df, aes(x=date, y=count, col=count.type, shape=count.type))
+g <- g + geom_hline(h=0, col='lightgrey')
+g <- g + geom_point(alpha=0.8)
+g <- g + theme_classic()
+g <- g + scale_colour_manual(
+    values = c(confPresum="#4477AA", confirmed="#DDCC77", accessions="#CC6677"),
+    name='Count type',
+    labels=c(confPresum='Confirmed + presumed\npremises', confirmed='Confirmed premises',
+        accessions='Positive accessions'))
+g <- g + scale_shape(name='Count type',
+                     labels=c(confPresum='Confirmed + presumed\npremises',
+                         confirmed='Confirmed premises',
+                         accessions='Positive accessions'))
+g <- g + theme(strip.background = element_blank())
+g <- g + theme(plot.margin=unit(c(0,2,2,0),"mm"))
+g <- g + theme(axis.title.x = element_text(vjust=-0.5))
+g <- g + theme(text = element_text(size=10))
+g <- g + theme(line = element_line(size=0.25))
+g <- g + facet_wrap(~variable)
+g <- g + labs(x='Date', y='Count')
+g <- g + theme(legend.justification=c(1,0), legend.position=c(1,0))
+
+ggsave('count-time-series-yr2014.pdf', plot=g, width=6.5, height=8)
+
 
 save.image('accessions-premises-correlation.r')
