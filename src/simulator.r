@@ -209,6 +209,17 @@ events.by.state <- function(x, what) {
 cum.infections <- sapply(step, events.by.state, what='infection.time')
 cum.recoveries <- sapply(step, events.by.state, what='recovery.time')
 no.infected <- cum.infections - cum.recoveries
+new.cases <- t(apply(cum.infections, 1, diff))
+new.cases <- cbind(cum.infections[, 1], new.cases)
 
-matplot(step, t(no.infected), type='l')
+tmpf <- function(x, size=1.75) {
+  rnbinom(n=x, size=size, mu=.76 + 1.92 *x)
+}
+reports <- t(apply(new.cases, 1, tmpf))
+
+matplot(step, t(reports), type='l')
+
+
 sts <- ts(t(no.infected))
+
+

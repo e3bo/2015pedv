@@ -1,6 +1,8 @@
 #!/usr/bin/Rscript
 
+library(car)
 library(grImport)
+library(MASS)
 library(plyr)
 library(reshape2)
 library(ggplot2)
@@ -253,6 +255,21 @@ m32 <- melt(tab3w2, id.var='date', value.name='confirmed')
 mg2 <- merge(mg, m32)
 test <- mg2$variable=='total'
 mg2 <- mg2[!test, ]
+
+tmpf <- function(){
+    mnb <- glm.nb(accessions ~ confPresum, data=mg2, link=identity)
+    ot <- outlierTest(mnb)
+    print(summary(mnb))
+    print(ot)
+    outlier.inds <- as.integer(names(ot$rstudent))
+    mnb.no.out <- glm.nb(accessions ~ confPresum, data=mg2[-outlier.inds, ],
+                         link=identity)
+    print(summary(mnb.no.out))
+    ot2 <- outlierTest(mnb.no.out)
+    print(ot2)
+  }
+tmpf()
+
 
 df <- melt(mg2, id=c('date', 'variable'),
            measure.vars=c('confPresum', 'accessions', 'confirmed'),
