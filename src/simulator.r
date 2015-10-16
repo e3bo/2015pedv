@@ -9,9 +9,12 @@ Sys.setlocale("LC_COLLATE", "C")
 
 set.seed(4253)
 library(maptools)
+library(MASS)
 library(raster)
+library(reshape2)
 library(rgdal)
 library(igraph)
+library(vegan)
 print(sessionInfo())
 
 #' ## Load data
@@ -131,15 +134,16 @@ tmpf <- function(rel='directed') {
     n <- fiAll[state.abb, ]$X2002.Farms
     W <- Fnorm * n
     W <- t(t(W) / n)
+    list(weights=W, Fsum=Fsum)
 }
 wcDir <- tmpf('directed')
 wcUnd <- tmpf('undirected')
 
 adf <- adf[order(adf$abb), ]
 state.tots <- rle(as.character(adf$abb))
-wcDir <- wcDir[state.tots$values, state.tots$values]
+wcDir$weights <- wcDir$weights[state.tots$values, state.tots$values]
 
-g <- sample_sbm(sum(state.tots$lengths), pref.matrix=wcDir / 1000,
+g <- sample_sbm(sum(state.tots$lengths), pref.matrix=wcDir$weights / 1000,
                 block.sizes=state.tots$lengths, directed=TRUE)
 
 ## initialize infections
@@ -147,7 +151,7 @@ g <- sample_sbm(sum(state.tots$lengths), pref.matrix=wcDir / 1000,
                                         #cases <- which(adf$cell %in% c(27799))
 adf$infection.time <- NA
 adf$recovery.time <- NA
-cases <- sample.int(nrow(adf), 10)
+cases <- sample.int(nrow(adf), 100)
 
 get.nbs <- function(cell, rast=r) {
   nb <- adjacent(x=rast, cell, directions=8)
@@ -161,8 +165,10 @@ adf$infection.time[cases] <- 0
 nsteps <- 38
 step <- 1
 tprob <- 0.01
-tprob.net <- .001
-rprob <- 0.5
+tprob.net <- 0.9
+rprob <- 1
+seasonal.factor <- function(x) -sinpi((x + 3)/ 52 * 2)
+seasonal.amplitude <- 0
 
 while(step < nsteps){
   new.cases <- repeat.cases <- integer(0)
@@ -172,7 +178,7 @@ while(step < nsteps){
     is.susceptible <- is.na(adf$infection.time[contacts])
     contacts <- contacts[is.susceptible]
     rand <- runif(n=length(contacts))
-    test <- rand < tprob
+    test <- rand < tprob * (1 + seasonal.amplitude * seasonal.factor(step))
     if(any(test)){
       new.cases <- c(new.cases, contacts[test])
     }
@@ -181,7 +187,7 @@ while(step < nsteps){
     is.susceptible <- is.na(adf$infection.time[contacts])
     contacts <- contacts[is.susceptible]
     rand <- runif(n=length(contacts))
-    test <- rand < tprob.net
+    test <- rand < tprob.net * (1 + seasonal.factor(step))
     if(any(test)){
       new.cases <- c(new.cases, contacts[test])
     }
@@ -212,14 +218,68 @@ no.infected <- cum.infections - cum.recoveries
 new.cases <- t(apply(cum.infections, 1, diff))
 new.cases <- cbind(cum.infections[, 1], new.cases)
 
-tmpf <- function(x, size=1.75) {
-  rnbinom(n=x, size=size, mu=.76 + 1.92 *x)
+tmpf <- function(x, size=1.75, prep=.51) {
+  xrep <- rbinom(x, size=x, prob=prep)
+  rnbinom(n=xrep, size=size, mu=.76 + 1.92 *xrep)
 }
 reports <- t(apply(new.cases, 1, tmpf))
 
-matplot(step, t(reports), type='l')
+observed <- t(reports)
+observed <- observed[, colSums(observed) > 0]
+load('common-data.RData')
+
+nms <- colnames(observed)
+nhood <- shared.border.adjacency[nms, nms]
+ep <- flows.matrix[nms, nms]
+epl <- log10(ep + 1)
+centerDists <- state.to.state.dists[nms, nms]
+
+CC <- GetCrossCorrs(lag=1, obs=observed)
+
+pop.struct.mats <- list('shipment'=epl, 'gcd'=-centerDists, 'sharedBord'=nhood)
+pop.dyn.mats <- list(lag1=CC)
+
+doTest <- function(x, y, symmetrize=FALSE, ...){
+    if(symmetrize){
+        x <- (x + t(x)) * 0.5
+        y <- (y + t(y)) * 0.5
+    }
+    mantel(x, y, ...)
+}
+
+methods <- c('spearman', 'pearson')
+symmetrize <- c(TRUE, FALSE)
+des <- expand.grid(M1=names(pop.dyn.mats), M2=names(pop.struct.mats),
+                   method=methods, symmetrize=symmetrize,
+                   stringsAsFactors=FALSE)
+des$permutations <- 1000
+
+res <- mapply(doTest, x=pop.dyn.mats[des$M1], y=pop.struct.mats[des$M2],
+              symmetrize=des$symmetrize, permutations=des$permutations,
+              method=des$method, SIMPLIFY=FALSE)
+
+des$r <- sapply(res, '[[', 'statistic')
+des$pValues <- sapply(res, '[[', 'signif')
+
+mantel.partial(CC, epl, centerDists)
 
 
-sts <- ts(t(no.infected))
+wc <- t(wcDir$weights %*% t(observed))
+wc <- reshape(data.frame(wc), v.names='casesDirectedFlowWeighted',
+              varying=colnames(wc), direction='long', timevar='state',
+              times=colnames(wc), idvar='week')
+wc$week <- wc$week + 1
 
+names(dimnames(observed)) <- c('week', 'state')
+om <- melt(observed, value.name='cases')
+om$state <- as.character(om$state)
+om <- merge(om, wc, by=c('week', 'state'), all.x=TRUE)
+om$directedFlow <- wcDir$Fsum[om$state]
+om$logDirectedFlow <- log10(om$directedFlow + 1)
 
+mod <- glm.nb(cases ~ logDirectedFlow, data=om)
+
+lm(log(cases+.5)~log(casesDirectedFlowWeighted +.5) + logDirectedFlow, data=om)
+par(mfrow=c(2,1))
+plot(log(cases+.5)~log(casesDirectedFlowWeighted +.5) + logDirectedFlow, data=om)
+dev.off()

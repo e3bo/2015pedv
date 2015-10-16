@@ -42,7 +42,7 @@ png('counts-of-times-each-lag-was-max-for-a-pair.png')
 plot(table(lag.max))
 dev.off()
 
-GetCrossCorrs <- function(lag, obs=observed){
+GetCrossCorrs <- function(lag, obs){
     n <- ncol(obs)
     CC <- matrix(nrow=n, ncol=n)
     getcc <- function(x,y, lag){
@@ -58,13 +58,15 @@ GetCrossCorrs <- function(lag, obs=observed){
             CC[i, j] <- getcc(obs[, j], obs[, i], lag=lag)
         }
       }
-    stopifnot(colnames(obs) == nms)
+
     colnames(CC) <- rownames(CC) <- colnames(obs)
     CC
 }
 lags.sel <- 0:2
-CC <- lapply(lags.sel, GetCrossCorrs)
+CC <- lapply(lags.sel, GetCrossCorrs, obs=observed)
 names(CC) <- paste0('lag', lags.sel)
+stopifnot(colnames(CC$lag1) == nms)
+
 
 ## Testing for association between distance matrices based on structure
 
