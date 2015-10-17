@@ -123,7 +123,7 @@ names(cell2id) <- occupied.cells
 #' calc weight for sbm
 
 tmpf <- function(rel='directed') {
-    fmo <- flowMat[state.abb, state.abb]
+    fmo <- t(flowMat[state.abb, state.abb])
     diag(fmo) <- flows[state.abb, 'impInternalFlow']
     Fund <- fmo + t(fmo)
     Fdir <- fmo

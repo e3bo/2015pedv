@@ -54,70 +54,6 @@ countyData <- tmpf()
 regs <- read.csv('reglink.csv', skip=2,
                  colClasses=c(NA, NA, 'NULL', 'NULL'))
 
-#' #' Get shipment flows data
-
-tmpf <- function(){
-    fp <- file.path('shipment-flows-origins-on-rows-dests-on-columns.csv')
-    ep <- read.csv(fp, row.names=1)
-    ep <- t(ep)
-    data.matrix(ep)
-}
-flowMat <- tmpf()
-
-#' Farms and sales by operation types
-
-tmpf <- function(){
-    censPath <- file.path('table26-2002.csv')
-    cens <- read.csv(censPath,strip.white=TRUE, na.strings='(D)',
-                     stringsAsFactors=FALSE)
-    # The introduction to the reports says '-' represents 0 and (D) means deleted for privacy
-    tmpf <- function(x) {
-        if(is.character(x)){
-            ret <- ifelse(x=='-', 0, x)
-            type.convert(ret)
-        }else{
-            x
-        }
-    }
-    cens <- lapply(as.list(cens), tmpf)
-    cens <- data.frame(cens)
-    test <- cens$GEO %in% state.name
-    stateCounts <- cens[test,]
-
-    key <- match(stateCounts$GEO, state.name)
-    stateCounts$abb <- state.abb[key]
-    stateCounts
-}
-farmsSales <- tmpf()
-
-#' Farms and inventory
-
-tmpf <- function(){
-    censPath <- file.path('table19-2002.csv')
-    cens <- read.csv(censPath,strip.white=TRUE, na.strings='(D)',
-                     stringsAsFactors=FALSE)
-    # The introduction to the reports says '-' represents 0 and (D) means deleted for privacy
-    tmpf <- function(x) {
-        if(is.character(x)){
-            ret <- ifelse(x=='-', 0, x)
-            type.convert(ret)
-        }else{
-            x
-        }
-    }
-    cens <- lapply(as.list(cens), tmpf)
-    cens <- data.frame(cens)
-    test <- cens$GEO %in% state.name
-    stateCounts <- cens[test,]
-
-    key <- match(stateCounts$GEO, state.name)
-    rownames(stateCounts) <- state.abb[key]
-    stateCounts
-}
-fiAll <- tmpf()
-
-balanceSheet <- read.csv('state-hogBalanceSheetDec2000Dec2001.csv',
-                         na.strings='-', row.names=1, colClasses=c(state2='NULL'))
 
 #' ## Data preparation
 
@@ -154,107 +90,15 @@ tmpf <- function() {
 }
 stateCty <- tmpf()
 
-tmpf <- function() {
-    plotPredDemandSales <- function(feederDemand, deaths, estFeederProduction, imp, exp){
-        par(mfrow=c(3,2))
-        internalSupply <- estFeederProduction - exp
-        demand <- feederDemand + deaths
-        internalDemand <- demand - imp
-        plot(internalSupply, internalDemand)
-        abline(0,1)
-        plot(internalSupply, internalDemand, log='xy')
-        text(internalSupply, internalDemand, labels=names(exp))
-        abline(0,1)
-        res <- log(internalSupply) - log(internalDemand)
-        barplot(res, names.arg=names(exp), las=2)
-        qqnorm(res)
-        predInternalFlow <- exp(log(internalDemand) + res/2)
-        plot(internalSupply, predInternalFlow, log='xy')
-        text(internalSupply, predInternalFlow, labels=names(exp))
-        abline(0,1)
-        plot(internalDemand, predInternalFlow, log='xy')
-        text(internalDemand, predInternalFlow, labels=names(exp))
-        abline(0,1)
-        par(mfrow=c(1,1))
-        cbind(internalSupply, internalDemand, predInternalFlow, exports=exp, imports=imp)
-    }
-
-    deaths <- balanceSheet[-51,]$deaths*1000
-    labs <- rownames(balanceSheet)[1:50]
-    imports <- rowSums(flowMat[labs,])
-    exports <- colSums(flowMat[,labs])
-    feederDemand <- rowSums(cbind(farmsSales$Finish.only.Number, farmsSales$Nursery.number),
-                            na.rm=FALSE)
-    deaths <- balanceSheet[-51,]$deaths*1000
-    estFeederProduction <- rowSums(cbind(farmsSales$Farrow.to.wean.Number,
-                                         farmsSales$Farrow.to.feeder.Number,
-                                         farmsSales$Nursery.Number), na.rm=FALSE)
-    plotPredDemandSales(feederDemand=feederDemand, deaths=deaths,
-                             estFeederProduction=estFeederProduction, imp=imports, exp=exports)
-}
-flows <- tmpf()
-
-imp <- ifelse(is.na(flows[ ,'internalSupply']) | flows[, 'internalSupply'] <= 0, flows[, 'internalDemand'], flows[, 'internalSupply'])
-imp <- ifelse(is.na(flows[, 'predInternalFlow']), imp, flows[, 'predInternalFlow'])
-flows <- cbind(flows, impInternalFlow=imp)
-
-
-tmpf <- function() {
-    totalFlows <- flows[, c('exports', 'imports', 'impInternalFlow')]  %*% c(1,1,2)
-                                        # Multiply internal flows by 2 since they are both imports and exports
-    barplot(sort(totalFlows[,1]), log='y', ylab='Head', xlab='State', las=2)
-    ord <- order(totalFlows)
-    sel <- rownames(totalFlows)[ord]
-    cols <- c('impInternalFlow', 'exports', 'imports')
-    h <- flows[sel, cols]
-    h <- h %*% diag(c(2, 1, 1))
-    h <- h[complete.cases(h), ]
-    colnames(h) <- cols
-    barplot(t(h), las=2, legend.text=T, args.legend=list(x="topleft"), ylab='Head', xlab='State')
-}
-tmpf()
 
 #' Get case data
 
-tmpf <- function(){
-    fn <- file.path('PEDvweeklyreport-state-ts-01-08-14.csv')
-    ret <- read.csv(fn)
-    ret[1:9, c('CA', 'MD', 'NE', 'WY')] <- 0
-    key <- order(colnames(ret)[-c(1:2)])
-    ret <- cbind(ret[, c(1:2)], ret[, -c(1:2)][, key])
-    ret$Unk <- NULL
-    target <- structure(list(week = structure(c(20L, 29L, 32L, 8L, 12L),
-  .Label = c("10/13/2013", "10/20/2013", "10/27/2013", "10/6/2013",
-  "11/10/2013", "11/17/2013", "11/24/2013", "11/3/2013", "12/1/2013",
-  "12/15/2013", "12/22/2013", "12/29/2013", "12/8/2013", "4/15/2013",
-  "4/22/2013", "4/29/2013", "5/13/2013", "5/20/2013", "5/27/2013",
-  "5/6/2013", "6/10/2013", "6/16/2013", "6/23/2013", "6/3/2013",
-  "6/30/2013", "7/14/2013", "7/21/2013", "7/28/2013", "7/7/2013",
-  "8/11/2013", "8/18/2013", "8/25/2013", "8/4/2013", "9/1/2013",
-  "9/15/2013", "9/22/2013", "9/29/2013", "9/8/2013"), class = "factor"),
-  totalNumberSwineAccessions = c(17L, 34L, 26L, 90L, 134L), CA = c(0, 0,
-  0, 0, 1), CO = c(1L, 1L, 0L, 0L, 0L), IA = c(8L, 6L, 2L, 38L, 54L), IL
-  = c(0L, 1L, 0L, 1L, 14L), IN = c(3L, 2L, 1L, 1L, 3L), KS = c(0L, 4L,
-  3L, 6L, 4L), KY = c(0L, 0L, 0L, 0L, 0L), MD = c(0, 0, 0, 0, 0), MI =
-  c(0L, 0L, 0L, 2L, 0L), MN = c(1L, 2L, 2L, 7L, 20L), MO = c(0L, 0L, 0L,
-  2L, 4L), NC = c(0L, 3L, 4L, 14L, 18L), NE = c(0, 0, 0, 0, 2), NY =
-  c(0L, 0L, 0L, 0L, 0L), OH = c(0L, 2L, 1L, 5L, 5L), OK = c(0L, 11L,
-  10L, 10L, 2L), PA = c(1L, 0L, 3L, 1L, 0L), SD = c(0L, 0L, 0L, 0L, 3L),
-  TN = c(0L, 0L, 0L, 1L, 1L), TX = c(0L, 0L, 0L, 1L, 1L), WI = c(0L, 0L,
-  0L, 1L, 0L ), WY = c(0, 0, 0, 0, 1)), .Names = c("week",
-  "totalNumberSwineAccessions", "CA", "CO", "IA", "IL", "IN", "KS",
-  "KY", "MD", "MI", "MN", "MO", "NC", "NE", "NY", "OH", "OK", "PA",
-  "SD", "TN", "TX", "WI", "WY" ), row.names = c(4L, 13L, 20L, 30L, 38L),
-  class = "data.frame")
-    stopifnot(identical(target, ret[c(4,13,20,30,38),]))
-    ret
-}
-caseData <- tmpf()
+load('common-data.RData')
 
 tmpf <- function() {
     unwanted <- c('week', 'totalNumberSwineAccessions', 'Unk')
-    ind <- which(!colnames(caseData) %in% unwanted)
-    observed <- caseData[, ind]
+    ind <- which(!colnames(real.case.data) %in% unwanted)
+    observed <- real.case.data[, ind]
     avail <- rownames(flows)[!is.na(flows[, 'impInternalFlow'])]
     zeros <- setdiff(avail, colnames(observed))
     observed[, zeros] <- 0
@@ -262,9 +106,10 @@ tmpf <- function() {
 }
 observed <- tmpf()
 
-tmpf <- function() {
+tmpf <- function(observed, fiAll) {
     om <- reshape(observed, v.names='cases', varying=colnames(observed),
-                  direction='long', timevar='state', times=colnames(observed), idvar='week')
+                  direction='long', timevar='state', times=colnames(observed),
+                  idvar='week')
     splt <- split(om, om$state)
     tmpf <- function(x) {
         ord <- order(x$week)
@@ -302,7 +147,7 @@ tmpf <- function() {
     test <- !is.na(om$internalFlow)
     om[test, ]
 }
-om <- tmpf()
+om <- tmpf(observed=observed, fiAll=farms.and.inventory)
 om <- merge(om, stateCty, by='state')
 rownames(om) <- paste(om$week, om$state, sep='.')
 
@@ -756,7 +601,7 @@ tmpf(m$nb)
 #' previous week by the amount of flow between that state and other
 #' states.
 
-tmpf <- function(rel='directed') {
+tmpf <- function(rel='directed', flowMat, flows, fiAll, observed) {
     fmo <- flowMat[state.abb, state.abb]
     diag(fmo) <- flows[state.abb, 'impInternalFlow']
     Fund <- fmo + t(fmo)
@@ -777,8 +622,10 @@ tmpf <- function(rel='directed') {
     Wobs <- W %*% t(observed)
     list(ts=t(Wobs), Fsum=Fsum)
 }
-wcDir <- tmpf('directed')
-wcUnd <- tmpf('undirected')
+wcDir <- tmpf('directed', flowMat=t(flows.matrix), flows=internal.flows,
+              fiAll=farms.and.inventory, observed=observed)
+wcUnd <- tmpf('undirected', flowMat=t(flows.matrix), flows=internal.flows,
+              fiAll=farms.and.inventory, observed=observed))
 
 par(mfrow=c(3,1))
 plot.ts(wcDir$ts, plot.type='single')

@@ -1,13 +1,18 @@
-#!/usr/bin/Rscript
-
-library(igraph)
-library(maps) # for state.fips
-library(sp)
-
+#+setup, include=FALSE, cache=FALSE
+library(knitr)
+opts_chunk$set(fig.path='data-prep-figures/', fig.align='center', fig.show='hold')
+options(replace.assign=TRUE,width=80)
 Sys.setlocale("LC_TIME", "C") #Needed for identical()
 Sys.setlocale("LC_COLLATE", "C")
 
-## Get case data
+#' ## Load packages
+
+library(igraph)
+library(maps) # for state.fips
+library(sp) # for spDists
+print(sessionInfo())
+
+#' ## Assemble commonly used data
 
 dataDir <- '.'
 
@@ -65,6 +70,7 @@ GetShipmentFlows <- function(){
     file <- file.path(dataDir, 'shipment-flows-origins-on-rows-dests-on-columns.csv')
     flows.matrix <- read.csv(file, row.names=1)
     flows.matrix <- data.matrix(flows.matrix)
+    names(dimnames(flows.matrix)) <- c('origin', 'destination')
 
     stopifnot(rownames(flows.matrix) == colnames(flows.matrix))
     diag(flows.matrix) <- NA ## these are not part of original data
@@ -77,6 +83,7 @@ GetShipmentFlows <- function(){
     stopifnot(flows.matrix['MO', 'IA'] == 2389932)
     stopifnot(flows.matrix['OK', 'CA'] == 16762)
     stopifnot(flows.matrix['MO', 'CA'] == 645)
+
     flows.matrix
   }
 flows.matrix <- GetShipmentFlows()
@@ -89,5 +96,121 @@ GetStateDists <- function(){
 }
 state.to.state.dists <- GetStateDists()
 
-save(real.case.data, shared.border.adjacency, flows.matrix, state.to.state.dists,
-     file='common-data.RData')
+GetFarmsInventory <- function(){
+    censPath <- file.path('table19-2002.csv')
+    cens <- read.csv(censPath, strip.white=TRUE, na.strings='(D)',
+                     stringsAsFactors=FALSE)
+    ## The introduction to the reports says '-' represents 0
+    ## and (D) means deleted for privacy
+    tmpf <- function(x) {
+        if(is.character(x)){
+            ret <- ifelse(x=='-', 0, x)
+            type.convert(ret)
+        }else{
+            x
+        }
+    }
+    cens <- lapply(as.list(cens), tmpf)
+    cens <- data.frame(cens)
+    test <- cens$GEO %in% state.name
+    stateCounts <- cens[test, ]
+    key <- match(stateCounts$GEO, state.name)
+    rownames(stateCounts) <- state.abb[key]
+    stateCounts
+}
+farms.and.inventory <- GetFarmsInventory()
+
+balance.sheet.01.02 <- read.csv('state-hogBalanceSheetDec2000Dec2001.csv',
+                                na.strings='-', row.names=1,
+                                colClasses=c(state2='NULL'))
+
+GetFarmsSales <- function(){
+    censPath <- file.path('table26-2002.csv')
+    cens <- read.csv(censPath,strip.white=TRUE, na.strings='(D)',
+                     stringsAsFactors=FALSE)
+    ## The introduction to the reports says '-' represents 0
+    ## and (D) means deleted for privacy
+    tmpf <- function(x) {
+        if(is.character(x)){
+            ret <- ifelse(x=='-', 0, x)
+            type.convert(ret)
+        }else{
+            x
+        }
+    }
+    cens <- lapply(as.list(cens), tmpf)
+    cens <- data.frame(cens)
+    test <- cens$GEO %in% state.name
+    stateCounts <- cens[test, ]
+    key <- match(stateCounts$GEO, state.name)
+    stateCounts$abb <- state.abb[key]
+    stateCounts
+}
+farms.and.sales <- GetFarmsSales()
+
+GetInternalFlows <- function(balanceSheet, flowMat, farmsSales) {
+  plotPredDemandSales <- function(feederDemand, deaths, estFeederProduction,
+                                  imp, exp){
+    par(mfrow=c(3,2))
+    internalSupply <- estFeederProduction - exp
+    demand <- feederDemand + deaths
+    internalDemand <- demand - imp
+    plot(internalSupply, internalDemand)
+    abline(0,1)
+    plot(internalSupply, internalDemand, log='xy')
+    text(internalSupply, internalDemand, labels=names(exp))
+    abline(0,1)
+    res <- log(internalSupply) - log(internalDemand)
+    barplot(res, names.arg=names(exp), las=2)
+    qqnorm(res)
+    predInternalFlow <- exp(log(internalDemand) + res/2)
+    plot(internalSupply, predInternalFlow, log='xy')
+    text(internalSupply, predInternalFlow, labels=names(exp))
+    abline(0,1)
+    plot(internalDemand, predInternalFlow, log='xy')
+    text(internalDemand, predInternalFlow, labels=names(exp))
+    abline(0,1)
+    par(mfrow=c(1,1))
+    cbind(internalSupply, internalDemand, predInternalFlow, exports=exp,
+          imports=imp)
+  }
+  deaths <- balanceSheet[-51,]$deaths*1000
+  labs <- rownames(balanceSheet)[1:50]
+  diag(flowMat) <- 0
+  imports <- colSums(flowMat)[labs]
+  exports <- rowSums(flowMat)[labs]
+  feederDemand <- rowSums(cbind(farmsSales$Finish.only.Number,
+                                farmsSales$Nursery.number),
+                          na.rm=FALSE)
+  deaths <- balanceSheet[-51, ]$deaths * 1000
+  estFeederProduction <- rowSums(cbind(farmsSales$Farrow.to.wean.Number,
+                                       farmsSales$Farrow.to.feeder.Number,
+                                       farmsSales$Nursery.Number), na.rm=FALSE)
+  flows <- plotPredDemandSales(feederDemand=feederDemand, deaths=deaths,
+                             estFeederProduction=estFeederProduction, imp=imports,
+                               exp=exports)
+  imp <- ifelse(is.na(flows[ ,'internalSupply']) | flows[, 'internalSupply'] <= 0,
+                flows[, 'internalDemand'], flows[, 'internalSupply'])
+  imp <- ifelse(is.na(flows[, 'predInternalFlow']), imp, flows[, 'predInternalFlow'])
+  cbind(flows, impInternalFlow=imp)
+}
+internal.flows <- GetInternalFlows(balanceSheet=balance.sheet.01.02,
+                                   flowMat=flows.matrix, farmsSales=farms.and.sales)
+
+PlotFlows <- function(flows) {
+  totalFlows <- flows[, c('exports', 'imports', 'impInternalFlow')] %*% c(1, 1, 2)
+  ## Multiply internal flows by 2 since they are both imports and exports
+  barplot(sort(totalFlows[,1]), log='y', ylab='Head', xlab='State', las=2)
+    ord <- order(totalFlows)
+    sel <- rownames(totalFlows)[ord]
+    cols <- c('impInternalFlow', 'exports', 'imports')
+    h <- flows[sel, cols]
+    h <- h %*% diag(c(2, 1, 1))
+    h <- h[complete.cases(h), ]
+    colnames(h) <- cols
+    barplot(t(h), las=2, legend.text=T, args.legend=list(x="topleft"), ylab='Head', xlab='State')
+}
+PlotFlows(flows=internal.flows)
+
+
+save.image(file='common-data.RData')
