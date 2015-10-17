@@ -2,8 +2,6 @@
 library(knitr)
 opts_chunk$set(fig.path='flows-figures/', fig.align='center', fig.show='hold')
 options(replace.assign=TRUE,width=80)
-Sys.setlocale("LC_TIME", "C") #Needed for identical()
-Sys.setlocale("LC_COLLATE", "C")
 
 #' ## Load Packages
 
@@ -13,100 +11,28 @@ library(car)
 library(Hmisc)
 library(pscl)
 library(glmmADMB)
-library(plyr)
 library(ggplot2)
 print(sessionInfo())
 
 #' ## Load data
 
-#' County land areas
-
-rd <- read.delim('2013_Gaz_counties_national.txt')
-rd <- rd[, c('GEOID', 'ALAND')]
-
-#' Hog farm counts by county
-
-tmpf <- function(){
-    data(county.fips, package='maps')
-  cens <- read.csv('table-12-hogs-and-pigs-by-county.csv',strip.white=TRUE, na.strings='(D)',
-                   stringsAsFactors=FALSE)
-# The introduction to the reports says '-' represents 0 and (D) means deleted for privacy
-  tmpf <- function(x) {
-      if(is.character(x)){
-          ret <- ifelse(x=='-', 0, x)
-          type.convert(ret)
-      }else{
-          x
-      }
-  }
-  cens <- lapply(as.list(cens), tmpf)
-  cens <- data.frame(cens)
-  test <- cens$STCOFIPS %in% county.fips$fips
-  cens <- cens[test,]
-  ind <- grep('farms, 2007)$', cens$ITEM)
-  cens <- cens[ind,]
-  cens
-}
-countyData <- tmpf()
-
-#' ERS farm resource regions
-
-regs <- read.csv('reglink.csv', skip=2,
-                 colClasses=c(NA, NA, 'NULL', 'NULL'))
-
-
-#' ## Data preparation
-
-#' Derive state-level summaries of county-level data
-
-tmpf <- function() {
-    ctyTots <- ddply(countyData, 'STCOFIPS', summarize, totalFarms=sum(DATA), STFIPS=STFIPS[1],
-                     smallFarms = sum(DATA[
-                         "Inventory \\ Total hogs and pigs \\ Farms by inventory \\ 1 to 24 (farms, 2007)" == ITEM]))
-    ctyTots$nonSmallFarms <- with(ctyTots, totalFarms - smallFarms)
-    mg <- merge(ctyTots, rd, by.x='STCOFIPS', by.y='GEOID')
-    mg <- merge(regs, mg, by.x='Fips', by.y='STCOFIPS')
-    mg$kmsq <- mg$ALAND/1e6
-    mg$nonSmallDense <- mg$nonSmallFarms / mg$kmsq
-    mg$farmDense <- mg$totalFarms / mg$kmsq
-    stateCty <- ddply(mg, 'STFIPS', summarize, totNonSmall=sum(nonSmallFarms),
-                      mDense=mean(farmDense),
-                      cmDense=mean(farmDense[totalFarms > 0]),
-                      medDense=median(farmDense),
-                      cmedDense=median(farmDense[totalFarms > 0]),
-                      reg1=weighted.mean(ERS.resource.region==1, w=totalFarms),
-                      reg2=weighted.mean(ERS.resource.region==2, w=totalFarms),
-                      reg3=weighted.mean(ERS.resource.region==3, w=totalFarms),
-                      reg4=weighted.mean(ERS.resource.region==4, w=totalFarms),
-                      reg5=weighted.mean(ERS.resource.region==5, w=totalFarms),
-                      reg6=weighted.mean(ERS.resource.region==6, w=totalFarms),
-                      reg7=weighted.mean(ERS.resource.region==7, w=totalFarms),
-                      reg8=weighted.mean(ERS.resource.region==8, w=totalFarms),
-                      reg9=weighted.mean(ERS.resource.region==9, w=totalFarms))
-    data(state.fips, package='maps')
-    key <- match(stateCty$STFIPS, state.fips$fips)
-    stateCty$state <- state.fips$abb[key]
-    stateCty
-}
-stateCty <- tmpf()
-
-
-#' Get case data
-
 load('common-data.RData')
 
-tmpf <- function() {
+#' ## Prep data
+
+ObservedMatchingInternalFlows <- function(flows, case.data) {
     unwanted <- c('week', 'totalNumberSwineAccessions', 'Unk')
-    ind <- which(!colnames(real.case.data) %in% unwanted)
-    observed <- real.case.data[, ind]
+    ind <- which(!colnames(case.data) %in% unwanted)
+    observed <- case.data[, ind]
     avail <- rownames(flows)[!is.na(flows[, 'impInternalFlow'])]
     zeros <- setdiff(avail, colnames(observed))
     observed[, zeros] <- 0
     observed
 }
-observed <- tmpf()
+observed <- ObservedMatchingInternalFlows(flows=internal.flows,
+                                          case.data=real.case.data)
 
-tmpf <- function(observed, fiAll) {
+ReshapeAugmentObserved <- function(observed, fiAll, flows) {
     om <- reshape(observed, v.names='cases', varying=colnames(observed),
                   direction='long', timevar='state', times=colnames(observed),
                   idvar='week')
@@ -147,8 +73,9 @@ tmpf <- function(observed, fiAll) {
     test <- !is.na(om$internalFlow)
     om[test, ]
 }
-om <- tmpf(observed=observed, fiAll=farms.and.inventory)
-om <- merge(om, stateCty, by='state')
+om <- ReshapeAugmentObserved(observed=observed, fiAll=farms.and.inventory,
+                             flows=internal.flows)
+om <- merge(om, state.summaries, by='state')
 rownames(om) <- paste(om$week, om$state, sep='.')
 
 #' We've removed data where the flows are missing to allow to make sure
@@ -164,10 +91,10 @@ iqr <- function(x) diff(quantile(x, probs=c(.25, .75), na.rm=TRUE))
 scaleiqr <- function(x) scale(x, scale=iqr(x))
 clog <- function(x) log(x + 0.5)
 
-om$logInternalFlowScaled <- scaleiqr(log(2*om$internalFlow))
+om$logInternalFlowScaled <- scaleiqr(log(2 * om$internalFlow))
 om$weekCent <- scale(om$week, center=TRUE, scale=FALSE)
-om$logCmedDenseScaled <- scaleiqr(log(om$cmedDense*om$nFarms*om$nFarms))
-om$logMDenseScaled <- scaleiqr(log(om$mDense*om$nFarms*om$nFarms))
+om$logCmedDenseScaled <- scaleiqr(log(om$cmedDense * om$nFarms * om$nFarms))
+om$logMDenseScaled <- scaleiqr(log(om$mDense * om$nFarms * om$nFarms))
 
 om$clogCases1wa <- clog(om$cases1WksAgo)
 om$clogCases2wa <- clog(om$cases2WksAgo)
@@ -275,7 +202,7 @@ likRatio(m$nbN, m$nb)
 #' The current choice is highly correlated with flows on the log scale
 #' as shown next, but we'll try another one to be safe.
 
-tmpf <- function() {
+tmpf <- function(stateCty) {
     sel <- unique(om$state)
     rownames(stateCty) <- stateCty$state
     den <- stateCty[sel, c('mDense', 'cmDense', 'medDense', 'cmedDense')]
@@ -288,7 +215,7 @@ tmpf <- function() {
     }
     lapply(c(pearson='pearson', spearman='spearman'), tmpff)
 }
-tmpf()
+tmpf(stateCty=state.summaries)
 
 m$nbmDense <- update(m$nb, . ~ . - logMedDenseScaled + logMDenseScaled)
 m$nbmDenseN <- update(m$nbmDense, . ~ . - logInternalFlowScaled, control=glm.control(maxit=60))
@@ -606,7 +533,7 @@ tmpf <- function(rel='directed', flowMat, flows, fiAll, observed) {
     diag(fmo) <- flows[state.abb, 'impInternalFlow']
     Fund <- fmo + t(fmo)
     Fdir <- fmo
-                                            #Fdir[i, j] == head sent to i from j
+    ## Fdir[i, j] == head sent to i from j
     if(rel == 'directed') {
         F <- fmo
     } else {

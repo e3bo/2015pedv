@@ -9,6 +9,7 @@ Sys.setlocale("LC_COLLATE", "C")
 
 library(igraph)
 library(maps) # for state.fips
+library(plyr)
 library(sp) # for spDists
 print(sessionInfo())
 
@@ -208,9 +209,71 @@ PlotFlows <- function(flows) {
     h <- h %*% diag(c(2, 1, 1))
     h <- h[complete.cases(h), ]
     colnames(h) <- cols
-    barplot(t(h), las=2, legend.text=T, args.legend=list(x="topleft"), ylab='Head', xlab='State')
+  barplot(t(h), las=2, legend.text=T, args.legend=list(x="topleft"), ylab='Head',
+          xlab='State')
 }
 PlotFlows(flows=internal.flows)
 
+county.areas <- read.delim('2013_Gaz_counties_national.txt')
+county.areas <- county.areas[, c('GEOID', 'ALAND')]
+
+GetCountyHogs <- function(){
+  data(county.fips, package='maps')
+  cens <- read.csv('table-12-hogs-and-pigs-by-county.csv',strip.white=TRUE,
+                   na.strings='(D)', stringsAsFactors=FALSE)
+  ## The introduction to the reports says '-' represents 0
+  ## and (D) means deleted for privacy
+  tmpf <- function(x) {
+      if(is.character(x)){
+          ret <- ifelse(x=='-', 0, x)
+          type.convert(ret)
+      }else{
+          x
+      }
+  }
+  cens <- lapply(as.list(cens), tmpf)
+  cens <- data.frame(cens)
+  test <- cens$STCOFIPS %in% county.fips$fips
+  cens <- cens[test,]
+  ind <- grep('farms, 2007)$', cens$ITEM)
+  cens <- cens[ind,]
+  cens
+}
+county.hogs.pigs <- GetCountyHogs()
+
+resource.regs <- read.csv('reglink.csv', skip=2,
+                          colClasses=c(NA, NA, 'NULL', 'NULL'))
+
+GetStateSummaries <- function(regs, rd, countyData) {
+  ctyTots <- ddply(countyData, 'STCOFIPS', summarize, totalFarms=sum(DATA),
+                   STFIPS=STFIPS[1],
+     smallFarms = sum(DATA["Inventory \\ Total hogs and pigs \\ Farms by inventory \\ 1 to 24 (farms, 2007)" == ITEM]))
+    ctyTots$nonSmallFarms <- with(ctyTots, totalFarms - smallFarms)
+    mg <- merge(ctyTots, rd, by.x='STCOFIPS', by.y='GEOID')
+    mg <- merge(regs, mg, by.x='Fips', by.y='STCOFIPS')
+    mg$kmsq <- mg$ALAND/1e6
+    mg$nonSmallDense <- mg$nonSmallFarms / mg$kmsq
+    mg$farmDense <- mg$totalFarms / mg$kmsq
+    stateCty <- ddply(mg, 'STFIPS', summarize, totNonSmall=sum(nonSmallFarms),
+                      mDense=mean(farmDense),
+                      cmDense=mean(farmDense[totalFarms > 0]),
+                      medDense=median(farmDense),
+                      cmedDense=median(farmDense[totalFarms > 0]),
+                      reg1=weighted.mean(ERS.resource.region==1, w=totalFarms),
+                      reg2=weighted.mean(ERS.resource.region==2, w=totalFarms),
+                      reg3=weighted.mean(ERS.resource.region==3, w=totalFarms),
+                      reg4=weighted.mean(ERS.resource.region==4, w=totalFarms),
+                      reg5=weighted.mean(ERS.resource.region==5, w=totalFarms),
+                      reg6=weighted.mean(ERS.resource.region==6, w=totalFarms),
+                      reg7=weighted.mean(ERS.resource.region==7, w=totalFarms),
+                      reg8=weighted.mean(ERS.resource.region==8, w=totalFarms),
+                      reg9=weighted.mean(ERS.resource.region==9, w=totalFarms))
+    data(state.fips, package='maps')
+    key <- match(stateCty$STFIPS, state.fips$fips)
+    stateCty$state <- state.fips$abb[key]
+    stateCty
+}
+state.summaries <- GetStateSummaries(regs=resource.regs, rd=county.areas,
+                                     countyData=county.hogs.pigs)
 
 save.image(file='common-data.RData')
