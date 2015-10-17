@@ -20,10 +20,9 @@ print(sessionInfo())
 #' ## Source R scripts
 
 source('mantel-testing-functions.R')
+source('regression-modeling-functions.R')
 
 #' ## Load data
-
-load('flows-checkpoint1.RData')
 
 ea.proj <- "+proj=laea +lat_0=45 +lon_0=-100 +x_0=0 +y_0=0 +a=6370997 +b=6370997 +units=m +no_defs" ## NAD83 Lambert Azimuthal Equal Area
 
@@ -36,7 +35,7 @@ cb <- readOGR('cb_2014_us_county_500k', 'cb_2014_us_county_500k')
 
 cb.ea <- spTransform(cb, CRS(ea.proj))
 
-tmpf <- function(geo=cb.ea){
+tmpf <- function(geo, countyData){
   sf <- countyData$STFIPS
   cf <- countyData$COFIPS
   sf <- formatC(sf, flag="0", format="d", width=2)
@@ -46,7 +45,7 @@ tmpf <- function(geo=cb.ea){
   test <- test1 & test2
   geo[test, ]
 }
-cb2 <- tmpf()
+cb2 <- tmpf(geo=cb.ea, countyData=county.hogs.pigs)
 
 plotAllCountiesWithFarmData <- function(){
     plot(cb2)
@@ -77,8 +76,9 @@ testSamplingOfCountiesWithHoles <- function(){
    getSamp(cfps=15, sfps=51, n=100, plot.samp=TRUE)
 }
 
-coord.samps <- mapply(getSamp, cfps=countyData$COFIPS, sfps=countyData$STFIPS,
-                      n=countyData$DATA, SIMPLIFY=FALSE)
+coord.samps <- mapply(getSamp, cfps=county.hogs.pigs$COFIPS,
+                      sfps=county.hogs.pigs$STFIPS,
+                      n=county.hogs.pigs$DATA, SIMPLIFY=FALSE)
 
 #' #Make raster grid
 
@@ -102,15 +102,16 @@ plotCellCounts <- function(){
 }
 
 ## convert fips to abbreviation
-stfips.rle <- list(lengths=countyData$DATA, values=countyData$STFIPS)
+stfips.rle <- list(lengths=county.hogs.pigs$DATA, values=county.hogs.pigs$STFIPS)
 data(state.fips, package='maps')
-key <- match(countyData$STFIPS, state.fips$fips)
-countyData$abb <- as.character(state.fips$abb[key])
+key <- match(county.hogs.pigs$STFIPS, state.fips$fips)
+county.hogs.pigs$abb <- as.character(state.fips$abb[key])
 
 ## create agent data structures
 
 adf <- data.frame(cell=unlist(cell.samps),
-                  abb=rep(countyData$abb, times=countyData$DATA),
+                  abb=rep(county.hogs.pigs$abb,
+                      times=county.hogs.pigs$DATA),
                   infection.time=NA,
                   recovery.time=NA)
 
@@ -122,12 +123,12 @@ names(cell2id) <- occupied.cells
 
 #' calc weight for sbm
 
-tmpf <- function(rel='directed') {
+tmpf <- function(rel='directed', flowMat, flows, fiAll) {
     fmo <- t(flowMat[state.abb, state.abb])
     diag(fmo) <- flows[state.abb, 'impInternalFlow']
     Fund <- fmo + t(fmo)
     Fdir <- fmo
-                                            #Fdir[i, j] == head sent to i from j
+   ## Fdir[i, j] == head sent to i from j
     if(rel == 'directed') {
         F <- fmo
     } else {
@@ -140,8 +141,8 @@ tmpf <- function(rel='directed') {
     W <- t(t(W) / n)
     list(weights=W, Fsum=Fsum)
 }
-wcDir <- tmpf('directed')
-wcUnd <- tmpf('undirected')
+wcDir <- tmpf('directed', flowMat=flows.matrix, flows=internal.flows,
+              fiAll=farms.and.inventory)
 
 adf <- adf[order(adf$abb), ]
 state.tots <- rle(as.character(adf$abb))
@@ -169,8 +170,8 @@ adf$infection.time[cases] <- 0
 nsteps <- 38
 step <- 1
 tprob <- 0.01
-tprob.net <- 0.9
-rprob <- 1
+tprob.net <- 0.001
+rprob <- 0.5
 seasonal.factor <- function(x) -sinpi((x + 3)/ 52 * 2)
 seasonal.amplitude <- 0
 
@@ -239,22 +240,11 @@ mantel.tests <- DoMantelTests(pop.dyn.mats, pop.struct.mats, permutations=1e2)
 
 ## Regression model
 
-wc <- t(wcDir$weights %*% t(observed))
-wc <- reshape(data.frame(wc), v.names='casesDirectedFlowWeighted',
-              varying=colnames(wc), direction='long', timevar='state',
-              times=colnames(wc), idvar='week')
-wc$week <- wc$week + 1
+om <- GetRegressionData(case.data=as.data.frame(observed), flows=internal.flows,
+                        fiAll=farms.and.inventory, stateCty=state.summaries)
 
-names(dimnames(observed)) <- c('week', 'state')
-om <- melt(observed, value.name='cases')
-om$state <- as.character(om$state)
-om <- merge(om, wc, by=c('week', 'state'), all.x=TRUE)
-om$directedFlow <- wcDir$Fsum[om$state]
-om$logDirectedFlow <- log10(om$directedFlow + 1)
-
-mod <- glm.nb(cases ~ logDirectedFlow, data=om)
-
-lm(log(cases+.5)~log(casesDirectedFlowWeighted +.5) + logDirectedFlow, data=om)
-par(mfrow=c(2,1))
-plot(log(cases+.5)~log(casesDirectedFlowWeighted +.5) + logDirectedFlow, data=om)
-dev.off()
+m <- list()
+f <- list()
+f$lm <- as.formula(clog(cases) ~ clogCases1wa + logInternalFlowScaled + logCmedDenseScaled + weekCent + offset(log(nSusc1WksAgo) - 2*log(nFarms)))
+m$lm <- lm(f$lm, data=om)
+summary(m$lm)
