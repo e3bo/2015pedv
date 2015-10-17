@@ -17,6 +17,10 @@ library(igraph)
 library(vegan)
 print(sessionInfo())
 
+#' ## Source R scripts
+
+source('mantel-testing-functions.R')
+
 #' ## Load data
 
 load('flows-checkpoint1.RData')
@@ -205,7 +209,7 @@ while(step < nsteps){
   step <- step + 1
 }
 
-## tabulation of case counts
+## Tabulation of case counts
 
 step <- seq(1, to=nsteps)
 
@@ -226,43 +230,14 @@ reports <- t(apply(new.cases, 1, tmpf))
 
 observed <- t(reports)
 observed <- observed[, colSums(observed) > 0]
-load('common-data.RData')
 
-nms <- colnames(observed)
-nhood <- shared.border.adjacency[nms, nms]
-ep <- flows.matrix[nms, nms]
-epl <- log10(ep + 1)
-centerDists <- state.to.state.dists[nms, nms]
+## Mantel tests
 
-CC <- GetCrossCorrs(lag=1, obs=observed)
+pop.struct.mats <- MakePopStructMats(observed)
+pop.dyn.mats <- MakePopDynMats(observed)
+mantel.tests <- DoMantelTests(pop.dyn.mats, pop.struct.mats, permutations=1e2)
 
-pop.struct.mats <- list('shipment'=epl, 'gcd'=-centerDists, 'sharedBord'=nhood)
-pop.dyn.mats <- list(lag1=CC)
-
-doTest <- function(x, y, symmetrize=FALSE, ...){
-    if(symmetrize){
-        x <- (x + t(x)) * 0.5
-        y <- (y + t(y)) * 0.5
-    }
-    mantel(x, y, ...)
-}
-
-methods <- c('spearman', 'pearson')
-symmetrize <- c(TRUE, FALSE)
-des <- expand.grid(M1=names(pop.dyn.mats), M2=names(pop.struct.mats),
-                   method=methods, symmetrize=symmetrize,
-                   stringsAsFactors=FALSE)
-des$permutations <- 1000
-
-res <- mapply(doTest, x=pop.dyn.mats[des$M1], y=pop.struct.mats[des$M2],
-              symmetrize=des$symmetrize, permutations=des$permutations,
-              method=des$method, SIMPLIFY=FALSE)
-
-des$r <- sapply(res, '[[', 'statistic')
-des$pValues <- sapply(res, '[[', 'signif')
-
-mantel.partial(CC, epl, centerDists)
-
+## Regression model
 
 wc <- t(wcDir$weights %*% t(observed))
 wc <- reshape(data.frame(wc), v.names='casesDirectedFlowWeighted',
