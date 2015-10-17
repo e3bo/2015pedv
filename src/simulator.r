@@ -76,15 +76,65 @@ testSamplingOfCountiesWithHoles <- function(){
    getSamp(cfps=15, sfps=51, n=100, plot.samp=TRUE)
 }
 
+n <- floor(county.hogs.pigs$DATA / 10)
 coord.samps <- mapply(getSamp, cfps=county.hogs.pigs$COFIPS,
                       sfps=county.hogs.pigs$STFIPS,
-                      n=county.hogs.pigs$DATA, SIMPLIFY=FALSE)
+                      n=n, SIMPLIFY=FALSE)
 
 #' #Make raster grid
 
 r <- raster(cb2)
 res(r) <- 1600 * 10
-#adj <- adjacent(r, 1:ncell(r), directions=8) ## this could be quickly calculated as needed
+
+my.8.nbs <- function(r, cell){
+  nc <- ncol(r)
+  nr <- nrow(r)
+  row.num <- (cell - 1) %/% nc + 1
+  col.num <- (cell - 1) %% nc + 1
+  nbs <- list()
+  i <- 1
+  ## First row
+  if (row.num > 1){
+      nbs[[i]] <- cell - nc
+      i <- i + 1
+      if (col.num > 1){
+          nbs[[i]] <- cell - nc - 1
+          i <- i + 1
+      }
+      if (col.num < nc){
+          nbs[[i]] <- cell - nc + 1
+          i <- i + 1
+      }
+  }
+  ## Second row
+  if (col.num > 1){
+      nbs[[i]] <- cell - 1
+      i <- i + 1
+  }
+  nbs[[i]] <- cell
+  i <- i + 1
+  if (col.num < nc){
+      nbs[[i]] <- cell + 1
+      i <- i + 1
+  }
+  ## Last row
+  if (row.num < nr){
+      nbs[[i]] <- cell + nc
+      i <- i + 1
+      if (col.num > 1){
+          nbs[[i]] <- cell + nc - 1
+          i <- i + 1
+      }
+      if (col.num < nc){
+          nbs[[i]] <- cell + nc + 1
+          i <- i + 1
+      }
+  }
+  unlist(nbs)
+}
+    
+tmpf <- function(x) my.8.nbs(r, x)
+adj <- lapply(1:ncell(r), tmpf)
 
 tmpf <- function(xy) {
   if(is.null(xy)) {
@@ -111,11 +161,9 @@ county.hogs.pigs$abb <- as.character(state.fips$abb[key])
 
 adf <- data.frame(cell=unlist(cell.samps),
                   abb=rep(county.hogs.pigs$abb,
-                      times=county.hogs.pigs$DATA),
+                      times=n),
                   infection.time=NA,
                   recovery.time=NA)
-
-sp.nbs <- vector('list', length=nrow(adf))
 
 occupied.cells <- unique(adf$cell)
 cell2id <- lapply(occupied.cells, function(x) which(adf$cell == x))
@@ -148,70 +196,77 @@ adf <- adf[order(adf$abb), ]
 state.tots <- rle(as.character(adf$abb))
 wcDir$weights <- wcDir$weights[state.tots$values, state.tots$values]
 
-g <- sample_sbm(sum(state.tots$lengths), pref.matrix=wcDir$weights / 1000,
+g <- sample_sbm(sum(state.tots$lengths), pref.matrix=wcDir$weights / 10,
                 block.sizes=state.tots$lengths, directed=TRUE)
+
+get.nbs <- function(cell, nb.adj=adj) {
+  #nb <- adjacent(x=rast, cell, directions=8, include=TRUE)
+  #nb.cells <- nb[, 'to']
+  #ind <- nb.adj[, 'from'] == cell
+  nb.cells <- adj[[cell]]
+  cell.names <- as.character(c(cell, nb.cells))
+  unlist(cell2id[cell.names])
+}
 
 ## initialize infections
 
                                         #cases <- which(adf$cell %in% c(27799))
 adf$infection.time <- NA
 adf$recovery.time <- NA
-cases <- sample.int(nrow(adf), 100)
+sp.nbs <- vector('list', length=nrow(adf))
 
-get.nbs <- function(cell, rast=r) {
-  nb <- adjacent(x=rast, cell, directions=8)
-  nb.cells <- nb[, 'to']
-  cell.names <- as.character(c(cell, nb.cells))
-  unlist(cell2id[cell.names])
-}
+cases <- sample.int(nrow(adf), 100)
 sp.nbs[cases] <- lapply(adf$cell[cases], get.nbs)
 adf$infection.time[cases] <- 0
 
-nsteps <- 38
+nsteps <- 4
 step <- 1
 tprob <- 0.001
-tprob.net <- 0.8
-rprob <- 0.5
+tprob.net <- 0.1
+rprob <- 1
 seasonal.factor <- function(x) -sinpi((x + 3)/ 52 * 2)
 seasonal.amplitude <- 0
 
-while(step < nsteps){
-  new.cases <- repeat.cases <- integer(0)
-  for (case in cases){
-    ## spatial transmission
-    contacts <- sp.nbs[[case]]
-    is.susceptible <- is.na(adf$infection.time[contacts])
-    contacts <- contacts[is.susceptible]
-    rand <- runif(n=length(contacts))
-    test <- rand < tprob * (1 + seasonal.amplitude * seasonal.factor(step))
-    if(any(test)){
-      new.cases <- c(new.cases, contacts[test])
+run.sims <- function() {
+  while(step < nsteps){
+    new.cases <- repeat.cases <- integer(0)
+    for (case in cases){
+      ## spatial transmission
+      contacts <- sp.nbs[[case]]
+      is.susceptible <- is.na(adf$infection.time[contacts])
+      contacts <- contacts[is.susceptible]
+      rand <- runif(n=length(contacts))
+      test <- rand < tprob * (1 + seasonal.amplitude * seasonal.factor(step))
+      if(any(test)){
+        new.cases <- c(new.cases, contacts[test])
+      }
+      ## network transmission
+      contacts <- neighbors(g, v=case, mode='out')
+      is.susceptible <- is.na(adf$infection.time[contacts])
+      contacts <- contacts[is.susceptible]
+      rand <- runif(n=length(contacts))
+      test <- rand < tprob.net * (1 + seasonal.factor(step))
+      if(any(test)){
+        new.cases <- c(new.cases, contacts[test])
+      }
+      rand2 <- runif(n=1)
+      if(rand2 > rprob){
+        repeat.cases <- c(repeat.cases, case)
+      } else {
+        adf$recovery.time[case] <- step
+      }
     }
-    ## network transmission
-    contacts <- neighbors(g, v=case, mode='out')
-    is.susceptible <- is.na(adf$infection.time[contacts])
-    contacts <- contacts[is.susceptible]
-    rand <- runif(n=length(contacts))
-    test <- rand < tprob.net * (1 + seasonal.factor(step))
-    if(any(test)){
-      new.cases <- c(new.cases, contacts[test])
-    }
-    rand2 <- runif(n=1)
-    if(rand2 > rprob){
-      repeat.cases <- c(repeat.cases, case)
-    } else {
-      adf$recovery.time[case] <- step
-    }
+    sp.nbs[new.cases] <- lapply(adf$cell[new.cases], get.nbs)
+    adf$infection.time[new.cases] <- step
+    cases <- c(new.cases, repeat.cases)
+    cat('step: ', step, '\n')
+    step <- step + 1
   }
-  print(system.time(sp.nbs[new.cases] <- lapply(adf$cell[new.cases], get.nbs)))
-  adf$infection.time[new.cases] <- step
-  cases <- c(new.cases, repeat.cases)
-  cat('step: ', step, '\n')
-  step <- step + 1
 }
 
 ## Tabulation of case counts
 
+run.sims()
 step <- seq(1, to=nsteps)
 
 events.by.state <- function(x, what) {
