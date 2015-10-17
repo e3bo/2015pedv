@@ -169,8 +169,8 @@ adf$infection.time[cases] <- 0
 
 nsteps <- 38
 step <- 1
-tprob <- 0.01
-tprob.net <- 0.001
+tprob <- 0.001
+tprob.net <- 0.8
 rprob <- 0.5
 seasonal.factor <- function(x) -sinpi((x + 3)/ 52 * 2)
 seasonal.amplitude <- 0
