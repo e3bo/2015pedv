@@ -76,7 +76,7 @@ testSamplingOfCountiesWithHoles <- function(){
    getSamp(cfps=15, sfps=51, n=100, plot.samp=TRUE)
 }
 
-n <- floor(county.hogs.pigs$DATA / 10)
+n <- county.hogs.pigs$DATA
 coord.samps <- mapply(getSamp, cfps=county.hogs.pigs$COFIPS,
                       sfps=county.hogs.pigs$STFIPS,
                       n=n, SIMPLIFY=FALSE)
@@ -132,7 +132,7 @@ my.8.nbs <- function(r, cell){
   }
   unlist(nbs)
 }
-    
+
 tmpf <- function(x) my.8.nbs(r, x)
 adj <- lapply(1:ncell(r), tmpf)
 
@@ -196,7 +196,7 @@ adf <- adf[order(adf$abb), ]
 state.tots <- rle(as.character(adf$abb))
 wcDir$weights <- wcDir$weights[state.tots$values, state.tots$values]
 
-g <- sample_sbm(sum(state.tots$lengths), pref.matrix=wcDir$weights / 10,
+g <- sample_sbm(sum(state.tots$lengths), pref.matrix=wcDir$weights / 1000,
                 block.sizes=state.tots$lengths, directed=TRUE)
 
 get.nbs <- function(cell, nb.adj=adj) {
@@ -204,30 +204,30 @@ get.nbs <- function(cell, nb.adj=adj) {
   #nb.cells <- nb[, 'to']
   #ind <- nb.adj[, 'from'] == cell
   nb.cells <- adj[[cell]]
-  cell.names <- as.character(c(cell, nb.cells))
+  cell.names <- as.character(nb.cells)
   unlist(cell2id[cell.names])
 }
+sp.nbs <- lapply(adf$cell, get.nbs)
 
 ## initialize infections
 
-                                        #cases <- which(adf$cell %in% c(27799))
 adf$infection.time <- NA
 adf$recovery.time <- NA
-sp.nbs <- vector('list', length=nrow(adf))
+cases <- sample.int(nrow(adf), 10)
 
-cases <- sample.int(nrow(adf), 100)
-sp.nbs[cases] <- lapply(adf$cell[cases], get.nbs)
+#sp.nbs <- vector('list', length=nrow(adf))
+#sp.nbs[cases] <- lapply(adf$cell[cases], get.nbs)
 adf$infection.time[cases] <- 0
 
-nsteps <- 4
+nsteps <- 10
 step <- 1
-tprob <- 0.001
-tprob.net <- 0.1
+tprob <- 0.1
+tprob.net <- 0.01
 rprob <- 1
 seasonal.factor <- function(x) -sinpi((x + 3)/ 52 * 2)
 seasonal.amplitude <- 0
 
-run.sims <- function() {
+run.sims <- function(adf) {
   while(step < nsteps){
     new.cases <- repeat.cases <- integer(0)
     for (case in cases){
@@ -256,21 +256,22 @@ run.sims <- function() {
         adf$recovery.time[case] <- step
       }
     }
-    sp.nbs[new.cases] <- lapply(adf$cell[new.cases], get.nbs)
+    #sp.nbs[new.cases] <- lapply(adf$cell[new.cases], get.nbs)
     adf$infection.time[new.cases] <- step
     cases <- c(new.cases, repeat.cases)
     cat('step: ', step, '\n')
     step <- step + 1
   }
+  adf
 }
 
 ## Tabulation of case counts
 
-run.sims()
+adf.out <- run.sims(adf)
 step <- seq(1, to=nsteps)
 
 events.by.state <- function(x, what) {
-  tapply(adf[[what]] < x, adf$abb, sum, na.rm=TRUE)
+  tapply(adf.out[[what]] < x, adf.out$abb, sum, na.rm=TRUE)
 }
 cum.infections <- sapply(step, events.by.state, what='infection.time')
 cum.recoveries <- sapply(step, events.by.state, what='recovery.time')
@@ -301,5 +302,8 @@ om <- GetRegressionData(case.data=as.data.frame(observed), flows=internal.flows,
 m <- list()
 f <- list()
 f$lm <- as.formula(clog(cases) ~ clogCases1wa + logInternalFlowScaled + logCmedDenseScaled + weekCent + offset(log(nSusc1WksAgo) - 2*log(nFarms)))
+f$ct <- update(f$lm, cases ~ .)
+
 m$lm <- lm(f$lm, data=om)
+m$ct <- glm.nb(f$ct, data=om)
 summary(m$lm)
