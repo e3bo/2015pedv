@@ -209,6 +209,9 @@ get.nbs <- function(cell, nb.adj=adj) {
 }
 sp.nbs <- lapply(adf$cell, get.nbs)
 
+net.nbs <- adjacent_vertices(g, v=V(g), mode='out')
+net.nbs <- sapply(net.nbs, as.integer)
+
 ## initialize infections
 
 adf$infection.time <- NA
@@ -219,7 +222,7 @@ cases <- sample.int(nrow(adf), 10)
 #sp.nbs[cases] <- lapply(adf$cell[cases], get.nbs)
 adf$infection.time[cases] <- 0
 
-nsteps <- 10
+nsteps <- 6
 step <- 1
 tprob <- 0.1
 tprob.net <- 0.01
@@ -241,7 +244,7 @@ run.sims <- function(adf) {
         new.cases <- c(new.cases, contacts[test])
       }
       ## network transmission
-      contacts <- neighbors(g, v=case, mode='out')
+      contacts <- net.nbs[[case]]
       is.susceptible <- is.na(adf$infection.time[contacts])
       contacts <- contacts[is.susceptible]
       rand <- runif(n=length(contacts))
@@ -273,6 +276,7 @@ step <- seq(1, to=nsteps)
 events.by.state <- function(x, what) {
   tapply(adf.out[[what]] < x, adf.out$abb, sum, na.rm=TRUE)
 }
+
 cum.infections <- sapply(step, events.by.state, what='infection.time')
 cum.recoveries <- sapply(step, events.by.state, what='recovery.time')
 no.infected <- cum.infections - cum.recoveries
