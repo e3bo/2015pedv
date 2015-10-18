@@ -232,6 +232,7 @@ seasonal.amplitude <- 0
 
 run.sims <- function(adf) {
   while(step < nsteps){
+    sf <- seasonal.factor(step)
     new.cases <- repeat.cases <- integer(0)
     for (case in cases){
       ## spatial transmission
@@ -239,7 +240,7 @@ run.sims <- function(adf) {
       is.susceptible <- is.na(adf$infection.time[contacts])
       contacts <- contacts[is.susceptible]
       rand <- runif(n=length(contacts))
-      test <- rand < tprob * (1 + seasonal.amplitude * seasonal.factor(step))
+      test <- rand < tprob * (1 + seasonal.amplitude * sf)
       if(any(test)){
         new.cases <- c(new.cases, contacts[test])
       }
