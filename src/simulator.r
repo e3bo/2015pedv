@@ -212,64 +212,55 @@ sp.nbs <- lapply(adf$cell, get.nbs)
 net.nbs <- adjacent_vertices(g, v=V(g), mode='out')
 net.nbs <- sapply(net.nbs, as.integer)
 
-## initialize infections
-
-adf$infection.time <- NA
-adf$recovery.time <- NA
-cases <- sample.int(nrow(adf), 10)
-
-#sp.nbs <- vector('list', length=nrow(adf))
-#sp.nbs[cases] <- lapply(adf$cell[cases], get.nbs)
-adf$infection.time[cases] <- 0
-
-nsteps <- 6
-step <- 1
-tprob <- 0.1
-tprob.net <- 0.01
-rprob <- 1
-seasonal.factor <- function(x) -sinpi((x + 3)/ 52 * 2)
-seasonal.amplitude <- 0
-
-run.sims <- function(adf) {
+run.sims <- function(adf, verbose=TRUE) {
   while(step < nsteps){
-    sf <- seasonal.factor(step)
-    new.cases <- repeat.cases <- integer(0)
-    for (case in cases){
-      ## spatial transmission
-      contacts <- sp.nbs[[case]]
-      is.susceptible <- is.na(adf$infection.time[contacts])
-      contacts <- contacts[is.susceptible]
-      rand <- runif(n=length(contacts))
-      test <- rand < tprob * (1 + seasonal.amplitude * sf)
-      if(any(test)){
-        new.cases <- c(new.cases, contacts[test])
-      }
-      ## network transmission
-      contacts <- net.nbs[[case]]
-      is.susceptible <- is.na(adf$infection.time[contacts])
-      contacts <- contacts[is.susceptible]
-      rand <- runif(n=length(contacts))
-      test <- rand < tprob.net * (1 + seasonal.factor(step))
-      if(any(test)){
-        new.cases <- c(new.cases, contacts[test])
-      }
-      rand2 <- runif(n=1)
-      if(rand2 > rprob){
-        repeat.cases <- c(repeat.cases, case)
-      } else {
-        adf$recovery.time[case] <- step
-      }
-    }
-    #sp.nbs[new.cases] <- lapply(adf$cell[new.cases], get.nbs)
+    sf <- (1 + seasonal.amplitude * seasonal.factor(step))
+    net.contact.dist <- table(unlist(net.nbs[cases]))
+    sp.contact.dist <- table(unlist(sp.nbs[cases]))
+    tprob.sp.t <- tprob.sp * sf
+    tprob.net.t <- tprob.net * sf
+
+    avoidance.probs.sp <- (1 - tprob.sp.t)^sp.contact.dist
+    avoidance.probs.net <- (1 - tprob.net.t)^net.contact.dist
+
+    rand <- runif(n=length(avoidance.probs.sp))
+    test <- rand > avoidance.probs.sp
+    ids <- as.integer(names(sp.contact.dist))
+    new.cases.sp <- ids[test]
+
+    rand <- runif(n=length(avoidance.probs.net))
+    test <- rand > avoidance.probs.net
+    ids <- as.integer(names(net.contact.dist))
+    new.cases.net <- ids[test]
+
+    new.cases <- unique(c(new.cases.net, new.cases.sp))
+    is.susceptible <- is.na(adf$infection.time[new.cases])
+    new.cases <- new.cases[is.susceptible]
     adf$infection.time[new.cases] <- step
+
+    rand <- runif(n=length(cases))
+    test <- rand > rprob
+    repeat.cases <- cases[test]
+    adf$recovery.time[cases[!test]] <- step
     cases <- c(new.cases, repeat.cases)
-    cat('step: ', step, '\n')
+    if(verbose) cat('step: ', step, '\n')
     step <- step + 1
   }
   adf
 }
 
-## Tabulation of case counts
+adf$infection.time <- NA
+adf$recovery.time <- NA
+cases <- sample.int(nrow(adf), 10)
+adf$infection.time[cases] <- 0
+
+nsteps <- 38
+step <- 1
+tprob.sp <- 0.01
+tprob.net <- 0.01
+rprob <- 0.5
+seasonal.factor <- function(x) -sinpi((x + 3)/ 52 * 2)
+seasonal.amplitude <- 0
 
 adf.out <- run.sims(adf)
 step <- seq(1, to=nsteps)
@@ -291,10 +282,11 @@ tmpf <- function(x, size=1.75, prep=.51) {
 reports <- t(apply(new.cases, 1, tmpf))
 
 observed <- t(reports)
-observed <- observed[, colSums(observed) > 0]
+
 
 ## Mantel tests
 
+observed <- observed[, colSums(observed) > 0]
 pop.struct.mats <- MakePopStructMats(observed)
 pop.dyn.mats <- MakePopDynMats(observed)
 mantel.tests <- DoMantelTests(pop.dyn.mats, pop.struct.mats, permutations=1e2)
