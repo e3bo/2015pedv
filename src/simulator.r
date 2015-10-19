@@ -45,7 +45,7 @@ tmpf <- function(geo, countyData){
   test <- test1 & test2
   geo[test, ]
 }
-cb2 <- tmpf(geo=cb.ea, countyData=county.hogs.pigs)
+cb2 <- tmpf(geo=cb.ea, countyData=county.hogs.pigs.02)
 
 plotAllCountiesWithFarmData <- function(){
     plot(cb2)
@@ -76,9 +76,9 @@ testSamplingOfCountiesWithHoles <- function(){
    getSamp(cfps=15, sfps=51, n=100, plot.samp=TRUE)
 }
 
-n <- county.hogs.pigs$DATA
-coord.samps <- mapply(getSamp, cfps=county.hogs.pigs$COFIPS,
-                      sfps=county.hogs.pigs$STFIPS,
+n <- county.hogs.pigs.02$DATA
+coord.samps <- mapply(getSamp, cfps=county.hogs.pigs.02$COFIPS,
+                      sfps=county.hogs.pigs.02$STFIPS,
                       n=n, SIMPLIFY=FALSE)
 
 #' #Make raster grid
@@ -152,15 +152,16 @@ plotCellCounts <- function(){
 }
 
 ## convert fips to abbreviation
-stfips.rle <- list(lengths=county.hogs.pigs$DATA, values=county.hogs.pigs$STFIPS)
+stfips.rle <- list(lengths=county.hogs.pigs.02$DATA,
+                   values=county.hogs.pigs.02$STFIPS)
 data(state.fips, package='maps')
-key <- match(county.hogs.pigs$STFIPS, state.fips$fips)
-county.hogs.pigs$abb <- as.character(state.fips$abb[key])
+key <- match(county.hogs.pigs.02$STFIPS, state.fips$fips)
+county.hogs.pigs.02$abb <- as.character(state.fips$abb[key])
 
 ## create agent data structures
 
 adf <- data.frame(cell=unlist(cell.samps),
-                  abb=rep(county.hogs.pigs$abb,
+                  abb=rep(county.hogs.pigs.02$abb,
                       times=n),
                   infection.time=NA,
                   recovery.time=NA)
@@ -257,10 +258,10 @@ adf$infection.time[cases] <- 0
 nsteps <- 38
 step <- 1
 tprob.sp <- 0.01
-tprob.net <- 0.01
+tprob.net <- 0.0
 rprob <- 0.5
 seasonal.factor <- function(x) -sinpi((x + 3)/ 52 * 2)
-seasonal.amplitude <- 0
+seasonal.amplitude <- .2
 
 adf.out <- run.sims(adf)
 step <- seq(1, to=nsteps)
@@ -275,13 +276,14 @@ no.infected <- cum.infections - cum.recoveries
 new.cases <- t(apply(cum.infections, 1, diff))
 new.cases <- cbind(cum.infections[, 1], new.cases)
 
-tmpf <- function(x, size=1.75, prep=.51) {
+tmpf <- function(x, size=1.75, prep=.02) {
   xrep <- rbinom(x, size=x, prob=prep)
   rnbinom(n=xrep, size=size, mu=.76 + 1.92 *xrep)
 }
 reports <- t(apply(new.cases, 1, tmpf))
 
 observed <- t(reports)
+#observed <- t(new.cases)
 
 
 ## Mantel tests
@@ -289,7 +291,7 @@ observed <- t(reports)
 observed <- observed[, colSums(observed) > 0]
 pop.struct.mats <- MakePopStructMats(observed)
 pop.dyn.mats <- MakePopDynMats(observed)
-mantel.tests <- DoMantelTests(pop.dyn.mats, pop.struct.mats, permutations=1e2)
+mantel.tests <- DoMantelTests(pop.dyn.mats, pop.struct.mats, permutations=1e3)
 
 ## Regression model
 
@@ -299,8 +301,15 @@ om <- GetRegressionData(case.data=as.data.frame(observed), flows=internal.flows,
 m <- list()
 f <- list()
 f$lm <- as.formula(clog(cases) ~ clogCases1wa + logInternalFlowScaled + logCmedDenseScaled + weekCent + offset(log(nSusc1WksAgo) - 2*log(nFarms)))
+
+f$lm <- as.formula(clog(cases) ~ clogCases1wa + logCmedDenseScaled + logInternalFlowScaled + weekCent + offset(log(nSusc1WksAgo) - 2*log(nFarms)))
+
+
+#f$lm <- as.formula(clog(cases) ~ clogCases1wa + logInternalFlowScaled + logCmedDenseScaled + weekCent + offset(-log(nFarms)))
+
 f$ct <- update(f$lm, cases ~ .)
 
 m$lm <- lm(f$lm, data=om)
 m$ct <- glm.nb(f$ct, data=om)
 summary(m$lm)
+summary(m$ct)

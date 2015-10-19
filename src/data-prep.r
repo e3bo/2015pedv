@@ -217,7 +217,7 @@ PlotFlows(flows=internal.flows)
 county.areas <- read.delim('2013_Gaz_counties_national.txt')
 county.areas <- county.areas[, c('GEOID', 'ALAND')]
 
-GetCountyHogs <- function(){
+GetCountyHogs <- function(ITEM.pattern){
   data(county.fips, package='maps')
   cens <- read.csv('table-12-hogs-and-pigs-by-county.csv',strip.white=TRUE,
                    na.strings='(D)', stringsAsFactors=FALSE)
@@ -235,11 +235,12 @@ GetCountyHogs <- function(){
   cens <- data.frame(cens)
   test <- cens$STCOFIPS %in% county.fips$fips
   cens <- cens[test,]
-  ind <- grep('farms, 2007)$', cens$ITEM)
+  ind <- grep(ITEM.pattern, cens$ITEM)
   cens <- cens[ind,]
   cens
 }
-county.hogs.pigs <- GetCountyHogs()
+county.hogs.pigs <- GetCountyHogs(ITEM.pattern='farms, 2007)$')
+county.hogs.pigs.02 <- GetCountyHogs(ITEM.pattern='farms, 2002)$')
 
 resource.regs <- read.csv('reglink.csv', skip=2,
                           colClasses=c(NA, NA, 'NULL', 'NULL'))
