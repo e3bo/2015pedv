@@ -1,7 +1,7 @@
 
 Get8nbs <- function(r, cell){
-  nc <- ncol(r)
-  nr <- nrow(r)
+  nc <- raster::ncol(r)
+  nr <- raster::nrow(r)
   row.num <- (cell - 1) %/% nc + 1
   col.num <- (cell - 1) %% nc + 1
   nbs <- list()
@@ -68,7 +68,7 @@ CreateAgents <- function(job, static,
        sfps <- formatC(sfps, flag="0", format="d", width=2)
        ind <- which(spdf@data[, 'COUNTYFP']==cfps & spdf@data[, 'STATEFP']==sfps)
        cty.poly <- spdf[ind, ]
-       samp <- spsample(cty.poly, type='random', n=n, iter=10)
+       samp <- sp::spsample(cty.poly, type='random', n=n, iter=10)
        if(plot.samp){
           plot(cty.poly)
           points(samp)
@@ -83,14 +83,14 @@ CreateAgents <- function(job, static,
 
   ## Convert coordinates to cell membership in raster layer
 
-  raster.map <- raster(county.hogs.pigs.02.map)
+  raster.map <- raster::raster(county.hogs.pigs.02.map)
   res(raster.map) <- raster.cell.side.meters
 
   tmpf <- function(xy, r=raster.map) {
     if(is.null(xy)) {
       NULL
     } else {
-      cellFromXY(object=r, xy=xy)
+      raster::cellFromXY(object=r, xy=xy)
     }
   }
   cell.samps <- lapply(coord.samps, tmpf)
@@ -132,7 +132,7 @@ CreateAgents <- function(job, static,
       pm <- t(t(pm) / n)
       pm
   }
-  
+
   adf <- adf[order(adf$abb), ]
   state.tots <- rle(as.character(adf$abb))
   names(state.tots$lengths) <- state.tots$values
@@ -141,9 +141,9 @@ CreateAgents <- function(job, static,
   pref.matrix <- GetPrefMat(flowMat=flows.matrix, flows=internal.flows,
                             farms.by.state=state.tots$lengths)
   pref.matrix <- pref.matrix * edge.per.flow
-  trans.net <- sample_sbm(sum(state.tots$lengths), pref.matrix=pref.matrix,
-                          block.sizes=state.tots$lengths, directed=TRUE)
-  net.nbs <- adjacent_vertices(trans.net, v=V(trans.net), mode='out')
+  trans.net <- igraph::sample_sbm(sum(state.tots$lengths), pref.matrix=pref.matrix,
+                                  block.sizes=state.tots$lengths, directed=TRUE)
+  net.nbs <- igraph::adjacent_vertices(trans.net, v=V(trans.net), mode='out')
   net.nbs <- sapply(net.nbs, as.integer)
 
   list(adf=adf, net.nbs=net.nbs, sp.nbs=sp.nbs)
