@@ -47,10 +47,10 @@ Get8nbs <- function(r, cell){
 }
 
 ## TODO DATA to generate cb2 -> county.hogs.pigs.02.map
-## review pref matrix derivation for sensibility
 
 CreateAgents <- function(job, static,
-                         raster.cell.side.meters=16000, ...){
+                         raster.cell.side.meters=16000,
+                         edge.per.flow=1, ...){
   data(county.hogs.pigs.02)
   data(county.hogs.pigs.map)
   data(state.fips, package='maps')
@@ -106,8 +106,8 @@ CreateAgents <- function(job, static,
   cell2id <- lapply(occupied.cells, function(x) which(adf$cell == x))
   names(cell2id) <- occupied.cells
 
-  tmpf <- function(x, r=raster.map) my.8.nbs(r=r, x)
-  cell2nb.cells <- lapply(1:ncell(r), tmpf)
+  tmpf <- function(x, r=raster.map) Get8nbs(r=r, x)
+  cell2nb.cells <- lapply(1:ncell(raster.map), tmpf)
 
   GetSpNbs <- function(cell, adj=cell2nb.cells, c2i=cell2id) {
     nb.cells <- adj[[cell]]
@@ -118,11 +118,35 @@ CreateAgents <- function(job, static,
 
   ## Generate lookup table of neighbors by transport network
 
+  GetPrefMat <- function(rel='directed', flowMat, flows, farms.by.state) {
+      fmo <- t(flowMat[state.abb, state.abb])
+      diag(fmo) <- flows[state.abb, 'impInternalFlow']
+      ## fmo[i, j] == head sent to i from j
+      if(rel == 'directed') {
+          F <- fmo
+      } else {
+          F <- fmo + t(fmo)
+      }
+      n <- farms.by.state[state.abb]
+      pm <- F / n
+      pm <- t(t(pm) / n)
+      pm
+  }
+  
+  adf <- adf[order(adf$abb), ]
+  state.tots <- rle(as.character(adf$abb))
+  names(state.tots$lengths) <- state.tots$values
+  data(flows.matrix)
+  data(internal.flows)
+  pref.matrix <- GetPrefMat(flowMat=flows.matrix, flows=internal.flows,
+                            farms.by.state=state.tots$lengths)
+  pref.matrix <- pref.matrix * edge.per.flow
+  trans.net <- sample_sbm(sum(state.tots$lengths), pref.matrix=pref.matrix,
+                          block.sizes=state.tots$lengths, directed=TRUE)
+  net.nbs <- adjacent_vertices(trans.net, v=V(trans.net), mode='out')
+  net.nbs <- sapply(net.nbs, as.integer)
 
-
-
-
-  res
+  list(adf=adf, net.nbs=net.nbs, sp.nbs=sp.nbs)
 }
 
 RunSim <- function(adf, net.nbs, sp.nbs, nsteps=38, trpob.sp=0.01,
