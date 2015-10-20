@@ -172,29 +172,30 @@ names(cell2id) <- occupied.cells
 
 #' calc weight for sbm
 
-tmpf <- function(rel='directed', flowMat, flows, fiAll) {
+tmpf <- function(rel='directed', flowMat, flows, farms.by.state) {
     fmo <- t(flowMat[state.abb, state.abb])
     diag(fmo) <- flows[state.abb, 'impInternalFlow']
-    Fund <- fmo + t(fmo)
-    Fdir <- fmo
-   ## Fdir[i, j] == head sent to i from j
+    ## fmo[i, j] == head sent to i from j
     if(rel == 'directed') {
         F <- fmo
     } else {
         F <- fmo + t(fmo)
     }
     Fsum <- rowSums(F)
-    Fnorm <- F/Fsum
-    n <- fiAll[state.abb, ]$X2002.Farms
+    Fnorm <- F / Fsum
+    n <- farms.by.state[state.abb]
     W <- Fnorm * n
     W <- t(t(W) / n)
     list(weights=W, Fsum=Fsum)
 }
-wcDir <- tmpf('directed', flowMat=flows.matrix, flows=internal.flows,
-              fiAll=farms.and.inventory)
 
 adf <- adf[order(adf$abb), ]
 state.tots <- rle(as.character(adf$abb))
+names(state.tots$lengths) <- state.tots$values
+
+wcDir <- tmpf('directed', flowMat=flows.matrix, flows=internal.flows,
+              farms.by.state=state.tots$lengths)
+
 wcDir$weights <- wcDir$weights[state.tots$values, state.tots$values]
 
 g <- sample_sbm(sum(state.tots$lengths), pref.matrix=wcDir$weights / 1000,
