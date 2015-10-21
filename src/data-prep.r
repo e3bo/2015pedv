@@ -5,17 +5,10 @@ options(replace.assign=TRUE,width=80)
 Sys.setlocale("LC_TIME", "C") #Needed for identical()
 Sys.setlocale("LC_COLLATE", "C")
 
-#' ## Load packages
-
-library(igraph)
-library(maps) # for state.fips
-library(plyr)
-library(sp) # for spDists
+#+include=TRUE
 print(sessionInfo())
-
-#' ## Assemble commonly used data
-
-dataDir <- '.'
+dataDir <- file.path('.')
+obs <- list()
 
 GetCaseData <- function(){
   fn <- file.path(dataDir, 'PEDvweeklyreport-state-ts-01-08-14.csv')
@@ -52,20 +45,20 @@ class = "data.frame")
   ret$week <- as.Date(wk, format = "%m/%d/%Y")
   ret
 }
-real.case.data <- GetCaseData()
+obs$real.case.data <- GetCaseData()
 
 GetSharedBorderAdjacencyMatrix <- function(){
     nbEdgelist <- read.csv(file.path(dataDir, 'state_neighbors_fips.txt'),
                            header=FALSE)
-    data(state.fips)
-    g <- graph.data.frame(nbEdgelist, directed=FALSE)
-    g <- simplify(g)
-    key <- match(V(g)$name, state.fips$fips)
+    data(state.fips, package='maps')
+    g <- igraph::graph.data.frame(nbEdgelist, directed=FALSE)
+    g <- igraph::simplify(g)
+    key <- match(igraph::V(g)$name, state.fips$fips)
     abb <- state.fips$abb[key]
-    V(g)$name <- as.character(abb)
+    igraph::V(g)$name <- as.character(abb)
     as.matrix(g[, ])
 }
-shared.border.adjacency <- GetSharedBorderAdjacencyMatrix()
+obs$shared.border.adjacency <- GetSharedBorderAdjacencyMatrix()
 
 GetShipmentFlows <- function(){
     file <- file.path(dataDir, 'shipment-flows-origins-on-rows-dests-on-columns.csv')
@@ -87,18 +80,18 @@ GetShipmentFlows <- function(){
 
     flows.matrix
   }
-flows.matrix <- GetShipmentFlows()
+obs$flows.matrix <- GetShipmentFlows()
 
 GetStateDists <- function(){
   x <- do.call(cbind, state.center)
-  M <- spDists(x, longlat=TRUE)
+  M <- sp::spDists(x, longlat=TRUE)
   colnames(M) <- rownames(M) <- state.abb
   M
 }
-state.to.state.dists <- GetStateDists()
+obs$state.to.state.dists <- GetStateDists()
 
 GetFarmsInventory <- function(){
-    censPath <- file.path('table19-2002.csv')
+    censPath <- file.path(dataDir, 'table19-2002.csv')
     cens <- read.csv(censPath, strip.white=TRUE, na.strings='(D)',
                      stringsAsFactors=FALSE)
     ## The introduction to the reports says '-' represents 0
@@ -119,14 +112,14 @@ GetFarmsInventory <- function(){
     rownames(stateCounts) <- state.abb[key]
     stateCounts
 }
-farms.and.inventory <- GetFarmsInventory()
+obs$farms.and.inventory <- GetFarmsInventory()
 
-balance.sheet.01.02 <- read.csv('state-hogBalanceSheetDec2000Dec2001.csv',
+obs$balance.sheet.01.02 <- read.csv('state-hogBalanceSheetDec2000Dec2001.csv',
                                 na.strings='-', row.names=1,
                                 colClasses=c(state2='NULL'))
 
 GetFarmsSales <- function(){
-    censPath <- file.path('table26-2002.csv')
+    censPath <- file.path(dataDir, 'table26-2002.csv')
     cens <- read.csv(censPath,strip.white=TRUE, na.strings='(D)',
                      stringsAsFactors=FALSE)
     ## The introduction to the reports says '-' represents 0
@@ -147,7 +140,7 @@ GetFarmsSales <- function(){
     stateCounts$abb <- state.abb[key]
     stateCounts
 }
-farms.and.sales <- GetFarmsSales()
+obs$farms.and.sales <- GetFarmsSales()
 
 GetInternalFlows <- function(balanceSheet, flowMat, farmsSales) {
   plotPredDemandSales <- function(feederDemand, deaths, estFeederProduction,
@@ -195,8 +188,9 @@ GetInternalFlows <- function(balanceSheet, flowMat, farmsSales) {
   imp <- ifelse(is.na(flows[, 'predInternalFlow']), imp, flows[, 'predInternalFlow'])
   cbind(flows, impInternalFlow=imp)
 }
-internal.flows <- GetInternalFlows(balanceSheet=balance.sheet.01.02,
-                                   flowMat=flows.matrix, farmsSales=farms.and.sales)
+obs$internal.flows <- GetInternalFlows(balanceSheet=obs$balance.sheet.01.02,
+                                       flowMat=obs$flows.matrix,
+                                       farmsSales=obs$farms.and.sales)
 
 PlotFlows <- function(flows) {
   totalFlows <- flows[, c('exports', 'imports', 'impInternalFlow')] %*% c(1, 1, 2)
@@ -212,10 +206,10 @@ PlotFlows <- function(flows) {
   barplot(t(h), las=2, legend.text=T, args.legend=list(x="topleft"), ylab='Head',
           xlab='State')
 }
-PlotFlows(flows=internal.flows)
+PlotFlows(flows=obs$internal.flows)
 
-county.areas <- read.delim('2013_Gaz_counties_national.txt')
-county.areas <- county.areas[, c('GEOID', 'ALAND')]
+obs$county.areas <- read.delim('2013_Gaz_counties_national.txt')
+obs$county.areas <- obs$county.areas[, c('GEOID', 'ALAND')]
 
 GetCountyHogs <- function(ITEM.pattern){
   data(county.fips, package='maps')
@@ -239,15 +233,15 @@ GetCountyHogs <- function(ITEM.pattern){
   cens <- cens[ind,]
   cens
 }
-county.hogs.pigs <- GetCountyHogs(ITEM.pattern='farms, 2007)$')
-county.hogs.pigs.02 <- GetCountyHogs(ITEM.pattern='farms, 2002)$')
+obs$county.hogs.pigs <- GetCountyHogs(ITEM.pattern='farms, 2007)$')
+obs$county.hogs.pigs.02 <- GetCountyHogs(ITEM.pattern='farms, 2002)$')
 
-resource.regs <- read.csv('reglink.csv', skip=2,
-                          colClasses=c(NA, NA, 'NULL', 'NULL'))
+obs$resource.regs <- read.csv('reglink.csv', skip=2,
+                              colClasses=c(NA, NA, 'NULL', 'NULL'))
 
 GetStateSummaries <- function(regs, rd, countyData) {
-  ctyTots <- ddply(countyData, 'STCOFIPS', summarize, totalFarms=sum(DATA),
-                   STFIPS=STFIPS[1],
+  ctyTots <- plyr::ddply(countyData, 'STCOFIPS', plyr::summarize,
+                         totalFarms=sum(DATA), STFIPS=STFIPS[1],
      smallFarms = sum(DATA["Inventory \\ Total hogs and pigs \\ Farms by inventory \\ 1 to 24 (farms, 2007)" == ITEM]))
     ctyTots$nonSmallFarms <- with(ctyTots, totalFarms - smallFarms)
     mg <- merge(ctyTots, rd, by.x='STCOFIPS', by.y='GEOID')
@@ -255,26 +249,55 @@ GetStateSummaries <- function(regs, rd, countyData) {
     mg$kmsq <- mg$ALAND/1e6
     mg$nonSmallDense <- mg$nonSmallFarms / mg$kmsq
     mg$farmDense <- mg$totalFarms / mg$kmsq
-    stateCty <- ddply(mg, 'STFIPS', summarize, totNonSmall=sum(nonSmallFarms),
-                      mDense=mean(farmDense),
-                      cmDense=mean(farmDense[totalFarms > 0]),
-                      medDense=median(farmDense),
-                      cmedDense=median(farmDense[totalFarms > 0]),
-                      reg1=weighted.mean(ERS.resource.region==1, w=totalFarms),
-                      reg2=weighted.mean(ERS.resource.region==2, w=totalFarms),
-                      reg3=weighted.mean(ERS.resource.region==3, w=totalFarms),
-                      reg4=weighted.mean(ERS.resource.region==4, w=totalFarms),
-                      reg5=weighted.mean(ERS.resource.region==5, w=totalFarms),
-                      reg6=weighted.mean(ERS.resource.region==6, w=totalFarms),
-                      reg7=weighted.mean(ERS.resource.region==7, w=totalFarms),
-                      reg8=weighted.mean(ERS.resource.region==8, w=totalFarms),
-                      reg9=weighted.mean(ERS.resource.region==9, w=totalFarms))
+  stateCty <- plyr::ddply(mg, 'STFIPS', plyr::summarize,
+                          totNonSmall=sum(nonSmallFarms),
+                            mDense=mean(farmDense),
+                            cmDense=mean(farmDense[totalFarms > 0]),
+                            medDense=median(farmDense),
+                            cmedDense=median(farmDense[totalFarms > 0]),
+                            reg1=weighted.mean(ERS.resource.region==1, w=totalFarms),
+                            reg2=weighted.mean(ERS.resource.region==2, w=totalFarms),
+                            reg3=weighted.mean(ERS.resource.region==3, w=totalFarms),
+                            reg4=weighted.mean(ERS.resource.region==4, w=totalFarms),
+                            reg5=weighted.mean(ERS.resource.region==5, w=totalFarms),
+                            reg6=weighted.mean(ERS.resource.region==6, w=totalFarms),
+                            reg7=weighted.mean(ERS.resource.region==7, w=totalFarms),
+                            reg8=weighted.mean(ERS.resource.region==8, w=totalFarms),
+                            reg9=weighted.mean(ERS.resource.region==9, w=totalFarms))
     data(state.fips, package='maps')
     key <- match(stateCty$STFIPS, state.fips$fips)
     stateCty$state <- state.fips$abb[key]
     stateCty
 }
-state.summaries <- GetStateSummaries(regs=resource.regs, rd=county.areas,
-                                     countyData=county.hogs.pigs)
+obs$state.summaries <- GetStateSummaries(regs=obs$resource.regs, rd=obs$county.areas,
+                                         countyData=obs$county.hogs.pigs)
 
-save.image(file='common-data.RData')
+GetMap <- function(countyData){
+  ea.proj <- "+proj=laea +lat_0=45 +lon_0=-100 +x_0=0 +y_0=0 +a=6370997 +b=6370997 +units=m +no_defs"
+  ## NAD83 Lambert Azimuthal Equal Area
+  cb <- rgdal::readOGR('cb_2014_us_county_500k', 'cb_2014_us_county_500k')
+  cb.ea <- sp::spTransform(cb, sp::CRS(ea.proj))
+
+  tmpf <- function(geo, countyData){
+    sf <- countyData$STFIPS
+    cf <- countyData$COFIPS
+    sf <- formatC(sf, flag="0", format="d", width=2)
+    cf <- formatC(cf, flag="0", format="d", width=3)
+    test1 <- geo@data[, 'STATEFP'] %in% sf
+    test2 <- geo@data[, 'COUNTYFP'] %in% cf
+    test <- test1 & test2
+    geo[test, ]
+  }
+  tmpf(cb.ea, countyData)
+}
+#obs$county.hogs.pigs.02.map <- GetMap(countyData=obs$county.hogs.pigs.02)
+
+if(!file.exists('data'))
+  dir.create('data')
+setwd('data')
+nms <- names(obs)
+files <- paste0(nms, '.rda')
+env <- as.environment(obs)
+tmpf <- function(x, y) save(list=x, file=y, envir=env)
+mapply(tmpf, nms, files)
+setwd('..')

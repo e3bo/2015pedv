@@ -1,11 +1,15 @@
 Package: aporkalypse
 Title: Modeling of infectious disease spread among U.S. swine farms
 Version: 0.0.0.9000
-Authors@R: person("Eamon", "O\'Dea", email = "odea35@gmail.com", role = c("aut", "cre", ))
-Description: This package was made to facilitate a research project on modeling livestock diseases, with PEDV as a case study. It is not intended for use outside of this research project, but has been made availabel to make that projects results easier to reproduce and extend.
+Authors@R: person("Eamon", "O\'Dea", email = "odea35@gmail.com", role = c("aut", "cre"))
+Description: Support for a research project on modeling livestock diseases, with PEDV as a case study. It is not intended for use outside of this research project, but has been made available to make that project's results easier to reproduce and extend.
 Depends: R (>= 3.2.1)
 License: CC0
 LazyData: true
-Imports: igraph (>=1.0.1),
-    raster (>=2.4.20),
-    sp (>=1.2.0)
+Imports: igraph (>= 1.0.1),
+  raster (>= 2.4.20),
+  sp (>= 1.2.0)
+Suggests: knitr,
+    rmarkdown,
+    testthat
+VignetteBuilder: knitr

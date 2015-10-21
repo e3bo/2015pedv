@@ -1,5 +1,13 @@
-
+#' Get neighbors of a raster cell using 8-cell neighborhood
+#'
+#' @param r A raster object.
+#' @param cell A cell in the raster object.
+#' @return A vector of the neighboring cells of \code{cell} as well as \code{cell}.
+#'
 Get8nbs <- function(r, cell){
+  if (cell > raster::ncell(r)) {
+    return(NA)
+  }
   nc <- raster::ncol(r)
   nr <- raster::nrow(r)
   row.num <- (cell - 1) %/% nc + 1
