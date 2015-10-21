@@ -56,6 +56,14 @@ Get8nbs <- function(r, cell){
 
 CalcSeasonalFactor <- function(x) -sinpi((x + 3)/ 52 * 2)
 
+GetCountySPDF <- function(sfps, cfps){
+  spdf <- county.hogs.pigs.02.map
+  cfps <- formatC(cfps, flag="0", format="d", width=3)
+  sfps <- formatC(sfps, flag="0", format="d", width=2)
+  ind <- which(spdf@data[, 'COUNTYFP']==cfps & spdf@data[, 'STATEFP']==sfps)
+  spdf[ind, ]
+}
+
 CreateAgents <- function(job, static,
                          raster.cell.side.meters=16000,
                          census.dilation=1,
@@ -66,15 +74,12 @@ CreateAgents <- function(job, static,
   county.hogs.pigs.02$abb <- as.character(state.fips$abb[key])
 
   ## Sample coordinates of farms-------------------------------------
-  GetSampCoord <- function(spdf=county.hogs.pigs.02.map, cfps, sfps, n,
+  GetSampCoord <- function(cfps, sfps, n,
                            plot.samp=FALSE){
     if(n == 0) {
         samp <- NULL
-    } else {
-       cfps <- formatC(cfps, flag="0", format="d", width=3)
-       sfps <- formatC(sfps, flag="0", format="d", width=2)
-       ind <- which(spdf@data[, 'COUNTYFP']==cfps & spdf@data[, 'STATEFP']==sfps)
-       cty.poly <- spdf[ind, ]
+      } else {
+        cty.poly <- GetCountySPDF(sfps, cfps)
        len <- 0
        while(len != n){
          samp <- sp::spsample(cty.poly, type='random', n=n, iter=10)
@@ -110,7 +115,8 @@ CreateAgents <- function(job, static,
   ## Generate agent data frame
   adf <- data.frame(cell=unlist(cell.samps),
                     coord.df,
-                    stcofips=rep(county.hogs.pigs.02$STCOFIPS, times=n),
+                    cofips=rep(county.hogs.pigs.02$COFIPS, times=n),
+                    stfips=rep(county.hogs.pigs.02$STFIPS, times=n),
                     place.name=rep(county.hogs.pigs.02$GEO, times=n),
                     abb=rep(county.hogs.pigs.02$abb, times=n),
                     infection.time=NA,
