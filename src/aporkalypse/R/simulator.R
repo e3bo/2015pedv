@@ -129,10 +129,11 @@ CreateAgents <- function(job, static,
                     abb=rep(county.hogs.pigs.02$abb, times=n),
                     infection.time=NA,
                     recovery.time=NA)
+  adf$id <- 1:nrow(adf)
 
   ## Generate lookup table of neighbors by space-------------------------
   occupied.cells <- unique(adf$cell)
-  cell2id <- lapply(occupied.cells, function(x) which(adf$cell == x))
+  cell2id <- lapply(occupied.cells, function(x) adf$id[adf$cell == x])
   names(cell2id) <- occupied.cells
 
   cell2nb.cells <- lapply(1:raster::ncell(raster.map), Get8nbs, r=raster.map)
