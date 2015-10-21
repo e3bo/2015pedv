@@ -72,9 +72,8 @@ GetCountySPDF <- function(sfps, cfps){
   spdf[ind, ]
 }
 
-GetPrefMat <- function(rel='directed', state.tots) {
-  nms <- state.tots$values
-  fmo <- t(flows.matrix[nms, nms])
+SubsetFlows <- function(nms, rel='directed'){
+  fmo <- flows.matrix[nms, nms]
   diag(fmo) <- internal.flows[nms, 'impInternalFlow']
   ## fmo[i, j] == head sent to i from j
   if(rel == 'directed') {
@@ -82,27 +81,36 @@ GetPrefMat <- function(rel='directed', state.tots) {
   } else {
     F <- fmo + t(fmo)
   }
+  F
+}
+
+GetPrefMat <- function(state.tots, target.mean.deg) {
+  nms <- state.tots$values
+  F <- SubsetFlows(nms)
   n <- state.tots$lengths
-  pm <- F / n
-  pm <- t(t(pm) / n)
+  block.sizes <- outer(n, n)
+  pm <- F / block.sizes
+  pm <- pm / max(pm) # Probs must be <=1
+  mean.deg <- sum(block.sizes * pm) / sum(n)
+  if(mean.deg >= target.mean.deg){
+    pm <- pm * target.mean.deg / mean.deg
+  } else {
+    stop("Target mean degree not possible")
+  }
   pm
 }
 
 GetNetNbs <- function(block.labels, target.mean.deg){
   state.tots <- rle(as.character(block.labels))
   stopifnot(anyDuplicated(state.tots$values)==0)
-  pref.matrix <- GetPrefMat(state.tots=state.tots)
-  pref.matrix <- pref.matrix / max(pref.matrix) # Probs must be <=1
-  block.sizes <- outer(state.tots$lengths, state.tots$lengths)
-  mean.deg <- sum(block.sizes * pref.matrix) / sum(state.tots$lengths)
-  if(mean.deg >= target.mean.deg){
-    pref.matrix <- pref.matrix * target.mean.deg / mean.deg
-  } else {
-    stop("Target mean degree not possible")
-  }
-  trans.net <- igraph::sample_sbm(sum(state.tots$lengths), pref.matrix=pref.matrix,
-                                  block.sizes=state.tots$lengths, directed=TRUE)
-  net.nbs <- igraph::adjacent_vertices(trans.net, v=igraph::V(trans.net), mode='out')
+  pref.matrix <- GetPrefMat(state.tots=state.tots,
+                            target.mean.deg=target.mean.deg)
+  n <- state.tots$lengths
+  browser()
+  trans.net <- igraph::sample_sbm(sum(n), pref.matrix=pref.matrix,
+                                  block.sizes=n, directed=TRUE)
+  net.nbs <- igraph::adjacent_vertices(trans.net, v=igraph::V(trans.net),
+                                       mode='out')
   sapply(net.nbs, as.integer)
 }
 

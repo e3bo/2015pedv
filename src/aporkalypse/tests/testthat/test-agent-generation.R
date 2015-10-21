@@ -24,6 +24,24 @@ test_that("Formating of fips codes is correct", {
 
 agents <- CreateAgents(census.dilation=1)
 
+test_that("Network consistent with flow estimates", {
+            types <- unique(as.character(agents$adf$abb))
+            targetM <- SubsetFlows(types)
+            M <- targetM
+            M[TRUE] <- 0
+            agents$adf <- agents$adf[order(agents$adf$id), ]
+                                        # Assumed for looking up neighbors
+            for(i in 1:nrow(agents$adf)){
+              type.i <- as.character(agents$adf$abb[i])
+              for(j in agents$net.nbs[[i]]){
+                type.j <- as.character(agents$adf$abb[j])
+                M[type.i, type.j] <- M[type.i, type.j] + 1
+              }
+            }
+            cor.M.targetM <- cor(as.numeric(M), as.numeric(targetM))
+            expect_more_than(cor.M.target.M, 0.99)
+          })
+
 test_that("Cell to county mappings are correct", {
             nr <- nrow(agents$adf)
             sampled.ids <- sample.int(n=nr, size=100)
