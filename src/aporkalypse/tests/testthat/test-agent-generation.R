@@ -15,6 +15,12 @@ test_that("List of neighboring raster cells is correct", {
             }
           })
 
+test_that("Formating of fips codes is correct", {
+            expect_identical(FormatFips(1, 'state'), '01')
+            expect_identical(FormatFips(33, 'state'), '33')
+            expect_identical(FormatFips(1, 'county'), '001')
+            expect_identical(FormatFips(200, 'county'), '200')
+        })
 
 agents <- CreateAgents(census.dilation=1)
 
@@ -26,9 +32,9 @@ test_that("Cell to county mappings are correct", {
               expect_equal(agents$adf$cell[id], coord.cell)
               poly <- GetCountySPDF(agents$adf$stfips[id],
                                     agents$adf$cofips[id])
-              pt <- SpatialPoints(agents$adf[id, c('x', 'y')],
-                                  proj4string=sp::CRS(sp::proj4string(poly)))
-              over.out <- over(pt, poly)
+              pt <- sp::SpatialPoints(agents$adf[id, c('x', 'y')],
+                                      proj4string=sp::CRS(sp::proj4string(poly)))
+              over.out <- sp::over(pt, poly)
               expect_equal(nrow(over.out), 1)
             }
           })

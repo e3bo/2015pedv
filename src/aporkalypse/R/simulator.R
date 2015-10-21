@@ -56,10 +56,18 @@ Get8nbs <- function(r, cell){
 
 CalcSeasonalFactor <- function(x) -sinpi((x + 3)/ 52 * 2)
 
+FormatFips <- function(x, type) {
+  if (type=='county'){
+    formatC(x, flag="0", format="d", width=3)
+  } else if (type=='state'){
+    formatC(x, flag="0", format="d", width=2)
+  } else NA
+}
+
 GetCountySPDF <- function(sfps, cfps){
   spdf <- county.hogs.pigs.02.map
-  cfps <- formatC(cfps, flag="0", format="d", width=3)
-  sfps <- formatC(sfps, flag="0", format="d", width=2)
+  cfps <- FormatFips(cfps, 'county')
+  sfps <- FormatFips(sfps, 'state')
   ind <- which(spdf@data[, 'COUNTYFP']==cfps & spdf@data[, 'STATEFP']==sfps)
   spdf[ind, ]
 }
