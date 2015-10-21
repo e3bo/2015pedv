@@ -207,10 +207,12 @@ SimulateAndSummarize <- function(job, static, dynamic, ...){
   events.by.state <- function(x, df=adf.out, what) {
     tapply(df[[what]] < x, df$abb, sum, na.rm=TRUE)
   }
+  nsteps <- max(adf.out[, c('infection.time', 'recovery.time')], na.rm=TRUE)
+  step <- seq(1, nsteps + 1)
   cum.infections <- sapply(step, events.by.state, what='infection.time')
   cum.recoveries <- sapply(step, events.by.state, what='recovery.time')
   no.infected <- cum.infections - cum.recoveries
+  cum.infections <- cbind(0, cum.infections)
   new.cases <- t(apply(cum.infections, 1, diff))
-  new.cases <- cbind(cum.infections[, 1], new.cases)
   new.cases
 }
