@@ -58,7 +58,7 @@ CalcSeasonalFactor <- function(x) -sinpi((x + 3)/ 52 * 2)
 
 CreateAgents <- function(job, static,
                          raster.cell.side.meters=16000,
-                         edge.per.flow=1, census.dilation=1,
+                         census.dilation=1,
                          target.mean.deg=1, ...){
 
   data('state.fips', package='maps', envir=environment())
@@ -75,7 +75,11 @@ CreateAgents <- function(job, static,
        sfps <- formatC(sfps, flag="0", format="d", width=2)
        ind <- which(spdf@data[, 'COUNTYFP']==cfps & spdf@data[, 'STATEFP']==sfps)
        cty.poly <- spdf[ind, ]
-       samp <- sp::spsample(cty.poly, type='random', n=n, iter=10)
+       len <- 0
+       while(len != n){
+         samp <- sp::spsample(cty.poly, type='random', n=n, iter=10)
+         len <- length(samp)
+       }
        if(plot.samp){
           plot(cty.poly)
           points(samp)
@@ -87,6 +91,8 @@ CreateAgents <- function(job, static,
   coord.samps <- mapply(GetSampCoord, cfps=county.hogs.pigs.02$COFIPS,
                         sfps=county.hogs.pigs.02$STFIPS,
                         n=n, SIMPLIFY=FALSE)
+  coord.mats <- lapply(coord.samps, function(x) if(!is.null(x)) sp::coordinates(x))
+  coord.df <- do.call(rbind, coord.mats)
 
   ## Convert coordinates to cell membership in raster layer------------
   raster.map <- raster::raster(county.hogs.pigs.02.map)
@@ -103,6 +109,9 @@ CreateAgents <- function(job, static,
 
   ## Generate agent data frame
   adf <- data.frame(cell=unlist(cell.samps),
+                    coord.df,
+                    stcofips=rep(county.hogs.pigs.02$STCOFIPS, times=n),
+                    place.name=rep(county.hogs.pigs.02$GEO, times=n),
                     abb=rep(county.hogs.pigs.02$abb, times=n),
                     infection.time=NA,
                     recovery.time=NA)
