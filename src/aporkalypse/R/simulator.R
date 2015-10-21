@@ -54,19 +54,18 @@ Get8nbs <- function(r, cell){
   unlist(nbs)
 }
 
-## TODO DATA to generate cb2 -> county.hogs.pigs.02.map
+CalcSeasonalFactor <- function(x) -sinpi((x + 3)/ 52 * 2)
 
 CreateAgents <- function(job, static,
                          raster.cell.side.meters=16000,
-                         edge.per.flow=1, ...){
-  data(county.hogs.pigs.02)
-  data(county.hogs.pigs.map)
-  data(state.fips, package='maps')
+                         edge.per.flow=1, census.dilation=1,
+                         target.mean.deg=1, ...){
 
+  data('state.fips', package='maps', envir=environment())
   key <- match(county.hogs.pigs.02$STFIPS, state.fips$fips)
   county.hogs.pigs.02$abb <- as.character(state.fips$abb[key])
 
-  ## Sample coordinates of farms
+  ## Sample coordinates of farms-------------------------------------
   GetSampCoord <- function(spdf=county.hogs.pigs.02.map, cfps, sfps, n,
                            plot.samp=FALSE){
     if(n == 0) {
@@ -84,24 +83,23 @@ CreateAgents <- function(job, static,
     }
     samp
   }
-  n <- county.hogs.pigs.02$DATA
-  coord.samps <- mapply(getSamp, cfps=county.hogs.pigs.02$COFIPS,
+  n <- floor(county.hogs.pigs.02$DATA * census.dilation)
+  coord.samps <- mapply(GetSampCoord, cfps=county.hogs.pigs.02$COFIPS,
                         sfps=county.hogs.pigs.02$STFIPS,
                         n=n, SIMPLIFY=FALSE)
 
-  ## Convert coordinates to cell membership in raster layer
-
+  ## Convert coordinates to cell membership in raster layer------------
   raster.map <- raster::raster(county.hogs.pigs.02.map)
-  res(raster.map) <- raster.cell.side.meters
+  raster::res(raster.map) <- raster.cell.side.meters
 
-  tmpf <- function(xy, r=raster.map) {
+  GetCell <- function(xy, r=raster.map) {
     if(is.null(xy)) {
       NULL
     } else {
       raster::cellFromXY(object=r, xy=xy)
     }
   }
-  cell.samps <- lapply(coord.samps, tmpf)
+  cell.samps <- lapply(coord.samps, GetCell)
 
   ## Generate agent data frame
   adf <- data.frame(cell=unlist(cell.samps),
@@ -109,13 +107,12 @@ CreateAgents <- function(job, static,
                     infection.time=NA,
                     recovery.time=NA)
 
-  ## Generate lookup table of neighbors by space
+  ## Generate lookup table of neighbors by space-------------------------
   occupied.cells <- unique(adf$cell)
   cell2id <- lapply(occupied.cells, function(x) which(adf$cell == x))
   names(cell2id) <- occupied.cells
 
-  tmpf <- function(x, r=raster.map) Get8nbs(r=r, x)
-  cell2nb.cells <- lapply(1:ncell(raster.map), tmpf)
+  cell2nb.cells <- lapply(1:raster::ncell(raster.map), Get8nbs, r=raster.map)
 
   GetSpNbs <- function(cell, adj=cell2nb.cells, c2i=cell2id) {
     nb.cells <- adj[[cell]]
@@ -124,40 +121,44 @@ CreateAgents <- function(job, static,
   }
   sp.nbs <- lapply(adf$cell, GetSpNbs)
 
-  ## Generate lookup table of neighbors by transport network
-
-  GetPrefMat <- function(rel='directed', flowMat, flows, farms.by.state) {
-      fmo <- t(flowMat[state.abb, state.abb])
-      diag(fmo) <- flows[state.abb, 'impInternalFlow']
-      ## fmo[i, j] == head sent to i from j
-      if(rel == 'directed') {
-          F <- fmo
-      } else {
-          F <- fmo + t(fmo)
-      }
-      n <- farms.by.state[state.abb]
-      pm <- F / n
-      pm <- t(t(pm) / n)
-      pm
+  ## Generate lookup table of neighbors by transport network---------------
+  GetPrefMat <- function(rel='directed', flowMat, flows, state.tots) {
+    nms <- state.tots$values
+    fmo <- t(flowMat[nms, nms])
+    diag(fmo) <- flows[nms, 'impInternalFlow']
+    ## fmo[i, j] == head sent to i from j
+    if(rel == 'directed') {
+      F <- fmo
+    } else {
+      F <- fmo + t(fmo)
+    }
+    n <- state.tots$lengths
+    pm <- F / n
+    pm <- t(t(pm) / n)
+    pm
   }
 
   adf <- adf[order(adf$abb), ]
   state.tots <- rle(as.character(adf$abb))
-  names(state.tots$lengths) <- state.tots$values
-  data(flows.matrix)
-  data(internal.flows)
   pref.matrix <- GetPrefMat(flowMat=flows.matrix, flows=internal.flows,
-                            farms.by.state=state.tots$lengths)
-  pref.matrix <- pref.matrix * edge.per.flow
+                            state.tots=state.tots)
+  pref.matrix <- pref.matrix / max(pref.matrix)
+  block.sizes <- outer(state.tots$lengths, state.tots$lengths)
+  mean.deg <- sum(block.sizes * pref.matrix) / sum(n)
+  if(mean.deg >= target.mean.deg){
+    pref.matrix <- pref.matrix * target.mean.deg / mean.deg
+  } else {
+    stop("target mean degree not possible")
+  }
   trans.net <- igraph::sample_sbm(sum(state.tots$lengths), pref.matrix=pref.matrix,
                                   block.sizes=state.tots$lengths, directed=TRUE)
-  net.nbs <- igraph::adjacent_vertices(trans.net, v=V(trans.net), mode='out')
+  net.nbs <- igraph::adjacent_vertices(trans.net, v=igraph::V(trans.net), mode='out')
   net.nbs <- sapply(net.nbs, as.integer)
 
   list(adf=adf, net.nbs=net.nbs, sp.nbs=sp.nbs)
 }
 
-RunSim <- function(adf, net.nbs, sp.nbs, nsteps=38, trpob.sp=0.01,
+RunSim <- function(adf, net.nbs, sp.nbs, nsteps=38, tprob.sp=0.01,
                     tprob.net=0.01, rprob=1, seasonal.amplitude=0,
                     verbose=FALSE, cases=1) {
   adf$infection.time <- NA
@@ -165,7 +166,7 @@ RunSim <- function(adf, net.nbs, sp.nbs, nsteps=38, trpob.sp=0.01,
   adf$infection.time[cases] <- 0
   step <- 1
   while(step < nsteps){
-    sf <- (1 + seasonal.amplitude * seasonal.factor(step))
+    sf <- (1 + seasonal.amplitude * CalcSeasonalFactor(step))
     net.contact.dist <- table(unlist(net.nbs[cases]))
     sp.contact.dist <- table(unlist(sp.nbs[cases]))
     tprob.sp.t <- tprob.sp * sf
