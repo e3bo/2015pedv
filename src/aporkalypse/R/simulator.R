@@ -72,6 +72,40 @@ GetCountySPDF <- function(sfps, cfps){
   spdf[ind, ]
 }
 
+GetPrefMat <- function(rel='directed', state.tots) {
+  nms <- state.tots$values
+  fmo <- t(flows.matrix[nms, nms])
+  diag(fmo) <- internal.flows[nms, 'impInternalFlow']
+  ## fmo[i, j] == head sent to i from j
+  if(rel == 'directed') {
+    F <- fmo
+  } else {
+    F <- fmo + t(fmo)
+  }
+  n <- state.tots$lengths
+  pm <- F / n
+  pm <- t(t(pm) / n)
+  pm
+}
+
+GetNetNbs <- function(block.labels, target.mean.deg){
+  state.tots <- rle(as.character(block.labels))
+  stopifnot(anyDuplicated(state.tots$values)==0)
+  pref.matrix <- GetPrefMat(state.tots=state.tots)
+  pref.matrix <- pref.matrix / max(pref.matrix) # Probs must be <=1
+  block.sizes <- outer(state.tots$lengths, state.tots$lengths)
+  mean.deg <- sum(block.sizes * pref.matrix) / sum(state.tots$lengths)
+  if(mean.deg >= target.mean.deg){
+    pref.matrix <- pref.matrix * target.mean.deg / mean.deg
+  } else {
+    stop("Target mean degree not possible")
+  }
+  trans.net <- igraph::sample_sbm(sum(state.tots$lengths), pref.matrix=pref.matrix,
+                                  block.sizes=state.tots$lengths, directed=TRUE)
+  net.nbs <- igraph::adjacent_vertices(trans.net, v=igraph::V(trans.net), mode='out')
+  sapply(net.nbs, as.integer)
+}
+
 CreateAgents <- function(job, static,
                          raster.cell.side.meters=16000,
                          census.dilation=1,
@@ -122,13 +156,15 @@ CreateAgents <- function(job, static,
 
   ## Generate agent data frame
   adf <- data.frame(cell=unlist(cell.samps),
-                    coord.df,
+                    x=coord.df[ ,1],
+                    y=coord.df[, 2],
                     cofips=rep(county.hogs.pigs.02$COFIPS, times=n),
                     stfips=rep(county.hogs.pigs.02$STFIPS, times=n),
                     place.name=rep(county.hogs.pigs.02$GEO, times=n),
                     abb=rep(county.hogs.pigs.02$abb, times=n),
                     infection.time=NA,
                     recovery.time=NA)
+  adf <- adf[order(adf$stfips), ]
   adf$id <- 1:nrow(adf)
 
   ## Generate lookup table of neighbors by space-------------------------
@@ -145,39 +181,7 @@ CreateAgents <- function(job, static,
   }
   sp.nbs <- lapply(adf$cell, GetSpNbs)
 
-  ## Generate lookup table of neighbors by transport network---------------
-  GetPrefMat <- function(rel='directed', flowMat, flows, state.tots) {
-    nms <- state.tots$values
-    fmo <- t(flowMat[nms, nms])
-    diag(fmo) <- flows[nms, 'impInternalFlow']
-    ## fmo[i, j] == head sent to i from j
-    if(rel == 'directed') {
-      F <- fmo
-    } else {
-      F <- fmo + t(fmo)
-    }
-    n <- state.tots$lengths
-    pm <- F / n
-    pm <- t(t(pm) / n)
-    pm
-  }
-
-  adf <- adf[order(adf$abb), ]
-  state.tots <- rle(as.character(adf$abb))
-  pref.matrix <- GetPrefMat(flowMat=flows.matrix, flows=internal.flows,
-                            state.tots=state.tots)
-  pref.matrix <- pref.matrix / max(pref.matrix)
-  block.sizes <- outer(state.tots$lengths, state.tots$lengths)
-  mean.deg <- sum(block.sizes * pref.matrix) / sum(n)
-  if(mean.deg >= target.mean.deg){
-    pref.matrix <- pref.matrix * target.mean.deg / mean.deg
-  } else {
-    stop("target mean degree not possible")
-  }
-  trans.net <- igraph::sample_sbm(sum(state.tots$lengths), pref.matrix=pref.matrix,
-                                  block.sizes=state.tots$lengths, directed=TRUE)
-  net.nbs <- igraph::adjacent_vertices(trans.net, v=igraph::V(trans.net), mode='out')
-  net.nbs <- sapply(net.nbs, as.integer)
+  net.nbs <- GetNetNbs(adf$abb, target.mean.deg)
 
   list(adf=adf, net.nbs=net.nbs, sp.nbs=sp.nbs)
 }
@@ -189,6 +193,7 @@ RunSim <- function(adf, net.nbs, sp.nbs, nsteps=38, tprob.sp=0.01,
   adf$recovery.time <- NA
   adf$infection.time[cases] <- 0
   step <- 1
+  adf <- adf[order(adf$id), ] ## Assumed for looking up neighbors
   while(step < nsteps){
     sf <- (1 + seasonal.amplitude * CalcSeasonalFactor(step))
     net.contact.dist <- table(unlist(net.nbs[cases]))
