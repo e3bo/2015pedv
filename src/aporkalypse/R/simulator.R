@@ -277,10 +277,10 @@ SimulateAndSummarize <- function(job, static, dynamic,
   tsl <- GetTimeSeries(adf.out)
   observed <- t(tsl$new.cases)
   isStateAffected <- colSums(observed) > 0
+  observed <- observed[, isStateAffected, drop=FALSE]
   if(sum(isStateAffected) == 1 | nrow(observed) < 3){
-    return(NA)
+    list(mantel.tests=NA, mantel.observed=observed)
   } else {
-    observed <- observed[, isStateAffected]
     pop.struct.mats <- MakePopStructMats(observed)
     pop.dyn.mats <- MakePopDynMats(observed)
     mantel.tests <- DoMantelTests(pop.dyn.mats, pop.struct.mats, permutations=1e3)
