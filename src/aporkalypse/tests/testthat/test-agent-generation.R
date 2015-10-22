@@ -77,3 +77,38 @@ test_that("Farm density map looks reasonable", {
             rmsd <- sd(v1 - v2)
             expect_true(rmsd < 5)
         })
+
+test_that("Simulation output is sane", {
+            adf.out <- RunSim(adf=agents$adf, net.nbs=agents$net.nbs, sp.nbs=agents$sp.nbs,
+                              tprob.net=1, tprob.sp=1, rprob=1)
+            expect_true(all(adf.out$infection.time < adf.out$recovery.time, na.rm=TRUE))
+            tsl <- GetTimeSeries(adf.out)
+            expect_true(all(rowSums(tsl$new.cases) == rowSums(tsl$no.infected)))
+
+            cases <- sample.int(n=nrow(agents$adf), size=100)
+            adf.out <- RunSim(adf=agents$adf, net.nbs=agents$net.nbs, sp.nbs=agents$sp.nbs,
+                              tprob.net=1, tprob.sp=1, rprob=1, cases=cases)
+            expect_true(all(adf.out$infection.time < adf.out$recovery.time, na.rm=TRUE))
+            expect_true(all(adf.out$infection.time[cases] == 0))
+            tsl <- GetTimeSeries(adf.out)
+            expect_true(all(rowSums(tsl$new.cases) == rowSums(tsl$no.infected)))
+
+            cases <- sample.int(n=nrow(agents$adf), size=100)
+            adf.out <- RunSim(adf=agents$adf, net.nbs=agents$net.nbs, sp.nbs=agents$sp.nbs,
+                              tprob.net=1, tprob.sp=1, rprob=0, cases=cases)
+            expect_true(all(adf.out$infection.time[cases] == 0))
+            expect_true(all(adf.out$infection.time < adf.out$recovery.time, na.rm=TRUE))
+            tsl <- GetTimeSeries(adf.out)
+            expect_true(all(rowSums(tsl$new.cases) < rowSums(tsl$no.infected) | rowSums(tsl$new.cases ==0)))
+
+            cases <- sample.int(n=nrow(agents$adf), size=100)
+            adf.out <- RunSim(adf=agents$adf, net.nbs=agents$net.nbs, sp.nbs=agents$sp.nbs,
+                              tprob.net=.1, tprob.sp=.1, rprob=0.5, cases=cases, seasonal.amplitude=1)
+            ip <- adf.out$recovery.time - adf.out$infection.time
+            tt <- t.test(ip, mu=2)
+            expect_true(tt$p.value > 1e-4)
+            expect_true(all(adf.out$infection.time < adf.out$recovery.time, na.rm=TRUE))
+            expect_true(all(adf.out$infection.time[cases] == 0))
+            tsl <- GetTimeSeries(adf.out)
+            expect_true(all(rowSums(tsl$new.cases) < rowSums(tsl$no.infected) | rowSums(tsl$new.cases ==0)))
+       })

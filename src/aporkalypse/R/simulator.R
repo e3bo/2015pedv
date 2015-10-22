@@ -206,8 +206,8 @@ RunSim <- function(adf, net.nbs, sp.nbs, nsteps=38, tprob.sp=0.01,
     sf <- (1 + seasonal.amplitude * CalcSeasonalFactor(step))
     net.contact.dist <- table(unlist(net.nbs[cases]))
     sp.contact.dist <- table(unlist(sp.nbs[cases]))
-    tprob.sp.t <- tprob.sp * sf
-    tprob.net.t <- tprob.net * sf
+    tprob.sp.t <- max(min(tprob.sp * sf, 1), 0)
+    tprob.net.t <- max(min(tprob.net * sf, 1), 0)
 
     avoidance.probs.sp <- (1 - tprob.sp.t)^sp.contact.dist
     avoidance.probs.net <- (1 - tprob.net.t)^net.contact.dist
@@ -238,18 +238,23 @@ RunSim <- function(adf, net.nbs, sp.nbs, nsteps=38, tprob.sp=0.01,
   adf
 }
 
+events.by.state <- function(x, df, what) {
+  tapply(df[[what]] < x, df$abb, sum, na.rm=TRUE)
+}
+
+GetTimeSeries <- function(adf) {
+  nsteps <- max(adf[, c('infection.time', 'recovery.time')], na.rm=TRUE)
+  step <- seq(1, nsteps + 1)
+  cum.infections <- sapply(step, events.by.state, df=adf, what='infection.time')
+  cum.recoveries <- sapply(step, events.by.state, df=adf, what='recovery.time')
+  no.infected <- cum.infections - cum.recoveries
+  foo <- cbind(0, cum.infections)
+  new.cases <- t(apply(foo, 1, diff))
+  list(new.cases=new.cases, no.infected=no.infected)
+}
+
 SimulateAndSummarize <- function(job, static, dynamic, ...){
   adf.out <- RunSim(adf=dynamic$adf, net.nbs=dynamic$net.nbs,
-                     sp.nbs=dynamic$sp.nbs, ...)
-  events.by.state <- function(x, df=adf.out, what) {
-    tapply(df[[what]] < x, df$abb, sum, na.rm=TRUE)
-  }
-  nsteps <- max(adf.out[, c('infection.time', 'recovery.time')], na.rm=TRUE)
-  step <- seq(1, nsteps + 1)
-  cum.infections <- sapply(step, events.by.state, what='infection.time')
-  cum.recoveries <- sapply(step, events.by.state, what='recovery.time')
-  no.infected <- cum.infections - cum.recoveries
-  cum.infections <- cbind(0, cum.infections)
-  new.cases <- t(apply(cum.infections, 1, diff))
-  new.cases
+                    sp.nbs=dynamic$sp.nbs, ...)
+  tsl <- GetTimeSeries(adf.out)
 }
