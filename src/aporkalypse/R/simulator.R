@@ -1,9 +1,3 @@
-if(getRversion() >= "2.15.1")
-  utils::globalVariables(c("county.hogs.pigs.02",
-                           "county.hogs.pigs.02.map",
-                           "internal.flows",
-                           "flows.matrix"))
-
 #' Get neighbors of a raster cell using 8-cell neighborhood
 #'
 #' @param r A raster object.
@@ -72,7 +66,7 @@ FormatFips <- function(x, type) {
 
 GetCountySPDF <- function(sfps, cfps){
   data('county.hogs.pigs.02.map', envir=environment(), package='aporkalypse')
-  spdf <- county.hogs.pigs.02.map
+  spdf <- get('county.hogs.pigs.02.map')
   cfps <- FormatFips(cfps, 'county')
   sfps <- FormatFips(sfps, 'state')
   ind <- which(spdf@data[, 'COUNTYFP']==cfps & spdf@data[, 'STATEFP']==sfps)
@@ -82,7 +76,9 @@ GetCountySPDF <- function(sfps, cfps){
 
 SubsetFlows <- function(nms, rel='directed'){
   data('flows.matrix', envir=environment(), package='aporkalypse')
+  flows.matrix <- get('flows.matrix')
   data('internal.flows', envir=environment(), package='aporkalypse')
+  internal.flows <- get('internal.flows')
   fmo <- flows.matrix[nms, nms]
   diag(fmo) <- internal.flows[nms, 'impInternalFlow']
   ## fmo[i, j] == head sent to i from j
@@ -130,7 +126,7 @@ CreateAgents <- function(job, static,
 
   state.fips <- maps::state.fips
   data('county.hogs.pigs.02', package='aporkalypse', envir=environment())
-  chp <- county.hogs.pigs.02
+  chp <- get('county.hogs.pigs.02')
   key <- match(chp$STFIPS, state.fips$fips)
   chp$abb <- as.character(state.fips$abb[key])
 
@@ -161,14 +157,17 @@ CreateAgents <- function(job, static,
 
   ## Convert coordinates to cell membership in raster layer------------
   data('county.hogs.pigs.02.map', package='aporkalypse', envir=environment())
-  raster.map <- raster::raster(county.hogs.pigs.02.map)
+  map <- get('county.hogs.pigs.02.map')
+  raster.map <- raster::raster(map)
   raster::res(raster.map) <- raster.cell.side.meters
 
   GetCell <- function(xy, r=raster.map) {
     if(is.null(xy)) {
       NULL
     } else {
-      raster::cellFromXY(object=r, xy=xy)
+      samps <- raster::cellFromXY(object=r, xy=xy)
+      if(any(is.na(samps))) stop("Some farms outside of raster cells")
+      samps
     }
   }
   cell.samps <- lapply(coord.samps, GetCell)
@@ -288,4 +287,3 @@ SimulateAndSummarize <- function(job, static, dynamic,
     list(mantel.tests=mantel.tests, mantel.observed=observed)
   }
 }
-
