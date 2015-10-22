@@ -39,7 +39,7 @@ test_that("Network consistent with flow estimates", {
               }
             }
             cor.M.targetM <- cor(as.numeric(M), as.numeric(targetM))
-            expect_more_than(cor.M.target.M, 0.99)
+            expect_more_than(cor.M.targetM, 0.99)
           })
 
 test_that("Cell to county mappings are correct", {
