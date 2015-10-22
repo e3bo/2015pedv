@@ -1,5 +1,3 @@
-load('common-data.RData')
-
 GetCrossCorrs <- function(lag, obs){
     n <- ncol(obs)
     CC <- matrix(nrow=n, ncol=n)
@@ -15,8 +13,7 @@ GetCrossCorrs <- function(lag, obs){
             ## i.e. i's deviations are indicative of j's future deviations
             CC[i, j] <- getcc(obs[, j], obs[, i], lag=lag)
         }
-      }
-
+    }
     colnames(CC) <- rownames(CC) <- colnames(obs)
     CC
 }
@@ -48,7 +45,7 @@ DoDesignedTests <- function(des, mat.list1, mat.list2){
         x <- (x + t(x)) * 0.5
         y <- (y + t(y)) * 0.5
     }
-    mantel(x, y, ...)
+    vegan::mantel(x, y, ...)
   }
   res <- mapply(DoTest, x=mat.list1[des$mat1.name],
                 y=mat.list2[des$mat2.name],
@@ -67,7 +64,7 @@ DoDesignedPartialTests <- function(des, mat.list1, mat.list2, mat.list3){
         y <- (y + t(y)) * 0.5
         z <- (z + t(z)) * 0.5
     }
-    mantel.partial(x, y, z, ...)
+    vegan::mantel.partial(x, y, z, ...)
   }
   res <- mapply(DoPartialTest, x=mat.list1[des$mat1.name],
                 y=mat.list2[des$mat2.name],

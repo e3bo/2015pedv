@@ -69,6 +69,7 @@ GetCountySPDF <- function(sfps, cfps){
   cfps <- FormatFips(cfps, 'county')
   sfps <- FormatFips(sfps, 'state')
   ind <- which(spdf@data[, 'COUNTYFP']==cfps & spdf@data[, 'STATEFP']==sfps)
+  loadNamespace('sp') ## needed for next line to work 1st time if not already loaded
   spdf[ind, ]
 }
 
@@ -106,7 +107,6 @@ GetNetNbs <- function(block.labels, target.mean.deg){
   pref.matrix <- GetPrefMat(state.tots=state.tots,
                             target.mean.deg=target.mean.deg)
   n <- state.tots$lengths
-  browser()
   trans.net <- igraph::sample_sbm(sum(n), pref.matrix=pref.matrix,
                                   block.sizes=n, directed=TRUE)
   net.nbs <- igraph::adjacent_vertices(trans.net, v=igraph::V(trans.net),
@@ -253,8 +253,25 @@ GetTimeSeries <- function(adf) {
   list(new.cases=new.cases, no.infected=no.infected)
 }
 
-SimulateAndSummarize <- function(job, static, dynamic, ...){
+SimulateAndSummarize <- function(job, static, dynamic,
+                                 starting.state='OH',
+                                 nstarters=1, verbose=TRUE, ...){
+  possible.starters <- which(dynamic$abb == starting.state)
+  inds <- sample.int(length(possible.starters), size=nstarters)
+  cases <- possible.starters[inds]
   adf.out <- RunSim(adf=dynamic$adf, net.nbs=dynamic$net.nbs,
-                    sp.nbs=dynamic$sp.nbs, ...)
+                    sp.nbs=dynamic$sp.nbs, cases=cases, ...)
   tsl <- GetTimeSeries(adf.out)
+  observed <- t(tsl$new.cases)
+  isStateAffected <- colSums(observed) > 0
+  if(sum(isStateAffected) == 1 | nrow(observed) < 3){
+    return(NA)
+  } else {
+    observed <- observed[, isStateAffected]
+    pop.struct.mats <- MakePopStructMats(observed)
+    pop.dyn.mats <- MakePopDynMats(observed)
+    mantel.tests <- DoMantelTests(pop.dyn.mats, pop.struct.mats, permutations=1e3)
+    list(mantel.tests=mantel.tests, observed=mantel.observed)
+  }
 }
+

@@ -1,12 +1,10 @@
 #!/usr/bin/Rscript
 
+library(aporkalypse)
 library(Hmisc)
 library(pander)
 library(plyr)
 library(reshape2)
-library(vegan)
-
-source('mantel-testing-functions.R')
 
 #' Create distance matrices
 
