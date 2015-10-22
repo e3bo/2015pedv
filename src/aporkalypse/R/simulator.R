@@ -1,3 +1,9 @@
+if(getRversion() >= "2.15.1")
+  utils::globalVariables(c("county.hogs.pigs.02",
+                           "county.hogs.pigs.02.map",
+                           "internal.flows",
+                           "flows.matrix"))
+
 #' Get neighbors of a raster cell using 8-cell neighborhood
 #'
 #' @param r A raster object.
@@ -65,6 +71,7 @@ FormatFips <- function(x, type) {
 }
 
 GetCountySPDF <- function(sfps, cfps){
+  data('county.hogs.pigs.02.map', envir=environment(), package='aporkalypse')
   spdf <- county.hogs.pigs.02.map
   cfps <- FormatFips(cfps, 'county')
   sfps <- FormatFips(sfps, 'state')
@@ -74,6 +81,8 @@ GetCountySPDF <- function(sfps, cfps){
 }
 
 SubsetFlows <- function(nms, rel='directed'){
+  data('flows.matrix', envir=environment(), package='aporkalypse')
+  data('internal.flows', envir=environment(), package='aporkalypse')
   fmo <- flows.matrix[nms, nms]
   diag(fmo) <- internal.flows[nms, 'impInternalFlow']
   ## fmo[i, j] == head sent to i from j
@@ -119,9 +128,11 @@ CreateAgents <- function(job, static,
                          census.dilation=1,
                          target.mean.deg=1, ...){
 
-  data('state.fips', package='maps', envir=environment())
-  key <- match(county.hogs.pigs.02$STFIPS, state.fips$fips)
-  county.hogs.pigs.02$abb <- as.character(state.fips$abb[key])
+  state.fips <- maps::state.fips
+  data('county.hogs.pigs.02', package='aporkalypse', envir=environment())
+  chp <- county.hogs.pigs.02
+  key <- match(chp$STFIPS, state.fips$fips)
+  chp$abb <- as.character(state.fips$abb[key])
 
   ## Sample coordinates of farms-------------------------------------
   GetSampCoord <- function(cfps, sfps, n,
@@ -142,14 +153,14 @@ CreateAgents <- function(job, static,
     }
     samp
   }
-  n <- floor(county.hogs.pigs.02$DATA * census.dilation)
-  coord.samps <- mapply(GetSampCoord, cfps=county.hogs.pigs.02$COFIPS,
-                        sfps=county.hogs.pigs.02$STFIPS,
+  n <- floor(chp$DATA * census.dilation)
+  coord.samps <- mapply(GetSampCoord, cfps=chp$COFIPS, sfps=chp$STFIPS,
                         n=n, SIMPLIFY=FALSE)
   coord.mats <- lapply(coord.samps, function(x) if(!is.null(x)) sp::coordinates(x))
   coord.df <- do.call(rbind, coord.mats)
 
   ## Convert coordinates to cell membership in raster layer------------
+  data('county.hogs.pigs.02.map', package='aporkalypse', envir=environment())
   raster.map <- raster::raster(county.hogs.pigs.02.map)
   raster::res(raster.map) <- raster.cell.side.meters
 
@@ -166,10 +177,10 @@ CreateAgents <- function(job, static,
   adf <- data.frame(cell=unlist(cell.samps),
                     x=coord.df[ ,1],
                     y=coord.df[, 2],
-                    cofips=rep(county.hogs.pigs.02$COFIPS, times=n),
-                    stfips=rep(county.hogs.pigs.02$STFIPS, times=n),
-                    place.name=rep(county.hogs.pigs.02$GEO, times=n),
-                    abb=rep(county.hogs.pigs.02$abb, times=n),
+                    cofips=rep(chp$COFIPS, times=n),
+                    stfips=rep(chp$STFIPS, times=n),
+                    place.name=rep(chp$GEO, times=n),
+                    abb=rep(chp$abb, times=n),
                     infection.time=NA,
                     recovery.time=NA)
   adf <- adf[order(adf$stfips), ]
@@ -256,7 +267,10 @@ GetTimeSeries <- function(adf) {
 SimulateAndSummarize <- function(job, static, dynamic,
                                  starting.state='OH',
                                  nstarters=1, verbose=TRUE, ...){
-  possible.starters <- which(dynamic$abb == starting.state)
+  possible.starters <- which(dynamic$adf$abb == starting.state)
+  if(length(possible.starters) == 0){
+    stop("No farms in given starting state")
+  }
   inds <- sample.int(length(possible.starters), size=nstarters)
   cases <- possible.starters[inds]
   adf.out <- RunSim(adf=dynamic$adf, net.nbs=dynamic$net.nbs,
@@ -271,7 +285,7 @@ SimulateAndSummarize <- function(job, static, dynamic,
     pop.struct.mats <- MakePopStructMats(observed)
     pop.dyn.mats <- MakePopDynMats(observed)
     mantel.tests <- DoMantelTests(pop.dyn.mats, pop.struct.mats, permutations=1e3)
-    list(mantel.tests=mantel.tests, observed=mantel.observed)
+    list(mantel.tests=mantel.tests, mantel.observed=observed)
   }
 }
 

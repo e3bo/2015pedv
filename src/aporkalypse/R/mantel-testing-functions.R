@@ -1,3 +1,9 @@
+if(getRversion() >= "2.15.1")
+  utils::globalVariables(c("shared.border.adjacency",
+                           "state.to.state.dists",
+                           "internal.flows",
+                           "flows.matrix"))
+
 GetCrossCorrs <- function(lag, obs){
     n <- ncol(obs)
     CC <- matrix(nrow=n, ncol=n)
@@ -8,9 +14,10 @@ GetCrossCorrs <- function(lag, obs){
     }
     for(i in seq_len(n)){
         for(j in seq_len(n)){
-            ## CC[i,j] will be high if deviations from the mean in series i
-            ## are shifted to the left of similar deviations to the mean in series j
-            ## i.e. i's deviations are indicative of j's future deviations
+            ## For positive lag, CC[i,j] will be high if deviations
+            ## from the mean in series i are shifted to the left of
+            ## similar deviations to the mean in series j i.e. i's
+            ## deviations are indicative of j's future deviations
             CC[i, j] <- getcc(obs[, j], obs[, i], lag=lag)
         }
     }
@@ -89,6 +96,9 @@ DoPartialMantelTests <- function(mat.list1, mat.list2, mat.list3, ...){
 
 MakePopStructMats <- function(observed){
   nms <- colnames(observed)
+  data('flows.matrix', envir=environment(), package='aporkalypse')
+  data('state.to.state.dists', envir=environment(), package='aporkalypse')
+  data('shared.border.adjacency', envir=environment(), package='aporkalypse')
   nhood <- shared.border.adjacency[nms, nms]
   ep <- flows.matrix[nms, nms]
   epl <- log10(ep + 1)
