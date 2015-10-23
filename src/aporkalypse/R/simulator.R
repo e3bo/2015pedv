@@ -2,14 +2,15 @@
 #'
 #' @param r A raster object.
 #' @param cell A cell in the raster object.
+#' @param ncells Number of cells in raster object.
+#' @param nr Number of rows in raster object.
+#' @param nc Number of columns in raster object.
 #' @return A vector of the neighboring cells of \code{cell} as well as \code{cell}.
 #'
-Get8nbs <- function(r, cell){
-  if (cell > raster::ncell(r)) {
+Get8nbs <- function(r, cell, ncells, nc, nr){
+  if (cell > ncells) {
     return(NA)
   }
-  nc <- raster::ncol(r)
-  nr <- raster::nrow(r)
   row.num <- (cell - 1) %/% nc + 1
   col.num <- (cell - 1) %% nc + 1
   nbs <- list()
@@ -64,9 +65,7 @@ FormatFips <- function(x, type) {
   } else NA
 }
 
-GetCountySPDF <- function(sfps, cfps){
-  data('county.hogs.pigs.02.map', envir=environment(), package='aporkalypse')
-  spdf <- get('county.hogs.pigs.02.map')
+GetCountySPDF <- function(sfps, cfps, spdf){
   cfps <- FormatFips(cfps, 'county')
   sfps <- FormatFips(sfps, 'state')
   ind <- which(spdf@data[, 'COUNTYFP']==cfps & spdf@data[, 'STATEFP']==sfps)
@@ -131,12 +130,14 @@ CreateAgents <- function(job, static,
   chp$abb <- as.character(state.fips$abb[key])
 
   ## Sample coordinates of farms-------------------------------------
-  GetSampCoord <- function(cfps, sfps, n,
+  data('county.hogs.pigs.02.map', package='aporkalypse', envir=environment())
+  map <- get('county.hogs.pigs.02.map')
+  GetSampCoord <- function(cfps, sfps, n, spdf=map,
                            plot.samp=FALSE){
     if(n == 0) {
         samp <- NULL
       } else {
-        cty.poly <- GetCountySPDF(sfps, cfps)
+        cty.poly <- GetCountySPDF(sfps, cfps, spdf=spdf)
        len <- 0
        while(len != n){
          samp <- sp::spsample(cty.poly, type='random', n=n, iter=10)
@@ -156,8 +157,6 @@ CreateAgents <- function(job, static,
   coord.df <- do.call(rbind, coord.mats)
 
   ## Convert coordinates to cell membership in raster layer------------
-  data('county.hogs.pigs.02.map', package='aporkalypse', envir=environment())
-  map <- get('county.hogs.pigs.02.map')
   raster.map <- raster::raster(map)
   raster::res(raster.map) <- raster.cell.side.meters
 
@@ -190,7 +189,10 @@ CreateAgents <- function(job, static,
   cell2id <- lapply(occupied.cells, function(x) adf$id[adf$cell == x])
   names(cell2id) <- occupied.cells
 
-  cell2nb.cells <- lapply(1:raster::ncell(raster.map), Get8nbs, r=raster.map)
+  cell2nb.cells <- lapply(1:raster::ncell(raster.map), Get8nbs, r=raster.map,
+                          ncells=raster::ncell(raster.map),
+                          nc=raster::ncol(raster.map),
+                          nr=raster::nrow(raster.map))
 
   GetSpNbs <- function(cell, adj=cell2nb.cells, c2i=cell2id) {
     nb.cells <- adj[[cell]]
