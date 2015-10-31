@@ -6,6 +6,7 @@ Sys.setlocale("LC_TIME", "C") #Needed for identical()
 Sys.setlocale("LC_COLLATE", "C")
 
 #+include=TRUE
+library(methods) # work around bug 16545 in R 3.2.2
 print(sessionInfo())
 dataDir <- file.path('.')
 obs <- list()
@@ -290,7 +291,7 @@ GetMap <- function(countyData){
   }
   tmpf(cb.ea, countyData)
 }
-#obs$county.hogs.pigs.02.map <- GetMap(countyData=obs$county.hogs.pigs.02)
+obs$county.hogs.pigs.02.map <- GetMap(countyData=obs$county.hogs.pigs.02)
 
 if(!file.exists('data'))
   dir.create('data')

@@ -3,6 +3,7 @@ MAINTAINER Eamon O'Dea <[last name without apostrophe]35@gmail.com>
 
 RUN apt-get update && apt-get install -y -q --no-install-recommends \
   ghostscript \
+  libgdal1 \
   poppler-utils \
   python3-lxml \
   python3-pkg-resources \
@@ -32,9 +33,10 @@ RUN install2.r --error \
   pander \
   plyr \
   pscl \
+  RColorBrewer \
   reshape \
   reshape2 \
-  RColorBrewer \
+  rgdal \
   scales \
   surveillance \
   vcd \

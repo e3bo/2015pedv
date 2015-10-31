@@ -14,6 +14,7 @@ res <- Map(aporkalypse::SimulateAndSummarize, starting.state=df$starting.state,
 tstats <- lapply(res, '[[', 'mantel.tests')
 dfsplt <- split(df, seq(nrow(df)))
 resplt <- Map(cbind, dfsplt, tstats)
+resplt <- Filter(function(x) ncol(x) > 7, resplt)
 resall <- do.call(rbind, resplt)
 
 test <- resall$symmetrize == TRUE & resall$mat2.name == 'shipment' & resall$method== 'spearman'

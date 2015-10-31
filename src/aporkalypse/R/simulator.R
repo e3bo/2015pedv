@@ -267,7 +267,8 @@ GetTimeSeries <- function(adf) {
 
 SimulateAndSummarize <- function(job, static, dynamic,
                                  starting.state='OH',
-                                 nstarters=1, verbose=TRUE, ...){
+                                 nstarters=1, verbose=TRUE,
+                                 lags.sel=c(0, 1), ...){
   possible.starters <- which(dynamic$adf$abb == starting.state)
   if(length(possible.starters) == 0){
     stop("No farms in given starting state")
@@ -284,7 +285,7 @@ SimulateAndSummarize <- function(job, static, dynamic,
     list(mantel.tests=NA, mantel.observed=observed)
   } else {
     pop.struct.mats <- MakePopStructMats(observed)
-    pop.dyn.mats <- MakePopDynMats(observed)
+    pop.dyn.mats <- MakePopDynMats(observed, lags.sel=lags.sel)
     mantel.tests <- DoMantelTests(pop.dyn.mats, pop.struct.mats, permutations=1e3)
     list(mantel.tests=mantel.tests, mantel.observed=observed)
   }
