@@ -207,19 +207,21 @@ CreateAgents <- function(job, static,
 }
 
 RunSim <- function(adf, net.nbs, sp.nbs, nsteps=38, tprob.sp=0.01,
-                    tprob.net=0.01, rprob=1, seasonal.amplitude=0,
-                    verbose=FALSE, cases=1) {
+                   tprob.net=0.01, tprob.outside=0, rprob=1,
+                   seasonal.amplitude=0, verbose=FALSE, cases=1) {
   adf$infection.time <- NA
   adf$recovery.time <- NA
   adf$infection.time[cases] <- 0
   step <- 1
   adf <- adf[order(adf$id), ] ## Assumed for looking up neighbors
+  nagents <- nrow(adf)
   while(step < nsteps){
     sf <- (1 + seasonal.amplitude * CalcSeasonalFactor(step))
     net.contact.dist <- table(unlist(net.nbs[cases]))
     sp.contact.dist <- table(unlist(sp.nbs[cases]))
     tprob.sp.t <- max(min(tprob.sp * sf, 1), 0)
     tprob.net.t <- max(min(tprob.net * sf, 1), 0)
+    tprob.outside.t <- max(min(tprob.net * sf, 1), 0)
 
     avoidance.probs.sp <- (1 - tprob.sp.t)^sp.contact.dist
     avoidance.probs.net <- (1 - tprob.net.t)^net.contact.dist
@@ -234,7 +236,10 @@ RunSim <- function(adf, net.nbs, sp.nbs, nsteps=38, tprob.sp=0.01,
     ids <- as.integer(names(net.contact.dist))
     new.cases.net <- ids[test]
 
-    new.cases <- unique(c(new.cases.net, new.cases.sp))
+    n.new.cases.outside <- rbinom(1, size=nagents, prob=tprob.outside.t)
+    new.cases.outside <- sample.int(n=nagents, size=n.new.cases.outside) 
+
+    new.cases <- unique(c(new.cases.net, new.cases.sp, new.cases.outside))
     is.susceptible <- is.na(adf$infection.time[new.cases])
     new.cases <- new.cases[is.susceptible]
     adf$infection.time[new.cases] <- step
