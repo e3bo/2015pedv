@@ -11,7 +11,6 @@ RUN apt-get update && apt-get install -y -q --no-install-recommends \
   r-cran-xml
 
 RUN install2.r --error \
-  BatchExperiments \
   car \
   coda \
   c060 \
@@ -33,11 +32,13 @@ RUN install2.r --error \
   pander \
   plyr \
   pscl \
+  randtoolbox \
   RColorBrewer \
   reshape \
   reshape2 \
   rgdal \
   scales \
+  sensitivity \
   surveillance \
   vcd \
   vegan \
