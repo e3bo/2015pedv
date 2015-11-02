@@ -237,7 +237,7 @@ RunSim <- function(adf, net.nbs, sp.nbs, nsteps=38, tprob.sp=0.01,
     new.cases.net <- ids[test]
 
     n.new.cases.outside <- rbinom(1, size=nagents, prob=tprob.outside.t)
-    new.cases.outside <- sample.int(n=nagents, size=n.new.cases.outside) 
+    new.cases.outside <- sample.int(n=nagents, size=n.new.cases.outside)
 
     new.cases <- unique(c(new.cases.net, new.cases.sp, new.cases.outside))
     is.susceptible <- is.na(adf$infection.time[new.cases])
@@ -273,7 +273,7 @@ GetTimeSeries <- function(adf) {
 SimulateAndSummarize <- function(job, static, dynamic,
                                  starting.state='OH',
                                  nstarters=1, verbose=TRUE,
-                                 lags.sel=c(0, 1), ...){
+                                 lags.sel=c(0, 1), permutations=1e3, ...){
   possible.starters <- which(dynamic$adf$abb == starting.state)
   if(length(possible.starters) == 0){
     stop("No farms in given starting state")
@@ -291,7 +291,8 @@ SimulateAndSummarize <- function(job, static, dynamic,
   } else {
     pop.struct.mats <- MakePopStructMats(observed)
     pop.dyn.mats <- MakePopDynMats(observed, lags.sel=lags.sel)
-    mantel.tests <- DoMantelTests(pop.dyn.mats, pop.struct.mats, permutations=1e3)
+    mantel.tests <- DoMantelTests(pop.dyn.mats, pop.struct.mats,
+                                  permutations=permutations)
     list(mantel.tests=mantel.tests, mantel.observed=observed)
   }
 }
