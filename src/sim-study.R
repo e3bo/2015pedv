@@ -4,11 +4,12 @@ agent.args <- list(target.mean.deg=1, census.dilation=0.1)
 ag <- do.call(aporkalypse::CreateAgents, agent.args)
 
 nsim <- 100
-par.ranges <- list(rprob=c(0, 1),
+par.ranges <- list(nstarters=c(0, 10),
+                   rprob=c(0, 1),
                    seasonal.amplitude=c(0, 1),
                    tprob.outside=c(0, 0.1),
                    tprob.net=c(0, 0.1),
-                   tprob.sp=c(0, 0.1))
+                   tprob.sp=c(0, 1))
 
 des <- sensitivity::parameterSets(par.ranges=par.ranges,
                                   samples=nsim, method='sobol')
@@ -37,9 +38,8 @@ test <- with(resall,
                mat1.name == 'lag1')
 sub <- resall[test, ]
 
-m <- DiceKriging::km(~tprob.net + tprob.sp + rprob + tprob.outside +
-                       seasonal.amplitude,
-                     design=sub[, names(par.ranges)],
+formula <- as.formula(paste('~', paste(names(par.ranges), collapse='+')))
+m <- DiceKriging::km(formula=formula, design=sub[, names(par.ranges)],
                      response=sub$r, nugget.estim=TRUE, covtype='matern3_2')
 
 nmeta <- 10000
