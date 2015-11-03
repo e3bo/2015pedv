@@ -7,6 +7,8 @@ nsim <- 100
 par.ranges <- list(nstarters=c(0, 10),
                    rprob=c(0, 1),
                    seasonal.amplitude=c(0, 1),
+                   starting.grid.x=c(0, 1),
+                   starting.grid.y=c(0, 1),
                    tprob.outside=c(0, 0.1),
                    tprob.net=c(0, 0.1),
                    tprob.sp=c(0, 1))
@@ -14,15 +16,17 @@ par.ranges <- list(nstarters=c(0, 10),
 des <- sensitivity::parameterSets(par.ranges=par.ranges,
                                   samples=nsim, method='sobol')
 colnames(des) <- names(par.ranges)
-sim.args <- data.frame(starting.state='OH', des, stringsAsFactors=FALSE,
-                       permutations=2)
+sim.args <- data.frame(des, permutations=2)
 df <- cbind(agent.args, sim.args)
 
 system.time(res <- Map(aporkalypse::SimulateAndSummarize,
                        dynamic=list(ag),
                        lags.sel=1,
                        rprob=df$rprob,
-                       starting.state=df$starting.state,
+                       starting.grid.nx=10,
+                       starting.grid.ny=2,
+                       starting.grid.x=df$starting.grid.x,
+                       starting.grid.y=df$starting.grid.y,
                        tprob.net=df$tprob.net,
                        tprob.outside=df$tprob.outside,
                        tprob.sp=df$tprob.sp))
