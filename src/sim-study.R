@@ -31,6 +31,8 @@ colnames(des) <- names(par.ranges)
 
 df <- do.call(cbind, c(list(des), as.list(ag.data.inds)))
 df <- as.data.frame(df)
+df$target.mean.deg <- target.mean.deg.grid[df$net.nbs.ind]
+df$raster.cell.side <- raster.cell.side.grid[df$ag.ind]
 
 system.time(res <- Map(aporkalypse::SimulateAndSummarize,
                        agent.data=ag[df$ag.ind],
@@ -61,14 +63,32 @@ test <- with(resall,
                mat1.name == 'lag1')
 sub <- resall[test, ]
 
-formula <- as.formula(paste('~', paste(names(par.ranges), collapse='+')))
-m <- DiceKriging::km(formula=formula, design=sub[, names(par.ranges)],
+input.pars <- c(names(par.ranges), 'target.mean.deg', 'raster.cell.side')
+formula <- as.formula(paste('~', paste(input.pars, collapse='+')))
+m <- DiceKriging::km(formula=formula, design=sub[, input.pars],
                      response=sub$r, nugget.estim=TRUE, covtype='matern3_2')
 
 nmeta <- 1e4
-foo <- function(y) runif(n=nmeta, min=y[1], max=y[2])
-X1 <- sapply(par.ranges, foo)
-X2 <- sapply(par.ranges, foo)
+extra.par.ranges <- list(target.mean.deg=range(target.mean.deg.grid),
+                         raster.cell.side=range(raster.cell.side.grid))
+all.par.ranges <- c(par.ranges, extra.par.ranges)
+
+GetRandLHSDes <- function(n, ranges){
+  X <- lhs::randomLHS(nmeta, length(ranges))
+  tmpf <- function(samp, range){
+    d <- diff(sort(range))
+    samp <- samp * d
+    samp + range[1]
+  }
+  for(i in 1:ncol(X)){
+    X[, i] <- tmpf(X[ ,i], ranges[[i]])
+  }
+  colnames(X) <- names(ranges)
+  X
+}
+X1 <- GetRandLHSDes(nmeta, all.par.ranges)
+X2 <- GetRandLHSDes(nmeta, all.par.ranges)
+
 
 wrapper <- function(X){
   predict(m, newdata=X, type='UK')$m
@@ -97,7 +117,7 @@ points(sub$tprob.net, sub$r, col=2)
 plotdes <- sensitivity::parameterSets(par.ranges=par.ranges[c('tprob.net',
                                           'tprob.sp')],
                                       samples=sqrt(nsim), method='grid')
-des2 <- des
+des2 <- df[, names(all.par.ranges)]
 des2[, 'tprob.net'] <- plotdes[1:nrow(des), 'tprob.net']
 des2[, 'tprob.sp'] <- plotdes[1:nrow(des), 'tprob.sp']
 pmean <- predict(m, newdata=des2, type='UK')$m
