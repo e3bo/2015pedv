@@ -3,7 +3,7 @@
 agent.args <- list(target.mean.deg=1, census.dilation=0.1)
 ag <- do.call(aporkalypse::CreateAgents, agent.args)
 
-nsim <- 100
+nsim <- 1000
 par.ranges <- list(nstarters=c(0, 10),
                    prep=c(0.01, 1),
                    size=c(0.7, 1),
@@ -66,17 +66,23 @@ sob.inds <- sob$S[, 'original'] * vym / vy
 names(sob.inds) <- rownames(sob$S)
 sob.ind.rand <- vyd / vy
 
-newdata <- head(X1, n=500)
+newdata <- head(X1, n=1000)
 p <- predict(m, newdata=newdata, type='UK')
 
 x <- newdata[, 'tprob.net']
+
 plot(x, p$mean, ylim=c(0, 0.5))
 points(x, p$lower95, col='grey')
 points(x, p$upper95, col='grey')
 
 points(sub$tprob.net, sub$r, col=2)
 
-test <- with(resall,
- symmetrize == TRUE & mat2.name == 'sharedBord' & method== 'spearman' & mat1.name == 'lag1')
-sub2 <- resall[test, ]
-plot(r~tprob.sp, data=sub2)
+plotdes <- sensitivity::parameterSets(par.ranges=par.ranges[c('tprob.net',
+                                          'tprob.sp')],
+                                      samples=sqrt(nsim), method='grid')
+des2 <- des
+des2[, 'tprob.net'] <- plotdes[1:nrow(des), 'tprob.net']
+des2[, 'tprob.sp'] <- plotdes[1:nrow(des), 'tprob.sp']
+pmean <- predict(m, newdata=des2, type='UK')$m
+
+lattice::levelplot(pmean~tprob.net*tprob.sp, data=as.data.frame(des2))
