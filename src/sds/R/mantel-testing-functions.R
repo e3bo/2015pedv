@@ -90,11 +90,11 @@ DoPartialMantelTests <- function(mat.list1, mat.list2, mat.list3, ...){
 
 MakePopStructMats <- function(observed){
   nms <- colnames(observed)
-  data('flows.matrix', envir=environment(), package='aporkalypse')
+  data('flows.matrix', envir=environment(), package='sds')
   flows.matrix <- get('flows.matrix')
-  data('state.to.state.dists', envir=environment(), package='aporkalypse')
+  data('state.to.state.dists', envir=environment(), package='sds')
   state.to.state.dists <- get('state.to.state.dists')
-  data('shared.border.adjacency', envir=environment(), package='aporkalypse')
+  data('shared.border.adjacency', envir=environment(), package='sds')
   shared.border.adjacency <- get('shared.border.adjacency')
   nhood <- shared.border.adjacency[nms, nms]
   ep <- flows.matrix[nms, nms]

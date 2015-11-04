@@ -1,4 +1,4 @@
-Package: aporkalypse
+Package: sds
 Title: Modeling of infectious disease spread among U.S. swine farms
 Version: 0.0.0.9000
 Authors@R: person("Eamon", "O\'Dea", email = "odea35@gmail.com", role = c("aut", "cre"))

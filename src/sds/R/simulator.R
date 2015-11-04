@@ -74,9 +74,9 @@ GetCountySPDF <- function(sfps, cfps, spdf){
 }
 
 SubsetFlows <- function(nms, rel='directed'){
-  data('flows.matrix', envir=environment(), package='aporkalypse')
+  data('flows.matrix', envir=environment(), package='sds')
   flows.matrix <- get('flows.matrix')
-  data('internal.flows', envir=environment(), package='aporkalypse')
+  data('internal.flows', envir=environment(), package='sds')
   internal.flows <- get('internal.flows')
   fmo <- flows.matrix[nms, nms]
   diag(fmo) <- internal.flows[nms, 'impInternalFlow']
@@ -122,13 +122,13 @@ CreateAgents <- function(raster.cell.side.meters=16000, census.dilation=1,
                          target.mean.deg=1){
 
   state.fips <- maps::state.fips
-  data('county.hogs.pigs.02', package='aporkalypse', envir=environment())
+  data('county.hogs.pigs.02', package='sds', envir=environment())
   chp <- get('county.hogs.pigs.02')
   key <- match(chp$STFIPS, state.fips$fips)
   chp$abb <- as.character(state.fips$abb[key])
 
   ## Sample coordinates of farms-------------------------------------
-  data('county.hogs.pigs.02.map', package='aporkalypse', envir=environment())
+  data('county.hogs.pigs.02.map', package='sds', envir=environment())
   map <- get('county.hogs.pigs.02.map')
   GetSampCoord <- function(cfps, sfps, n, spdf=map,
                            plot.samp=FALSE){

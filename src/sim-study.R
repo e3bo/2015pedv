@@ -3,12 +3,12 @@
 target.mean.deg.grid <- seq(0.3, 1.2, by=0.1)
 raster.cell.side.grid <- c(16000, 32000)
 
-ag <- Map(aporkalypse::CreateAgents,
+ag <- Map(sds::CreateAgents,
           target.mean.deg=target.mean.deg.grid[1],
           raster.cell.side.meters=raster.cell.side.grid,
           census.dilation=0.1)
 
-net.nbs <- lapply(target.mean.deg.grid[-1], aporkalypse::GetNetNbs,
+net.nbs <- lapply(target.mean.deg.grid[-1], sds::GetNetNbs,
                   block.labels=ag[[1]]$adf$abb)
 net.nbs <- c(list(ag[[1]]$net.nbs), net.nbs)
 ag.data.inds <- expand.grid(ag.ind=seq_along(ag), net.nbs.ind=seq_along(net.nbs))
@@ -22,7 +22,7 @@ par.ranges <- list(nstarters=c(0, 10),
                    starting.grid.x=c(0, 1),
                    starting.grid.y=c(0, 1),
                    tprob.outside=c(0, 0.1),
-                   tprob.net=c(0, .11),
+                   tprob.net=c(0, 1),
                    tprob.sp=c(0, 1))
 
 des <- sensitivity::parameterSets(par.ranges=par.ranges,
@@ -34,7 +34,7 @@ df <- as.data.frame(df)
 df$target.mean.deg <- target.mean.deg.grid[df$net.nbs.ind]
 df$raster.cell.side <- raster.cell.side.grid[df$ag.ind]
 
-system.time(res <- Map(aporkalypse::SimulateAndSummarize,
+system.time(res <- Map(sds::SimulateAndSummarize,
                        agent.data=ag[df$ag.ind],
                        lags.sel=1,
                        net.nbs=net.nbs[df$net.nbs.ind],
