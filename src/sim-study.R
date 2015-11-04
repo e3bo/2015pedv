@@ -1,9 +1,19 @@
 #!/usr/bin/Rscript
 
-agent.args <- list(target.mean.deg=1, census.dilation=0.1)
-ag <- do.call(aporkalypse::CreateAgents, agent.args)
+target.mean.deg.grid <- seq(0.3, 1.2, by=0.1)
+raster.cell.side.grid <- c(16000, 32000)
 
-nsim <- 1000
+ag <- Map(aporkalypse::CreateAgents,
+          target.mean.deg=target.mean.deg.grid[1],
+          raster.cell.side.meters=raster.cell.side.grid,
+          census.dilation=0.1)
+
+net.nbs <- lapply(target.mean.deg.grid[-1], aporkalypse::GetNetNbs,
+                  block.labels=ag[[1]]$adf$abb)
+net.nbs <- c(list(ag[[1]]$net.nbs), net.nbs)
+ag.data.inds <- expand.grid(ag.ind=seq_along(ag), net.nbs.ind=seq_along(net.nbs))
+
+nsim <- 100
 par.ranges <- list(nstarters=c(0, 10),
                    prep=c(0.01, 1),
                    size=c(0.7, 1),
@@ -12,19 +22,26 @@ par.ranges <- list(nstarters=c(0, 10),
                    starting.grid.x=c(0, 1),
                    starting.grid.y=c(0, 1),
                    tprob.outside=c(0, 0.1),
-                   tprob.net=c(0, 0.1),
+                   tprob.net=c(0, .11),
                    tprob.sp=c(0, 1))
 
 des <- sensitivity::parameterSets(par.ranges=par.ranges,
                                   samples=nsim, method='sobol')
 colnames(des) <- names(par.ranges)
-sim.args <- data.frame(des, permutations=2)
-df <- cbind(agent.args, sim.args)
+
+df <- do.call(cbind, c(list(des), as.list(ag.data.inds)))
+df <- as.data.frame(df)
 
 system.time(res <- Map(aporkalypse::SimulateAndSummarize,
-                       dynamic=list(ag),
+                       agent.data=ag[df$ag.ind],
                        lags.sel=1,
+                       net.nbs=net.nbs[df$net.nbs.ind],
+                       nstarters=df$nstarters,
+                       permutations=2,
+                       prep=df$prep,
                        rprob=df$rprob,
+                       size=df$size,
+                       seasonal.amplitude=df$seasonal.amplitude,
                        starting.grid.nx=10,
                        starting.grid.ny=2,
                        starting.grid.x=df$starting.grid.x,
@@ -56,7 +73,7 @@ X2 <- sapply(par.ranges, foo)
 wrapper <- function(X){
   predict(m, newdata=X, type='UK')$m
 }
-sob <- sensitivity::sobol(model=wrapper, X1=X1, X2=X2, order=1, nboot=100)
+system.time(sob <- sensitivity::sobol(model=wrapper, X1=X1, X2=X2, order=2, nboot=100))
 
 vym <- sob$V['global', 'original']
 vyd <- DiceKriging::coef(m)$sd2 + DiceKriging::coef(m)$nugget

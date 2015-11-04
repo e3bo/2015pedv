@@ -118,10 +118,8 @@ GetNetNbs <- function(block.labels, target.mean.deg){
   sapply(net.nbs, as.integer)
 }
 
-CreateAgents <- function(job, static,
-                         raster.cell.side.meters=16000,
-                         census.dilation=1,
-                         target.mean.deg=1, ...){
+CreateAgents <- function(raster.cell.side.meters=16000, census.dilation=1,
+                         target.mean.deg=1){
 
   state.fips <- maps::state.fips
   data('county.hogs.pigs.02', package='aporkalypse', envir=environment())
@@ -275,7 +273,11 @@ NewCasesToReports <- function(x, size=.75, prep=.5){
   rnbinom(n=xrep, size=size, mu=.76 + 1.92 * xrep)
 }
 
-SimulateAndSummarize <- function(dynamic,
+SimulateAndSummarize <- function(agent.data,
+                                 lags.sel=c(0, 1),
+                                 net.nbs,
+                                 nstarters=1,
+                                 permutations=1e3,
                                  prep=0.5,
                                  starting.state=NULL,
                                  starting.grid.nx=10,
@@ -283,30 +285,29 @@ SimulateAndSummarize <- function(dynamic,
                                  starting.grid.x=NULL,
                                  starting.grid.y=NULL,
                                  size=0.75,
-                                 nstarters=1, verbose=TRUE,
-                                 lags.sel=c(0, 1), permutations=1e3, ...){
+                                 verbose=TRUE,
+                                  ...){
   if (!is.null(starting.state)){
-    possible.starters <- which(dynamic$adf$abb == starting.state)
+    possible.starters <- which(agent.data$adf$abb == starting.state)
   } else if (!is.null(starting.grid.x) & !is.null(starting.grid.y)){
-    cx <- as.integer(cut(dynamic$adf$x, breaks=starting.grid.nx))
-    cy <- as.integer(cut(dynamic$adf$y, breaks=starting.grid.ny))
+    cx <- as.integer(cut(agent.data$adf$x, breaks=starting.grid.nx))
+    cy <- as.integer(cut(agent.data$adf$y, breaks=starting.grid.ny))
     thex <- ceiling(starting.grid.x * starting.grid.nx)
     they <- ceiling(starting.grid.y * starting.grid.ny)
     test <- cx == thex & cy == they
     possible.starters <- which(test)
   } else {
-    possible.starters <- seq(1, nrow(dynamic$adf))
+    possible.starters <- seq(1, nrow(agent.data$adf))
   }
   if(length(possible.starters) == 0){
     stop("No farms that meet requirements to start epizootic")
   }
   inds <- sample.int(length(possible.starters), size=nstarters)
   cases <- possible.starters[inds]
-  adf.out <- RunSim(adf=dynamic$adf, net.nbs=dynamic$net.nbs,
-                    sp.nbs=dynamic$sp.nbs, cases=cases, ...)
+  adf.out <- RunSim(adf=agent.data$adf, net.nbs=agent.data$net.nbs,
+                    sp.nbs=agent.data$sp.nbs, cases=cases, ...)
   tsl <- GetTimeSeries(adf.out)
-  observed <- t(apply(tsl$new.cases, 1, NewCasesToReports, prep=prep, size=size))
-  colnames(observed) <- colnames(tsl$new.cases)
+  observed <- apply(tsl$new.cases, 1, NewCasesToReports, prep=prep, size=size)
   isStateAffected <- colSums(observed) > 0
   observed <- observed[, isStateAffected, drop=FALSE]
   if(sum(isStateAffected) == 1 | nrow(observed) < 3){
