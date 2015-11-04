@@ -5,6 +5,8 @@ ag <- do.call(aporkalypse::CreateAgents, agent.args)
 
 nsim <- 100
 par.ranges <- list(nstarters=c(0, 10),
+                   prep=c(0.01, 1),
+                   size=c(0.7, 1),
                    rprob=c(0, 1),
                    seasonal.amplitude=c(0, 1),
                    starting.grid.x=c(0, 1),
@@ -46,7 +48,7 @@ formula <- as.formula(paste('~', paste(names(par.ranges), collapse='+')))
 m <- DiceKriging::km(formula=formula, design=sub[, names(par.ranges)],
                      response=sub$r, nugget.estim=TRUE, covtype='matern3_2')
 
-nmeta <- 10000
+nmeta <- 1e4
 foo <- function(y) runif(n=nmeta, min=y[1], max=y[2])
 X1 <- sapply(par.ranges, foo)
 X2 <- sapply(par.ranges, foo)
@@ -54,7 +56,7 @@ X2 <- sapply(par.ranges, foo)
 wrapper <- function(X){
   predict(m, newdata=X, type='UK')$m
 }
-sob <- sensitivity::sobol(model=wrapper, X1=X1, X2=X2, order=2, nboot=100)
+sob <- sensitivity::sobol(model=wrapper, X1=X1, X2=X2, order=1, nboot=100)
 
 vym <- sob$V['global', 'original']
 vyd <- DiceKriging::coef(m)$sd2 + DiceKriging::coef(m)$nugget

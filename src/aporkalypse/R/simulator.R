@@ -171,7 +171,7 @@ CreateAgents <- function(job, static,
   }
   cell.samps <- lapply(coord.samps, GetCell)
 
-  ## Generate agent data frame
+  ## Generate agent data frame----------------------------------------
   adf <- data.frame(cell=unlist(cell.samps),
                     x=coord.df[ ,1],
                     y=coord.df[, 2],
@@ -270,20 +270,43 @@ GetTimeSeries <- function(adf) {
   list(new.cases=new.cases, no.infected=no.infected)
 }
 
-SimulateAndSummarize <- function(job, static, dynamic,
-                                 starting.state='OH',
+NewCasesToReports <- function(x, size=.75, prep=.5){
+  xrep <- rbinom(x, size=x, prob=prep)
+  rnbinom(n=xrep, size=size, mu=.76 + 1.92 * xrep)
+}
+
+SimulateAndSummarize <- function(dynamic,
+                                 prep=0.5,
+                                 starting.state=NULL,
+                                 starting.grid.nx=10,
+                                 starting.grid.ny=2,
+                                 starting.grid.x=NULL,
+                                 starting.grid.y=NULL,
+                                 size=0.75,
                                  nstarters=1, verbose=TRUE,
                                  lags.sel=c(0, 1), permutations=1e3, ...){
-  possible.starters <- which(dynamic$adf$abb == starting.state)
+  if (!is.null(starting.state)){
+    possible.starters <- which(dynamic$adf$abb == starting.state)
+  } else if (!is.null(starting.grid.x) & !is.null(starting.grid.y)){
+    cx <- as.integer(cut(dynamic$adf$x, breaks=starting.grid.nx))
+    cy <- as.integer(cut(dynamic$adf$y, breaks=starting.grid.ny))
+    thex <- ceiling(starting.grid.x * starting.grid.nx)
+    they <- ceiling(starting.grid.y * starting.grid.ny)
+    test <- cx == thex & cy == they
+    possible.starters <- which(test)
+  } else {
+    possible.starters <- seq(1, nrow(dynamic$adf))
+  }
   if(length(possible.starters) == 0){
-    stop("No farms in given starting state")
+    stop("No farms that meet requirements to start epizootic")
   }
   inds <- sample.int(length(possible.starters), size=nstarters)
   cases <- possible.starters[inds]
   adf.out <- RunSim(adf=dynamic$adf, net.nbs=dynamic$net.nbs,
                     sp.nbs=dynamic$sp.nbs, cases=cases, ...)
   tsl <- GetTimeSeries(adf.out)
-  observed <- t(tsl$new.cases)
+  observed <- t(apply(tsl$new.cases, 1, NewCasesToReports, prep=prep, size=size))
+  colnames(observed) <- colnames(tsl$new.cases)
   isStateAffected <- colSums(observed) > 0
   observed <- observed[, isStateAffected, drop=FALSE]
   if(sum(isStateAffected) == 1 | nrow(observed) < 3){
