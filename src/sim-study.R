@@ -82,7 +82,7 @@ extra.par.ranges <- list(target.mean.deg=range(target.mean.deg.grid),
 all.par.ranges <- c(par.ranges, extra.par.ranges)
 
 GetRandLHSDes <- function(n, ranges){
-  X <- lhs::randomLHS(nmeta, length(ranges))
+  X <- lhs::randomLHS(n, length(ranges))
   tmpf <- function(samp, range){
     d <- diff(sort(range))
     samp <- samp * d
@@ -100,7 +100,7 @@ X2 <- GetRandLHSDes(nmeta, all.par.ranges)
 wrapper <- function(X){
   predict(m, newdata=X, type='UK')$m
 }
-system.time(sob <- sensitivity::sobol(model=wrapper, X1=X1, X2=X2, order=2, nboot=100))
+system.time(sob <- sensitivity::sobol(model=wrapper, X1=X1, X2=X2, order=1, nboot=100))
 
 vym <- sob$V['global', 'original']
 vyd <- DiceKriging::coef(m)$sd2 + DiceKriging::coef(m)$nugget
