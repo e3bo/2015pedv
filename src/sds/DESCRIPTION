@@ -3,11 +3,12 @@ Title: Modeling of infectious disease spread among U.S. swine farms
 Version: 0.0.0.9000
 Authors@R: person("Eamon", "O\'Dea", email = "odea35@gmail.com", role = c("aut", "cre"))
 Description: Support for a research project on modeling livestock diseases, with PEDV as a case study. It is not intended for use outside of this research project, but has been made available to make that project's results easier to reproduce and extend.
-Depends: R (>= 3.2.1)
+Depends: R (>= 3.2.2)
 License: CC0
 LazyData: true
-Imports: igraph (>= 1.0.1),
+Imports: igraph (>= 0.7.1),
   maps (>= 2.3-9),
-  raster (>= 2.4.20),
+  methods,
+  raster (>= 2.4-20),
   sp (>= 1.2.0),
-  vegan (>= 2.3.1)
+  vegan (>= 2.3-0)

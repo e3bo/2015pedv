@@ -65,6 +65,12 @@ FormatFips <- function(x, type) {
   } else NA
 }
 
+#' Get spatial polygons data frame corresponding to a county
+#' @param sfps State fips code
+#' @param cfps County fips code
+#' @param spdf Spatial polygons data frame with all counties
+#'
+#' @import methods
 GetCountySPDF <- function(sfps, cfps, spdf){
   cfps <- FormatFips(cfps, 'county')
   sfps <- FormatFips(sfps, 'state')
@@ -105,19 +111,21 @@ GetPrefMat <- function(state.tots, target.mean.deg) {
   pm
 }
 
+#' @export
 GetNetNbs <- function(block.labels, target.mean.deg){
   state.tots <- rle(as.character(block.labels))
   stopifnot(anyDuplicated(state.tots$values)==0)
   pref.matrix <- GetPrefMat(state.tots=state.tots,
                             target.mean.deg=target.mean.deg)
   n <- state.tots$lengths
-  trans.net <- igraph::sample_sbm(sum(n), pref.matrix=pref.matrix,
-                                  block.sizes=n, directed=TRUE)
-  net.nbs <- igraph::adjacent_vertices(trans.net, v=igraph::V(trans.net),
-                                       mode='out')
+  trans.net <- igraph::sbm.game(sum(n), pref.matrix=pref.matrix,
+                                block.sizes=n, directed=TRUE)
+  net.nbs <- igraph::get.adjlist(trans.net, mode='out')
   sapply(net.nbs, as.integer)
 }
 
+#' Create agent data structures
+#' @export
 CreateAgents <- function(raster.cell.side.meters=16000, census.dilation=1,
                          target.mean.deg=1){
 
@@ -273,6 +281,7 @@ NewCasesToReports <- function(x, size=.75, prep=.5){
   rnbinom(n=xrep, size=size, mu=.76 + 1.92 * xrep)
 }
 
+#' @export
 SimulateAndSummarize <- function(agent.data,
                                  lags.sel=c(0, 1),
                                  net.nbs,

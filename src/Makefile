@@ -18,11 +18,11 @@ sim-panel.pdf: cor-sim-study-plots.r flagSims1
 flagSims1: corSims-layer1.r flagSims0
 	$< >$(<F).so 2>$(<F).se && touch $@
 
-flagSims0: corSims-layer0.r flagPackageInstalled
+flagSims: sim-study.R flagPackageInstalled
 	$< >$(<F).so 2>$(<F).se && touch $@
 
-flagPackageInstalled: $(shell find $(SD)/aporkalypse) flagWeeklyReports shipment-flows-origins-on-rows-dests-on-columns.csv state-hogBalanceSheetDec2011Dec2012.csv  state-hogBalanceSheetDec2000Dec2001.csv flagData
-	cp -r $(SD)/aporkalypse . && cp aporkalypse/data-raw/data-prep.R . && $(RS) -e "library(knitr); spin(\"data-prep.R\")"  && mv data aporkalypse/data && R CMD build ./aporkalypse && R CMD INSTALL aporkalypse_0.0.0.9000.tar.gz && touch $@
+flagPackageInstalled: $(shell find $(SD)/sds) flagWeeklyReports shipment-flows-origins-on-rows-dests-on-columns.csv state-hogBalanceSheetDec2011Dec2012.csv  state-hogBalanceSheetDec2000Dec2001.csv flagData
+	cp -r $(SD)/sds . && cp sds/data-raw/data-prep.R . && $(RS) -e "library(knitr); spin(\"data-prep.R\")"  && mv data sds/data && R CMD build ./sds && R CMD INSTALL sds_0.0.0.9000.tar.gz && touch $@
 
 flagMantelPlots: mantel-plots.r custom-plot-functions.r flagMantel
 	cp $(SD)/custom-plot-functions.r . && $< >$(<F).so 2>$(<F).se && touch $@

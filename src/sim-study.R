@@ -1,4 +1,5 @@
 #!/usr/bin/Rscript
+library(methods) #for raster
 
 target.mean.deg.grid <- seq(0.3, 1.2, by=0.1)
 raster.cell.side.grid <- c(16000, 32000)
@@ -89,7 +90,6 @@ GetRandLHSDes <- function(n, ranges){
 X1 <- GetRandLHSDes(nmeta, all.par.ranges)
 X2 <- GetRandLHSDes(nmeta, all.par.ranges)
 
-
 wrapper <- function(X){
   predict(m, newdata=X, type='UK')$m
 }
@@ -122,4 +122,4 @@ des2[, 'tprob.net'] <- plotdes[1:nrow(des), 'tprob.net']
 des2[, 'tprob.sp'] <- plotdes[1:nrow(des), 'tprob.sp']
 pmean <- predict(m, newdata=des2, type='UK')$m
 
-lattice::levelplot(pmean~tprob.net*tprob.sp, data=as.data.frame(des2))
+#lattice::levelplot(pmean~tprob.net*tprob.sp, data=as.data.frame(des2))
