@@ -4,10 +4,16 @@ library(methods) #for raster
 target.mean.deg.grid <- seq(0.3, 1.2, by=0.1)
 raster.cell.side.grid <- c(16000, 32000)
 
-ag <- Map(sds::CreateAgents,
-          target.mean.deg=target.mean.deg.grid[1],
-          raster.cell.side.meters=raster.cell.side.grid,
-          census.dilation=0.1)
+set.seed(123, "L'Ecuyer")
+
+mc.cores <- ifelse(Sys.info()['sysname'] == "Linux", detectCores() - 1, 1)
+mc.cores <- ifelse(mc.cores > 20, 20, mc.cores)
+options('mc.cores'=mc.cores)
+
+ag <- mcMap(sds::CreateAgents,
+            target.mean.deg=target.mean.deg.grid[1],
+            raster.cell.side.meters=raster.cell.side.grid,
+            census.dilation=0.1)
 
 net.nbs <- lapply(target.mean.deg.grid[-1], sds::GetNetNbs,
                   block.labels=ag[[1]]$adf$abb)
@@ -35,23 +41,23 @@ df <- as.data.frame(df)
 df$target.mean.deg <- target.mean.deg.grid[df$net.nbs.ind]
 df$raster.cell.side <- raster.cell.side.grid[df$ag.ind]
 
-system.time(res <- Map(sds::SimulateAndSummarize,
-                       agent.data=ag[df$ag.ind],
-                       lags.sel=1,
-                       net.nbs=net.nbs[df$net.nbs.ind],
-                       nstarters=df$nstarters,
-                       permutations=2,
-                       prep=df$prep,
-                       rprob=df$rprob,
-                       size=df$size,
-                       seasonal.amplitude=df$seasonal.amplitude,
-                       starting.grid.nx=10,
-                       starting.grid.ny=2,
-                       starting.grid.x=df$starting.grid.x,
-                       starting.grid.y=df$starting.grid.y,
-                       tprob.net=df$tprob.net,
-                       tprob.outside=df$tprob.outside,
-                       tprob.sp=df$tprob.sp))
+system.time(res <- mcMap(sds::SimulateAndSummarize,
+                         agent.data=ag[df$ag.ind],
+                         lags.sel=1,
+                         net.nbs=net.nbs[df$net.nbs.ind],
+                         nstarters=df$nstarters,
+                         permutations=2,
+                         prep=df$prep,
+                         rprob=df$rprob,
+                         size=df$size,
+                         seasonal.amplitude=df$seasonal.amplitude,
+                         starting.grid.nx=10,
+                         starting.grid.ny=2,
+                         starting.grid.x=df$starting.grid.x,
+                         starting.grid.y=df$starting.grid.y,
+                         tprob.net=df$tprob.net,
+                         tprob.outside=df$tprob.outside,
+                         tprob.sp=df$tprob.sp))
 
 tstats <- lapply(res, '[[', 'mantel.tests')
 dfsplt <- split(df, seq(nrow(df)))
@@ -122,4 +128,5 @@ des2[, 'tprob.net'] <- plotdes[1:nrow(des), 'tprob.net']
 des2[, 'tprob.sp'] <- plotdes[1:nrow(des), 'tprob.sp']
 pmean <- predict(m, newdata=des2, type='UK')$m
 
-#lattice::levelplot(pmean~tprob.net*tprob.sp, data=as.data.frame(des2))
+lattice::levelplot(pmean~tprob.net*tprob.sp, data=as.data.frame(des2))
+save.image('sim-study-checkpoint1.rda')
