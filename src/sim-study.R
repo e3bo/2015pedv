@@ -22,16 +22,14 @@ net.nbs <- c(list(ag[[1]]$net.nbs), net.nbs)
 ag.data.inds <- expand.grid(ag.ind=seq_along(ag), net.nbs.ind=seq_along(net.nbs))
 
 nsim <- 100
-par.ranges <- list(nstarters=c(0, 10),
-                   prep=c(0.01, 1),
-                   size=c(0.7, 1),
+par.ranges <- list(prep=c(0.01, 1),
                    rprob=c(0, 1),
                    seasonal.amplitude=c(0, 1),
                    starting.grid.x=c(0, 1),
                    starting.grid.y=c(0, 1),
                    tprob.outside=c(0, 0.1),
-                   tprob.net=c(0, 1),
-                   tprob.sp=c(0, 1))
+                   tprob.net=c(0, 0.1),
+                   tprob.sp=c(0, 0.1))
 
 des <- sensitivity::parameterSets(par.ranges=par.ranges,
                                   samples=nsim, method='sobol')
@@ -46,11 +44,11 @@ system.time(res <- parallel::mcMap(sds::SimulateAndSummarize,
                                    agent.data=ag[df$ag.ind],
                                    lags.sel=1,
                                    net.nbs=net.nbs[df$net.nbs.ind],
-                                   nstarters=df$nstarters,
+                                   nstarters=1,
                                    permutations=2,
                                    prep=df$prep,
                                    rprob=df$rprob,
-                                   size=df$size,
+                                   size=0.75,
                                    seasonal.amplitude=df$seasonal.amplitude,
                                    starting.grid.nx=10,
                                    starting.grid.ny=2,
@@ -65,6 +63,7 @@ dfsplt <- split(df, seq(nrow(df)))
 resplt <- Map(cbind, dfsplt, tstats)
 resplt <- Filter(function(x) ncol(x) > 7, resplt)
 resall <- do.call(rbind, resplt)
+
 
 test <- with(resall,
              symmetrize == TRUE & mat2.name == 'shipment' & method== 'spearman' &
