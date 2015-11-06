@@ -329,3 +329,21 @@ SimulateAndSummarize <- function(agent.data,
     list(mantel.tests=mantel.tests, mantel.observed=observed)
   }
 }
+
+SSRealCases <- function(mts){
+  r <- real.case.data[, -c(1,2)]
+  nrow <- max(nrow(r), nrow(mts))
+  vars <- union(colnames(r), colnames(mts))
+  M2 <- M1 <- matrix(0, nrow=nrow, ncol=length(vars))
+  colnames(M2) <- colnames(M1) <- vars
+  pad <- integer(nrow - nrow(r))
+  for(v in colnames(r)){
+    M1[, v] <- c(r[, v], pad)
+  }
+  pad <- integer(nrow - nrow(mts))
+  for(v in colnames(mts)){
+    M2[, v] <- c(mts[, v], pad)
+  }
+  resss <- sum(as.numeric(M1 - M2)^2)
+  list(resss=resss, observed=M1, modeled=M2)
+}
