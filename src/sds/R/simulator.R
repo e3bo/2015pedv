@@ -277,8 +277,8 @@ GetTimeSeries <- function(adf) {
 }
 
 NewCasesToReports <- function(x, size=1 / 1.75, prep=.5){
-  xrep <- rbinom(x, size=x, prob=prep)
-  rnbinom(n=xrep, size=size, mu=0.76 + 1.92 * xrep)
+  xrep <- rbinom(length(x), size=x, prob=prep)
+  rnbinom(n=length(xrep), size=size, mu=0.76 + 1.92 * xrep)
 }
 
 #' @export
