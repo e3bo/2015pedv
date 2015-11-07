@@ -276,9 +276,9 @@ GetTimeSeries <- function(adf) {
   list(new.cases=new.cases, no.infected=no.infected)
 }
 
-NewCasesToReports <- function(x, size=.75, prep=.5){
+NewCasesToReports <- function(x, size=1 / 1.75, prep=.5){
   xrep <- rbinom(x, size=x, prob=prep)
-  rnbinom(n=xrep, size=size, mu=.76 + 1.92 * xrep)
+  rnbinom(n=xrep, size=size, mu=0.76 + 1.92 * xrep)
 }
 
 #' @export
