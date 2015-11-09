@@ -227,7 +227,7 @@ RunSim <- function(adf, net.nbs, sp.nbs, nsteps=38, tprob.sp=0.01,
     sp.contact.dist <- table(unlist(sp.nbs[cases]))
     tprob.sp.t <- max(min(tprob.sp * sf, 1), 0)
     tprob.net.t <- max(min(tprob.net * sf, 1), 0)
-    tprob.outside.t <- max(min(tprob.net * sf, 1), 0)
+    tprob.outside.t <- max(min(tprob.outside * sf, 1), 0)
 
     avoidance.probs.sp <- (1 - tprob.sp.t)^sp.contact.dist
     avoidance.probs.net <- (1 - tprob.net.t)^net.contact.dist

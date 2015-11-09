@@ -27,7 +27,7 @@ par.ranges <- list(prep=c(0.01, 1),
                    seasonal.amplitude=c(0, 1),
                    starting.grid.x=c(0, 1),
                    starting.grid.y=c(0, 1),
-                   tprob.outside=c(0, 0.1),
+                   tprob.outside=c(0, 0.001),
                    tprob.net=c(0, 0.1),
                    tprob.sp=c(0, 0.1))
 
