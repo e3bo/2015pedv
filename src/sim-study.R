@@ -1,8 +1,8 @@
 #!/usr/bin/Rscript
 library(methods) #for raster
 
-target.mean.deg.grid <- seq(0.3, 1.2, by=0.1)
-raster.cell.side.grid <- c(16000, 32000)
+target.mean.deg.grid <- seq(0.1, 100.1, by=10)
+raster.cell.side.grid <- c(1600, 3200, 4800)
 
 set.seed(123, "L'Ecuyer")
 
@@ -14,21 +14,21 @@ options('mc.cores'=mc.cores)
 ag <- parallel::mcMap(sds::CreateAgents,
                       target.mean.deg=target.mean.deg.grid[1],
                       raster.cell.side.meters=raster.cell.side.grid,
-                      census.dilation=0.1)
+                      census.dilation=1)
 
 net.nbs <- lapply(target.mean.deg.grid[-1], sds::GetNetNbs,
                   block.labels=ag[[1]]$adf$abb)
 net.nbs <- c(list(ag[[1]]$net.nbs), net.nbs)
 ag.data.inds <- expand.grid(ag.ind=seq_along(ag), net.nbs.ind=seq_along(net.nbs))
 
-nsim <- 100
+nsim <- 1000
 par.ranges <- list(prep=c(0.01, 1),
                    rprob=c(0, 1),
                    seasonal.amplitude=c(0, 1),
                    starting.grid.x=c(0, 1),
                    starting.grid.y=c(0, 1),
-                   tprob.outside=c(0, 0.1),
-                   tprob.net=c(0, 0.1),
+                   tprob.outside=c(0, 0.001),
+                   tprob.net=c(0, 0.01),
                    tprob.sp=c(0, 0.1))
 
 des <- sensitivity::parameterSets(par.ranges=par.ranges,
