@@ -1,8 +1,8 @@
 #!/usr/bin/Rscript
 library(methods) #for raster
 
-target.mean.deg.grid <- seq(0.1, 100.1, by=10)
-raster.cell.side.grid <- c(1600, 3200, 4800)
+target.mean.deg.grid <- 10 #seq(0.1, 10.1, by=10)
+raster.cell.side.grid <- 4800 # c(1600, 3200, 4800)
 
 set.seed(123, "L'Ecuyer")
 
@@ -20,16 +20,17 @@ net.nbs <- lapply(target.mean.deg.grid[-1], sds::GetNetNbs,
                   block.labels=ag[[1]]$adf$abb)
 net.nbs <- c(list(ag[[1]]$net.nbs), net.nbs)
 ag.data.inds <- expand.grid(ag.ind=seq_along(ag), net.nbs.ind=seq_along(net.nbs))
+save.image('sim-study-checkpoint1.rda')
 
 nsim <- 1000
-par.ranges <- list(prep=c(0.01, 1),
-                   rprob=c(0, 1),
-                   seasonal.amplitude=c(0, 1),
+par.ranges <- list(prep=c(0.5, 1),
+                   rprob=c(0.5, 1),
+                   seasonal.amplitude=c(0, .5),
                    starting.grid.x=c(0, 1),
                    starting.grid.y=c(0, 1),
-                   tprob.outside=c(0, 0.001),
-                   tprob.net=c(0, 0.01),
-                   tprob.sp=c(0, 0.1))
+                   tprob.outside=c(0.0001, 0.001),
+                   tprob.net=c(0, 0.5),
+                   tprob.sp=c(0, 0.005))
 
 des <- sensitivity::parameterSets(par.ranges=par.ranges,
                                   samples=nsim, method='sobol')
@@ -48,7 +49,7 @@ system.time(res <- parallel::mcMap(sds::SimulateAndSummarize,
                                    permutations=2,
                                    prep=df$prep,
                                    rprob=df$rprob,
-                                   size= 1 / 1.75,
+                                   size= 1000, #1 / 1.75,
                                    seasonal.amplitude=df$seasonal.amplitude,
                                    starting.grid.nx=10,
                                    starting.grid.ny=2,
@@ -63,6 +64,7 @@ dfsplt <- split(df, seq(nrow(df)))
 resplt <- Map(cbind, dfsplt, tstats)
 resplt <- Filter(function(x) ncol(x) > 7, resplt)
 resall <- do.call(rbind, resplt)
+save.image('sim-study-checkpoint2.rda')
 
 
 test <- with(resall,
@@ -74,6 +76,7 @@ input.pars <- c(names(par.ranges), 'target.mean.deg', 'raster.cell.side')
 formula <- as.formula(paste('~', paste(input.pars, collapse='+')))
 m <- DiceKriging::km(formula=formula, design=sub[, input.pars],
                      response=sub$r, nugget.estim=TRUE, covtype='matern3_2')
+save.image('sim-study-checkpoint3.rda')
 
 nmeta <- 1e4
 extra.par.ranges <- list(target.mean.deg=range(target.mean.deg.grid),
@@ -108,6 +111,7 @@ vy <- vym + vyd
 sob.inds <- sob$S[, 'original'] * vym / vy
 names(sob.inds) <- rownames(sob$S)
 sob.ind.rand <- vyd / vy
+save.image('sim-study-checkpoint4.rda')
 
 newdata <- head(X1, n=1000)
 p <- predict(m, newdata=newdata, type='UK')
@@ -129,4 +133,4 @@ des2[, 'tprob.sp'] <- plotdes[1:nrow(des), 'tprob.sp']
 pmean <- predict(m, newdata=des2, type='UK')$m
 
 lattice::levelplot(pmean~tprob.net*tprob.sp, data=as.data.frame(des2))
-save.image('sim-study-checkpoint1.rda')
+save.image('sim-study-checkpoint5.rda')

@@ -5,7 +5,7 @@ set -e
 topd=$(pwd)
 tstamp=$(date +%Y-%m-%d_%H-%M-%S)
 rnd=$RANDOM
-wkdir="${topd}/work-${tstamp}-${rnd}"
+wkdir="${topd}/work"   #"${topd}/work-${tstamp}-${rnd}"
 ddir="${topd}/data"
 sdir="${topd}/src"
 hdir="/root"
