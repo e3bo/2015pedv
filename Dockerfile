@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y -q --no-install-recommends \
   libgfortran-5-dev \ 
 # ^needed for some R packages to build
   libproj-dev \
+  openssh-server \
   poppler-utils \
   python3-lxml \
   python3-pkg-resources \
