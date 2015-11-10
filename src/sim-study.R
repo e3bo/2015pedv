@@ -151,7 +151,7 @@ MakePlots <- function(km, all.par.ranges, npoints=1000, sub, df, v1='tprob.net',
   X1 <- GetRandLHSDes(npoints, rngs)
   colnames(X1) <- vars
   p <- predict(m, newdata=X1, type='UK')
-  x <- newdata[, v1]
+  x <- X1[, v1]
   plot(x, p$mean, ylim=c(0, 0.5), xlab=v1)
   points(x, p$lower95, col='grey')
   points(x, p$upper95, col='grey')
