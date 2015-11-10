@@ -14,9 +14,3 @@ docker run -it -v ${ddir}:${hdir}/data:ro \
        -v ${sdir}:${hdir}/src:ro \
        -v ${wkdir}:${hdir}/work \
        eamon/2015pedv
-
-user=$(id -u)
-group=$(id -g)
-
-echo " Currently, $wdir and its contents are always owned by root, so you might want to"
-echo "    sudo chown -hR ${user}:${group} $wkdir "

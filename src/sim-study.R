@@ -27,7 +27,7 @@ if(length(target.mean.deg.grid) > 1){
 ag.data.inds <- expand.grid(ag.ind=seq_along(ag), net.nbs.ind=seq_along(net.nbs))
 save.image('sim-study-checkpoint1.rda')
 
-nsim <- 100
+nsim <- 1000
 par.ranges <- list(prep=c(0.5, 1),
                    rprob=c(0.5, 1),
                    seasonal.amplitude=c(0, .5),

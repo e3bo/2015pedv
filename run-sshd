@@ -1,0 +1,15 @@
+#!/bin/bash
+
+set -e
+
+dtag="latest"
+topd=$(pwd)
+wkdir="${topd}/work-sshd"
+ddir="${topd}/data"
+sdir="${topd}/src"
+hdir="/root"
+
+docker run -d -p 49154:22 -v ${ddir}:${hdir}/data:ro \
+       -v ${sdir}:${hdir}/src:ro \
+       -v ${wkdir}:${hdir}/work \
+       --name 2015pedv_sshd eamon/2015pedv:${dtag}
