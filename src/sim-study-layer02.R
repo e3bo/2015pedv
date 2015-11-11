@@ -8,7 +8,7 @@ mc.cores <- ifelse(Sys.info()['sysname'] == "Linux",
 mc.cores <- ifelse(mc.cores > 20, 20, mc.cores)
 options('mc.cores'=mc.cores)
 
-load('sim-study-layer1.rda')
+load('sim-study-checkpoint1.rda')
 
 nsim <- 1000
 par.ranges <- list(prep=c(0.5, 1),
@@ -35,8 +35,9 @@ df$permutations <- 2
 df$size <- 1000
 df$starting.grid.nx <- 10
 df$starting.grid.ny <- 2
+Wrapper <- function(...) try(sds::SimulateAndSummarize(...))
 
-system.time(res <- parallel::mcMap(sds::SimulateAndSummarize,
+system.time(res <- parallel::mcMap(Wrapper,
                                    agent.data=ag[df$ag.ind],
                                    lags.sel=df$lags.sel,
                                    net.nbs=net.nbs[df$net.nbs.ind],
@@ -53,22 +54,17 @@ system.time(res <- parallel::mcMap(sds::SimulateAndSummarize,
                                    tprob.net=df$tprob.net,
                                    tprob.outside=df$tprob.outside,
                                    tprob.sp=df$tprob.sp))
-
-tstats <- lapply(res, '[[', 'mantel.tests')
-dfsplt <- split(df, seq(nrow(df)))
-resplt <- Map(cbind, dfsplt, tstats)
-#resplt <- Filter(function(x) ncol(x) > 7, resplt)
-resall <- do.call(rbind, resplt)
+recs <- lapply(res, '[[', 'record')
+recs <- do.call(rbind, recs)
+resall <- cbind(df, recs)
 save.image('sim-study-checkpoint2.rda')
 
-test <- with(resall,
-             symmetrize == TRUE & mat2.name == 'shipment' & method== 'spearman' &
-               mat1.name == 'lag1')
-sub <- resall[test, ]
+sub <- resall
+sub$r <- sub$mantel.r.lag1.shipment.spearman.TRUE.2
 
 GetVaryingInputs <- function(df){
   rngs <- apply(df, 2, range)
-  is.varying <- apply(rngs, 2, diff) > 0
+  is.varying <- apply(rngs, 2, diff) > sqrt(.Machine$double.eps)
   ret <- names(is.varying[is.varying])
   is.ind <- grepl('\\.ind$', ret)
   ret[!is.ind]

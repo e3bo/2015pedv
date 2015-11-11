@@ -317,18 +317,29 @@ SimulateAndSummarize <- function(agent.data,
                     sp.nbs=agent.data$sp.nbs, cases=cases, nsteps=nsteps, ...)
   tsl <- GetTimeSeries(adf.out, nsteps=nsteps)
   observed <- apply(tsl$new.cases, 1, NewCasesToReports, prep=prep, size=size)
-  is.state.count.constant <- apply(observed, 2, var) < 1e-6
+  is.state.count.constant <- apply(observed, 2, var) < sqrt(.Machine$double.eps)
   n.constant.positive <- sum(observed[1, is.state.count.constant] > 0)
   observed <- observed[, !is.state.count.constant, drop=FALSE]
   if(ncol(observed) == 1 | nsteps < 3 | n.constant.positive > 0){
-    list(mantel.tests=NA, mantel.observed=observed)
+    des <- MakeDesign(mat.list1, mat.list2, ...)
+    list(mantel.tests=NA, mantel.observed=observed, record=NA)
   } else {
     pop.struct.mats <- MakePopStructMats(observed)
     pop.dyn.mats <- MakePopDynMats(observed, lags.sel=lags.sel)
     mantel.tests <- DoMantelTests(pop.dyn.mats, pop.struct.mats,
                                   permutations=permutations)
-    list(mantel.tests=mantel.tests, mantel.observed=observed)
+    record <- SpreadMantelTestsDf(mantel.tests)
+    list(mantel.tests=mantel.tests, mantel.observed=observed, record=record)
   }
+}
+
+SpreadMantelTestsDf <- function(df){
+  r <- as.list(df$r)
+  p.values <- as.list(df$pValues)
+  dep.vars <- !grepl('^r$|^pValues$', colnames(df))
+  nms <- as.character(interaction(df[, dep.vars]))
+  names(r) <- names(p.values) <- nms
+  cbind(mantel.r=as.data.frame(r), mantel.p=as.data.frame(p.values))
 }
 
 SSRealCases <- function(mts){

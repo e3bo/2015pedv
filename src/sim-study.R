@@ -9,7 +9,7 @@ mc.cores <- ifelse(mc.cores > 20, 20, mc.cores)
 options('mc.cores'=mc.cores)
 
 target.mean.deg.grid <- 10 #seq(0.1, 10.1, by=10)
-raster.cell.side.grid <- 4800 # c(1600, 3200, 4800)
+raster.cell.side.grid <- 1600 # c(1600, 3200, 4800)
 
 ag <- parallel::mcMap(sds::CreateAgents,
                       target.mean.deg=target.mean.deg.grid[1],
@@ -27,15 +27,16 @@ if(length(target.mean.deg.grid) > 1){
 ag.data.inds <- expand.grid(ag.ind=seq_along(ag), net.nbs.ind=seq_along(net.nbs))
 save.image('sim-study-checkpoint1.rda')
 
+
 nsim <- 1000
 par.ranges <- list(prep=c(0.5, 1),
                    rprob=c(0.5, 1),
                    seasonal.amplitude=c(0, .5),
                    starting.grid.x=c(0, 1),
                    starting.grid.y=c(0, 1),
-                   tprob.outside=c(0.0001, 0.001),
+                   tprob.outside=c(0, 1e-4),
                    tprob.net=c(0, 0.5),
-                   tprob.sp=c(0, 0.005))
+                   tprob.sp=c(0, 0.5))
 
 des <- sensitivity::parameterSets(par.ranges=par.ranges,
                                   samples=nsim, method='sobol')
@@ -140,7 +141,7 @@ RunSobol <- function(nmeta, km, all.par.ranges, order=1){
   list(sob, sob.inds, sob.ind.rand)
 }
 
-sob.out <- RunSobol(nmeta, km=m, all.par.ranges=all.par.ranges)
+(sob.out <- RunSobol(nmeta, km=m, all.par.ranges=all.par.ranges))
 
 save.image('sim-study-checkpoint4.rda')
 
