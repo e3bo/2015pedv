@@ -15,10 +15,10 @@ accessions-premises-correlation.r.so: accessions-premises-correlation.r flagData
 sim-panel.pdf: cor-sim-study-plots.r flagSims1
 	$< >$(<F).so 2>$(<F).se
 
-flagSims: sim-study-layer02.R sim-study-layer1.rda
+flagSims: sim-study-layer02.R sim-study-checkpoint1.rda
 	$< >$(<F).so 2>$(<F).se && touch $@
 
-sim-study-layer1.rda: sim-study-layer01.R flagPackageInstalled
+sim-study-checkpoint1.rda: sim-study-layer01.R flagPackageInstalled
 	$< >$(<F).so 2>$(<F).se
 
 flagPackageInstalled: $(shell find $(SD)/sds) flagWeeklyReports shipment-flows-origins-on-rows-dests-on-columns.csv state-hogBalanceSheetDec2011Dec2012.csv  state-hogBalanceSheetDec2000Dec2001.csv flagData
