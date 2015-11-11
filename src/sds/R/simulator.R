@@ -265,8 +265,7 @@ events.by.state <- function(x, df, what) {
   tapply(df[[what]] < x, df$abb, sum, na.rm=TRUE)
 }
 
-GetTimeSeries <- function(adf) {
-  nsteps <- max(adf[, c('infection.time', 'recovery.time')], na.rm=TRUE)
+GetTimeSeries <- function(adf, nsteps) {
   step <- seq(1, nsteps + 1)
   cum.infections <- sapply(step, events.by.state, df=adf, what='infection.time')
   cum.recoveries <- sapply(step, events.by.state, df=adf, what='recovery.time')
@@ -286,6 +285,7 @@ SimulateAndSummarize <- function(agent.data,
                                  lags.sel=c(0, 1),
                                  net.nbs,
                                  nstarters=1,
+                                 nsteps=38,
                                  permutations=1e3,
                                  prep=0.5,
                                  starting.state=NULL,
@@ -314,12 +314,13 @@ SimulateAndSummarize <- function(agent.data,
   inds <- sample.int(length(possible.starters), size=nstarters)
   cases <- possible.starters[inds]
   adf.out <- RunSim(adf=agent.data$adf, net.nbs=agent.data$net.nbs,
-                    sp.nbs=agent.data$sp.nbs, cases=cases, ...)
-  tsl <- GetTimeSeries(adf.out)
+                    sp.nbs=agent.data$sp.nbs, cases=cases, nsteps=nsteps, ...)
+  tsl <- GetTimeSeries(adf.out, nsteps=nsteps)
   observed <- apply(tsl$new.cases, 1, NewCasesToReports, prep=prep, size=size)
-  isStateAffected <- colSums(observed) > 0
-  observed <- observed[, isStateAffected, drop=FALSE]
-  if(sum(isStateAffected) == 1 | nrow(observed) < 3){
+  is.state.count.constant <- apply(observed, 2, var) < 1e-6
+  n.constant.positive <- sum(observed[1, is.state.count.constant] > 0)
+  observed <- observed[, !is.state.count.constant, drop=FALSE]
+  if(ncol(observed) == 1 | nsteps < 3 | n.constant.positive > 0){
     list(mantel.tests=NA, mantel.observed=observed)
   } else {
     pop.struct.mats <- MakePopStructMats(observed)
