@@ -11,14 +11,15 @@ options('mc.cores'=mc.cores)
 load('sim-study-checkpoint1.rda')
 
 nsim <- 1000
-par.ranges <- list(prep=c(0.5, 1),
-                   rprob=c(0.5, 1),
-                   seasonal.amplitude=c(0, .5),
+par.ranges <- list(prep=c(0, 1),
+                   rprob=c(0, 1),
+                   seasonal.amplitude=c(0, 1),
+                   size=c(0.5, 100),
                    starting.grid.x=c(0, 1),
                    starting.grid.y=c(0, 1),
                    tprob.outside=c(0, 1e-4),
-                   tprob.net=c(0, 0.5),
-                   tprob.sp=c(0, 0.5))
+                   tprob.net=c(0, 0.25),
+                   tprob.sp=c(0, 1))
 
 des <- sensitivity::parameterSets(par.ranges=par.ranges,
                                   samples=nsim, method='sobol')
@@ -31,8 +32,7 @@ df$raster.cell.side <- raster.cell.side.grid[df$ag.ind]
 df$target.mean.deg <- target.mean.deg.grid[df$net.nbs.ind]
 df$lags.sel <- 1
 df$nstarters <- 1
-df$permutations <- 2
-df$size <- 1000
+df$permutations <- 1000
 df$starting.grid.nx <- 10
 df$starting.grid.ny <- 2
 Wrapper <- function(...) try(sds::SimulateAndSummarize(...))
@@ -60,7 +60,7 @@ resall <- cbind(df, recs)
 save.image('sim-study-checkpoint2.rda')
 
 sub <- resall
-sub$r <- sub$mantel.r.lag1.shipment.spearman.TRUE.2
+sub$r <- sub[ , paste0('mantel.r.lag1.shipment.spearman.TRUE.', df$permutations[1])]
 
 GetVaryingInputs <- function(df){
   rngs <- apply(df, 2, range)
@@ -81,7 +81,7 @@ RunKriging <- function(df, design){
 m <- RunKriging(df=df, design=sub)
 save.image('sim-study-checkpoint3.rda')
 
-nmeta <- 1e4
+nmeta <- 1e5
 extra.par.ranges <- list(target.mean.deg=range(target.mean.deg.grid),
                          raster.cell.side=range(raster.cell.side.grid))
 all.par.ranges <- c(par.ranges, extra.par.ranges)
@@ -119,7 +119,7 @@ RunSobol <- function(nmeta, km, all.par.ranges, order=1){
   list(sob, sob.inds, sob.ind.rand)
 }
 
-(sob.out <- RunSobol(nmeta, km=m, all.par.ranges=all.par.ranges))
+(sob.out <- RunSobol(nmeta, km=m, all.par.ranges=all.par.ranges, order=1))
 
 save.image('sim-study-checkpoint4.rda')
 
