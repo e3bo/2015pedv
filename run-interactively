@@ -13,4 +13,4 @@ hdir="/root"
 docker run -it -v ${ddir}:${hdir}/data:ro \
        -v ${sdir}:${hdir}/src:ro \
        -v ${wkdir}:${hdir}/work \
-       eamon/2015pedv
+       eamon/2015pedv /bin/bash
