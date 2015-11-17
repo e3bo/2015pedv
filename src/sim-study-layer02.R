@@ -25,6 +25,17 @@ des <- sensitivity::parameterSets(par.ranges=par.ranges,
                                   samples=nsim, method='sobol')
 colnames(des) <- names(par.ranges)
 
+desunif <- matrix(runif(nsim * ncol(des)), nrow=nsim)
+
+GetDesignStats <- function(X){
+    list(coverage=DiceDesign::coverage(X),
+         meshRatio=DiceDesign::meshRatio(X),
+         mindist=DiceDesign::mindist(X),
+         discrepancyCriteriaL2=DiceDesign::discrepancyCriteria(X, type='L2')$DisL2)
+}
+(design.stats <- sapply(list(sobol=des, unif=desunif), GetDesignStats))
+save.image('sim-study-checkpoint2.rda')
+
 df <- do.call(cbind, c(list(des), as.list(ag.data.inds)))
 df <- as.data.frame(df)
 
@@ -57,7 +68,7 @@ system.time(res <- parallel::mcMap(Wrapper,
 recs <- lapply(res, '[[', 'record')
 recs <- do.call(rbind, recs)
 resall <- cbind(df, recs)
-save.image('sim-study-checkpoint2.rda')
+save.image('sim-study-checkpoint3.rda')
 
 sub <- resall
 sub$r <- sub[ , paste0('mantel.r.lag1.shipment.spearman.TRUE.', df$permutations[1])]
@@ -79,7 +90,7 @@ RunKriging <- function(df, design){
 }
 
 m <- RunKriging(df=df, design=sub)
-save.image('sim-study-checkpoint3.rda')
+save.image('sim-study-checkpoint4.rda')
 
 nmeta <- 1e5
 extra.par.ranges <- list(target.mean.deg=range(target.mean.deg.grid),
@@ -121,7 +132,7 @@ RunSobol <- function(nmeta, km, all.par.ranges, order=1){
 
 (sob.out <- RunSobol(nmeta, km=m, all.par.ranges=all.par.ranges, order=1))
 
-save.image('sim-study-checkpoint4.rda')
+save.image('sim-study-checkpoint5.rda')
 
 MakePlots <- function(km, all.par.ranges, npoints=1000, sub, df, v1='tprob.net',
                       v2='tprob.sp'){
@@ -147,4 +158,4 @@ MakePlots <- function(km, all.par.ranges, npoints=1000, sub, df, v1='tprob.net',
 
 MakePlots(km=m, all.par.ranges=all.par.ranges, sub=sub, df=df)
 
-save.image('sim-study-checkpoint5.rda')
+save.image('sim-study-checkpoint6.rda')

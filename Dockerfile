@@ -26,6 +26,7 @@ RUN apt-get update && apt-get install -y -q --no-install-recommends \
   r-cran-rcolorbrewer \
   r-cran-reshape \
   r-cran-reshape2 \
+  r-cran-rgl \
   r-cran-scales \
   r-cran-sp \
   r-cran-surveillance \
@@ -35,7 +36,10 @@ RUN apt-get update && apt-get install -y -q --no-install-recommends \
 
 RUN install2.r --error \
   c060 \
+  DiceDesign \ 
+  DiceEval \ 
   DiceKriging \
+  DiceView \
   DescTools \
   fields \
   geoR \
