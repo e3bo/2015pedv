@@ -1,7 +1,7 @@
 #!/usr/bin/Rscript
 library(methods) #for raster
 
-set.seed(123, "L'Ecuyer")
+set.seed(122, "L'Ecuyer")
 
 mc.cores <- ifelse(Sys.info()['sysname'] == "Linux",
                    parallel::detectCores() - 1, 1)
