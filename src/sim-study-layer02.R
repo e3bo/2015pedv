@@ -17,7 +17,7 @@ df$raster.cell.side <- raster.cell.side.grid[df$ag.ind]
 df$target.mean.deg <- target.mean.deg.grid[df$net.nbs.ind]
 df$lags.sel <- 1
 df$nstarters <- 1
-df$permutations <- 1000
+df$permutations <- 2
 df$starting.grid.nx <- 10
 df$starting.grid.ny <- 2
 Wrapper <- function(...) try(sds::SimulateAndSummarize(...))
@@ -54,6 +54,41 @@ GetVaryingInputs <- function(df){
   is.ind <- grepl('\\.ind$', ret)
   ret[!is.ind]
 }
+
+X <- sub[, GetVaryingInputs(df)]
+ntest <- 0.5 * nrow(X)
+test.ind <- seq_len(ntest)
+X.test <- X[test.ind, ]
+Y.test <- sub$r[test.ind]
+X.train <- X[-test.ind, ]
+Y.train <- sub$r[-test.ind]
+testdf <- cbind(X.test, Y.test)
+
+pdf('modelComparisonc-plots.pdf')
+mc <- modelComparison(X.train, Y.train, K=10, type='all', test=testdf, penalty=2,
+                      degree=2, gcv=4, covtype='matern3_2', formula=Y~.)
+dev.off()
+
+#' The modelComparison function does not allow some important options
+#' to the kriging model to be controlled, thus we'll train that model
+#' separately and compare it's performance with other models.
+
+km.train <- modelFit(X=X.train, Y=Y.train, type='Kriging', formula=Y~.,
+                     covtype='matern3_2', control=list(maxit=1e3), nugget.estim=TRUE)
+
+Y.test.km <- modelPredict(km.train, X.test)
+val.km <- c(R2=R2(Y.test, Y.test.km), RMSE=RMSE(Y.test, Y.test.km))
+cbind(mc$Test, val.km)
+
+#' Both kriging models have superior predictive performance on the
+#' test set.
+
+mc$CV
+
+#' The untuned kriging model also did better than any other model in
+#' terms of the cross validation.
+
+
 RunKriging <- function(df, design){
   km.vars <- GetVaryingInputs(df)
   rhs <- do.call(paste, c(as.list(km.vars), list(sep="+")))
