@@ -73,8 +73,14 @@ dev.off()
 #' to the kriging model to be controlled, thus we'll train that model
 #' separately and compare it's performance with other models.
 
+cl <- parallel::makeForkCluster()
+doParallel::registerDoParallel(cl)
+
 km.train <- modelFit(X=X.train, Y=Y.train, type='Kriging', formula=Y~.,
-                     covtype='matern3_2', control=list(maxit=1e3), nugget.estim=TRUE)
+                     covtype='matern3_2', control=list(maxit=1e3, trace=FALSE),
+                     nugget.estim=TRUE, multistart=mc.cores)
+
+parallel::stopCluster(cl)
 
 Y.test.km <- modelPredict(km.train, X.test)
 val.km <- c(R2=R2(Y.test, Y.test.km), RMSE=RMSE(Y.test, Y.test.km))
@@ -87,6 +93,13 @@ mc$CV
 
 #' The untuned kriging model also did better than any other model in
 #' terms of the cross validation.
+
+plot(km.train)
+
+#' The mean prediction errors in leave-one-out cross validation are
+#' somewhat overdispersed relative to a normal distribution, but no
+#' outliers are apparent.
+
 
 
 RunKriging <- function(df, design){
