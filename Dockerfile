@@ -21,6 +21,7 @@ RUN apt-get update && apt-get install -y -q --no-install-recommends \
   r-cran-maps \
   r-cran-mapproj \
   r-cran-maptools \
+  r-cran-polspline \
   r-cran-plyr \
   r-cran-pscl \
   r-cran-rcolorbrewer \
@@ -49,6 +50,7 @@ RUN install2.r --error \
   grImport \
   knitr \
   lhs \
+  mda \
   pander \
   randtoolbox \
   raster \
