@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y -q --no-install-recommends \
   python3-pandas \
   r-cran-car \
   r-cran-coda \
+  r-cran-doparallel \
   r-cran-hmisc \
   r-cran-ggplot2 \
   r-cran-igraph \
