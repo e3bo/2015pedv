@@ -56,12 +56,13 @@ GetVaryingInputs <- function(df){
 }
 
 X <- sub[, GetVaryingInputs(df)]
+Y <- sub$r
 ntest <- 0.5 * nrow(X)
 test.ind <- seq_len(ntest)
 X.test <- X[test.ind, ]
-Y.test <- sub$r[test.ind]
+Y.test <- Y[test.ind]
 X.train <- X[-test.ind, ]
-Y.train <- sub$r[-test.ind]
+Y.train <- Y[-test.ind]
 testdf <- cbind(X.test, Y.test)
 
 pdf('modelComparisonc-plots.pdf')
@@ -79,8 +80,6 @@ doParallel::registerDoParallel(cl)
 km.train <- modelFit(X=X.train, Y=Y.train, type='Kriging', formula=Y~.,
                      covtype='matern3_2', control=list(maxit=1e3, trace=FALSE),
                      nugget.estim=TRUE, multistart=mc.cores)
-
-parallel::stopCluster(cl)
 
 Y.test.km <- modelPredict(km.train, X.test)
 val.km <- c(R2=R2(Y.test, Y.test.km), RMSE=RMSE(Y.test, Y.test.km))
@@ -100,21 +99,44 @@ plot(km.train)
 #' somewhat overdispersed relative to a normal distribution, but no
 #' outliers are apparent.
 
+noise.var <- rep(val.km['RMSE']^2, length(Y))
 
+km.m1 <- modelFit(X=X, Y=Y, type='Kriging', formula=Y~.,
+                  covtype='matern3_2', control=list(maxit=1e3, trace=FALSE),
+                  noise.var=noise.var, multistart=mc.cores)
 
-RunKriging <- function(df, design){
-  km.vars <- GetVaryingInputs(df)
-  rhs <- do.call(paste, c(as.list(km.vars), list(sep="+")))
-  formula <- as.formula(paste('~', rhs))
-  DiceKriging::km(formula=formula, design=design[, km.vars], response=design$r,
-                  nugget.estim=TRUE, covtype='matern3_2',
-                  control=list(maxit=1000))
-}
+Y.km.m1 <- modelPredict(km.m1, newdata=X)
+Yres.m1 <- (Y - Y.km.m1)^2
+km.v1 <- modelFit(X=X, Y=Yres.m1, type='Kriging', formula=Y~1, covtype='matern3_2',
+                  control=list(maxit=1e3, trace=TRUE), multistart=mc.cores)
 
-m <- RunKriging(df=df, design=sub)
+center <- apply(X, 2, median)
+pdf('section-views-km.v1.pdf', width=5, height=30)
+sectionview.km(model=km.v1$model, center=center, mfrow=c(9, 1))
+dev.off()
+
+#contourview.km(model=km.v1$model, center=center, axis=matrix(c(3, 8), nrow=1))
+
+plot(km.v1$model)
+
+#' The leave-one-out errors are by no means gaussian, but still we
+#' should be capturing peaks and valleys in the variance.
+
+noise.var.km.v1 <- modelPredict(km.v1, newdata=X)
+
+km.m2 <- modelFit(X=X, Y=Y, type='Kriging', formula=Y~.,
+                  covtype='matern3_2', control=list(maxit=1e3, trace=FALSE),
+                  noise.var=noise.var.km.v1, multistart=mc.cores)
+
+Y.km.m2 <- modelPredict(km.m2, newdata=X)
+Yres.m2 <- (Y - Y.km.m2)^2
+km.v2 <- modelFit(X=X, Y=Yres.m2, type='Kriging', formula=Y~1, covtype='matern3_2',
+                  control=list(maxit=1e3, trace=TRUE), multistart=mc.cores)
+
+parallel::stopCluster(cl)
 save.image('sim-study-checkpoint4.rda')
 
-nmeta <- 1e5
+nmeta <- 1e4
 extra.par.ranges <- list(target.mean.deg=range(target.mean.deg.grid),
                          raster.cell.side=range(raster.cell.side.grid))
 all.par.ranges <- c(par.ranges, extra.par.ranges)
@@ -133,18 +155,18 @@ GetRandLHSDes <- function(n, ranges){
   X
 }
 
-RunSobol <- function(nmeta, km, all.par.ranges, order=1){
+RunSobol <- function(nmeta, kmm2, kmv2, all.par.ranges, order=1){
   vars <- km@covariance@var.names
   rngs <- all.par.ranges[vars]
   X1 <- GetRandLHSDes(nmeta, rngs)
   X2 <- GetRandLHSDes(nmeta, rngs)
   colnames(X1) <- colnames(X2) <- vars
   Wrapper <- function(X){
-    predict(km, newdata=X, type='UK')$m
+    predict(kmm2, newdata=X, type='UK')$m
   }
   sob <- sensitivity::sobol(model=Wrapper, X1=X1, X2=X2, order=order, nboot=100)
   vym <- sob$V['global', 'original']
-  vyd <- DiceKriging::coef(m)$sd2 + DiceKriging::coef(m)$nugget
+  vyd <- DiceKriging::coef(kmv2)$trend
   vy <- vym + vyd
   sob.inds <- sob$S[, 'original'] * vym / vy
   names(sob.inds) <- rownames(sob$S)
@@ -152,7 +174,8 @@ RunSobol <- function(nmeta, km, all.par.ranges, order=1){
   list(sob, sob.inds, sob.ind.rand)
 }
 
-(sob.out <- RunSobol(nmeta, km=m, all.par.ranges=all.par.ranges, order=1))
+(sob.out <- RunSobol(nmeta, kmm2=km.m2$model, kmv2=km.v2$model,
+                     all.par.ranges=all.par.ranges, order=1))
 
 save.image('sim-study-checkpoint5.rda')
 
