@@ -179,28 +179,7 @@ RunSobol <- function(nmeta, kmm2, kmv2, all.par.ranges, order=1){
 
 save.image('sim-study-checkpoint5.rda')
 
-MakePlots <- function(km, all.par.ranges, npoints=1000, sub, df, v1='tprob.net',
-                      v2='tprob.sp'){
-  vars <- km@covariance@var.names
-  rngs <- all.par.ranges[vars]
-  X1 <- GetRandLHSDes(npoints, rngs)
-  colnames(X1) <- vars
-  p <- predict(m, newdata=X1, type='UK')
-  x <- X1[, v1]
-  plot(x, p$mean, ylim=c(0, 0.5), xlab=v1)
-  points(x, p$lower95, col='grey')
-  points(x, p$upper95, col='grey')
-  points(sub$tprob.net, sub$r, col=2)
-  plotdes <- sensitivity::parameterSets(par.ranges=all.par.ranges[c(v1, v2)],
-                                      samples=sqrt(npoints), method='grid')
-  des <- X1
-  des[, v1] <- plotdes[1:nrow(des), v1]
-  des[, v2] <- plotdes[1:nrow(des), v2]
-  pmean <- predict(m, newdata=des, type='UK')$m
-  f <- as.formula(paste('pmean~', paste(v1, v2, sep="*")))
-  lattice::levelplot(f, data=as.data.frame(des))
-}
+sectionview(km.m2, axis=8, center=center, mfrow=c(1,1))
+contourview(km.m2, axis=matrix(c(3, 8), nrow=1), center=center, mfrow=c(1, 1))
 
-MakePlots(km=m, all.par.ranges=all.par.ranges, sub=sub, df=df)
 
-save.image('sim-study-checkpoint6.rda')
