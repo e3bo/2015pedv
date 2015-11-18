@@ -17,7 +17,7 @@ df$raster.cell.side <- raster.cell.side.grid[df$ag.ind]
 df$target.mean.deg <- target.mean.deg.grid[df$net.nbs.ind]
 df$lags.sel <- 1
 df$nstarters <- 1
-df$permutations <- 2
+df$permutations <- 1000
 df$starting.grid.nx <- 10
 df$starting.grid.ny <- 2
 Wrapper <- function(...) try(sds::SimulateAndSummarize(...))
@@ -65,9 +65,9 @@ X.train <- X[-test.ind, ]
 Y.train <- Y[-test.ind]
 testdf <- cbind(X.test, Y.test)
 
-pdf('modelComparisonc-plots.pdf')
-mc <- modelComparison(X.train, Y.train, K=10, type='all', test=testdf, penalty=2,
-                      degree=2, gcv=4, covtype='matern3_2', formula=Y~.)
+pdf('modelComparison-plots.pdf')
+mc <- DiceEval::modelComparison(X.train, Y.train, K=10, type='all', test=testdf, penalty=2,
+                                degree=2, gcv=4, covtype='matern3_2', formula=Y~.)
 dev.off()
 
 #' The modelComparison function does not allow some important options
@@ -77,12 +77,12 @@ dev.off()
 cl <- parallel::makeForkCluster()
 doParallel::registerDoParallel(cl)
 
-km.train <- modelFit(X=X.train, Y=Y.train, type='Kriging', formula=Y~.,
-                     covtype='matern3_2', control=list(maxit=1e3, trace=FALSE),
-                     nugget.estim=TRUE, multistart=mc.cores)
+km.train <- DiceEval::modelFit(X=X.train, Y=Y.train, type='Kriging', formula=Y~.,
+                               covtype='matern3_2', control=list(maxit=1e3, trace=FALSE),
+                               nugget.estim=TRUE, multistart=mc.cores)
 
-Y.test.km <- modelPredict(km.train, X.test)
-val.km <- c(R2=R2(Y.test, Y.test.km), RMSE=RMSE(Y.test, Y.test.km))
+Y.test.km <- DiceEval::modelPredict(km.train, X.test)
+val.km <- c(R2=DiceEval::R2(Y.test, Y.test.km), RMSE=DiceEval::RMSE(Y.test, Y.test.km))
 cbind(mc$Test, val.km)
 
 #' Both kriging models have superior predictive performance on the
@@ -93,7 +93,7 @@ mc$CV
 #' The untuned kriging model also did better than any other model in
 #' terms of the cross validation.
 
-plot(km.train)
+DiceKriging::plot(km.train)
 
 #' The mean prediction errors in leave-one-out cross validation are
 #' somewhat overdispersed relative to a normal distribution, but no
@@ -101,37 +101,37 @@ plot(km.train)
 
 noise.var <- rep(val.km['RMSE']^2, length(Y))
 
-km.m1 <- modelFit(X=X, Y=Y, type='Kriging', formula=Y~.,
-                  covtype='matern3_2', control=list(maxit=1e3, trace=FALSE),
-                  noise.var=noise.var, multistart=mc.cores)
+km.m1 <- DiceEval::modelFit(X=X, Y=Y, type='Kriging', formula=Y~.,
+                            covtype='matern3_2', control=list(maxit=1e3, trace=FALSE),
+                            noise.var=noise.var, multistart=mc.cores)
 
-Y.km.m1 <- modelPredict(km.m1, newdata=X)
+Y.km.m1 <- DiceEval::modelPredict(km.m1, newdata=X)
 Yres.m1 <- (Y - Y.km.m1)^2
-km.v1 <- modelFit(X=X, Y=Yres.m1, type='Kriging', formula=Y~1, covtype='matern3_2',
-                  control=list(maxit=1e3, trace=TRUE), multistart=mc.cores)
+km.v1 <- DiceEval::modelFit(X=X, Y=Yres.m1, type='Kriging', formula=Y~1, covtype='matern3_2',
+                            control=list(maxit=1e3, trace=TRUE), multistart=mc.cores)
 
 center <- apply(X, 2, median)
 pdf('section-views-km.v1.pdf', width=5, height=30)
-sectionview.km(model=km.v1$model, center=center, mfrow=c(9, 1))
+DiceView::sectionview.km(model=km.v1$model, center=center, mfrow=c(9, 1))
 dev.off()
 
 #contourview.km(model=km.v1$model, center=center, axis=matrix(c(3, 8), nrow=1))
 
-plot(km.v1$model)
+DiceKriging::plot(km.v1$model)
 
 #' The leave-one-out errors are by no means gaussian, but still we
 #' should be capturing peaks and valleys in the variance.
 
-noise.var.km.v1 <- modelPredict(km.v1, newdata=X)
+noise.var.km.v1 <- DiceEval::modelPredict(km.v1, newdata=X)
 
-km.m2 <- modelFit(X=X, Y=Y, type='Kriging', formula=Y~.,
-                  covtype='matern3_2', control=list(maxit=1e3, trace=FALSE),
-                  noise.var=noise.var.km.v1, multistart=mc.cores)
+km.m2 <- DiceEval::modelFit(X=X, Y=Y, type='Kriging', formula=Y~.,
+                            covtype='matern3_2', control=list(maxit=1e3, trace=FALSE),
+                            noise.var=noise.var.km.v1, multistart=mc.cores)
 
-Y.km.m2 <- modelPredict(km.m2, newdata=X)
+Y.km.m2 <- DiceEval::modelPredict(km.m2, newdata=X)
 Yres.m2 <- (Y - Y.km.m2)^2
-km.v2 <- modelFit(X=X, Y=Yres.m2, type='Kriging', formula=Y~1, covtype='matern3_2',
-                  control=list(maxit=1e3, trace=TRUE), multistart=mc.cores)
+km.v2 <- DiceEval::modelFit(X=X, Y=Yres.m2, type='Kriging', formula=Y~1, covtype='matern3_2',
+                            control=list(maxit=1e3, trace=TRUE), multistart=mc.cores)
 
 parallel::stopCluster(cl)
 save.image('sim-study-checkpoint4.rda')
@@ -179,7 +179,7 @@ RunSobol <- function(nmeta, kmm2, kmv2, all.par.ranges, order=1){
 
 save.image('sim-study-checkpoint5.rda')
 
-sectionview(km.m2, axis=8, center=center, mfrow=c(1,1))
-contourview(km.m2, axis=matrix(c(3, 8), nrow=1), center=center, mfrow=c(1, 1))
+DiceView::sectionview(km.m2, axis=8, center=center, mfrow=c(1,1))
+DiceView::contourview(km.m2, axis=matrix(c(3, 8), nrow=1), center=center, mfrow=c(1, 1))
 
 
