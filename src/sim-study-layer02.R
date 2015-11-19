@@ -132,10 +132,26 @@ RunSobol <- function(nmeta, kmm2, kmv2, all.par.ranges, order=1){
   X1 <- GetRandLHSDes(nmeta, rngs)
   X2 <- GetRandLHSDes(nmeta, rngs)
   colnames(X1) <- colnames(X2) <- vars
+  sob <- sensitivity::sobol(model=NULL, X1=X1, X2=X2, order=order, nboot=100)
+  X <- sob$X
+  max.chunksize <- 1e6 ## approximate max, based on limitation in predict.km
+  chunksize <- min(ceiling(nrow(X) / getOption('mc.cores')), max.chunksize)
+  nchunks <- ceiling(nrow(X) / chunksize)
+
+  breaks <- chunksize * seq(0, nchunks)
+  breaks[length(breaks)] <- nrow(X)
+  chunks <- list()
+  for(i in seq(2, nchunks + 1)){
+    l <- breaks[i - 1] + 1
+    u <- breaks[i]
+    chunks[[i - 1]] <- X[l:u, ]
+  }
   Wrapper <- function(X){
     predict(kmm2, newdata=X, type='UK')$m
   }
-  sob <- sensitivity::sobol(model=Wrapper, X1=X1, X2=X2, order=order, nboot=100)
+  y <- unlist(parallel::mclapply(chunks, Wrapper))
+  tell(sob, y=y)
+
   vym <- sob$V['global', 'original']
   vyd <- DiceKriging::coef(kmv2)$trend
   vy <- vym + vyd
@@ -146,7 +162,7 @@ RunSobol <- function(nmeta, kmm2, kmv2, all.par.ranges, order=1){
 }
 
 (sob.out <- RunSobol(nmeta, kmm2=kms$m2$model, kmv2=kms$v2$model,
-                     all.par.ranges=all.par.ranges, order=1))
+                     all.par.ranges=all.par.ranges, order=2))
 
 save.image('sim-study-checkpoint5.rda')
 
