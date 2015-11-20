@@ -107,7 +107,7 @@ GetMetaModels <- function(resall, df){
 kms <- GetMetaModels(resall, df)
 save.image('sim-study-checkpoint4.rda')
 
-nmeta <- 1e4
+nmeta <- 1e5
 extra.par.ranges <- list(target.mean.deg=range(target.mean.deg.grid),
                          raster.cell.side=range(raster.cell.side.grid))
 all.par.ranges <- c(par.ranges, extra.par.ranges)
@@ -134,7 +134,7 @@ RunSobol <- function(nmeta, kmm2, kmv2, all.par.ranges, order=1){
   colnames(X1) <- colnames(X2) <- vars
   sob <- sensitivity::sobol(model=NULL, X1=X1, X2=X2, order=order, nboot=100)
   X <- sob$X
-  max.chunksize <- 1e6 ## approximate max, based on limitation in predict.km
+  max.chunksize <- 1e4 ## approximate max, based on limitation in predict.km
   chunksize <- min(ceiling(nrow(X) / getOption('mc.cores')), max.chunksize)
   nchunks <- ceiling(nrow(X) / chunksize)
 
@@ -150,7 +150,7 @@ RunSobol <- function(nmeta, kmm2, kmv2, all.par.ranges, order=1){
     predict(kmm2, newdata=X, type='UK')$m
   }
   y <- unlist(parallel::mclapply(chunks, Wrapper))
-  tell(sob, y=y)
+  sensitivity::tell(sob, y=y)
 
   vym <- sob$V['global', 'original']
   vyd <- DiceKriging::coef(kmv2)$trend
