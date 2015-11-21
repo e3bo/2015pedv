@@ -102,7 +102,7 @@ GetMetaModels <- function(resall, df){
   km.v2 <- DiceEval::modelFit(X=X, Y=Yres.m2, type='Kriging', formula=Y~1, covtype='matern3_2',
                               control=list(maxit=1e3, trace=TRUE), multistart=mc.cores)
 
-  list(m1=km.m1, m2=km.m2, v1=km.v1, v2=km.v2, comparisons=mc)
+  list(m1=km.m1, m2=km.m2, v1=km.v1, v2=km.v2, comparisons=mc, center=center)
 }
 
 kms <- GetMetaModels(resall, df)
@@ -167,5 +167,7 @@ RunSobol <- function(nmeta, kmm2, kmv2, all.par.ranges, order=1){
 
 save.image('sim-study-checkpoint5.rda')
 
-DiceView::sectionview(kms$m2, axis=8, center=center, mfrow=c(1,1))
-DiceView::contourview(kms$m2, axis=matrix(c(3, 8), nrow=1), center=center, mfrow=c(1, 1))
+tp.ind <- which(names(kms$center) == 'tprob.net')
+sa.ind <- which(names(kms$center) == 'seasonal.amplitude')
+DiceView::sectionview(kms$m2, axis=tp.ind, center=kms$center, mfrow=c(1,1))
+DiceView::contourview(kms$m2, axis=matrix(c(sa.ind, tp.ind), nrow=1), center=kms$center, mfrow=c(1, 1))
