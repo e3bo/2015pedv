@@ -6,15 +6,16 @@ set.seed(122, "L'Ecuyer")
 mc.cores <- ifelse(Sys.info()['sysname'] == "Linux",
                    parallel::detectCores() - 1, 1)
 mc.cores <- ifelse(mc.cores > 20, 20, mc.cores)
+mc.cores <- ifelse(mc.cores == 0, 1, mc.cores)
 options('mc.cores'=mc.cores)
 
-target.mean.deg.grid <- 10 #seq(0.1, 10.1, by=10)
-raster.cell.side.grid <- 1600 # c(1600, 3200, 4800)
+target.mean.deg.grid <- 0.1 #seq(0.1, 10.1, by=10)
+raster.cell.side.grid <- 16000 # c(1600, 3200, 4800)
 
 ag <- parallel::mcMap(sds::CreateAgents,
                       target.mean.deg=target.mean.deg.grid[1],
                       raster.cell.side.meters=raster.cell.side.grid,
-                      census.dilation=1)
+                      census.dilation=0.01)
 
 if(length(target.mean.deg.grid) > 1){
   net.nbs <- lapply(target.mean.deg.grid[-1], sds::GetNetNbs,
@@ -32,10 +33,8 @@ par.ranges <- list(prep=c(0, 1),
                    rprob=c(0, 1),
                    seasonal.amplitude=c(0, 1),
                    size=c(0.5, 100),
-                   starting.grid.x=c(0, 1),
-                   starting.grid.y=c(0, 1),
-                   tprob.outside=c(0, 1e-4),
-                   tprob.net=c(0, 0.25),
+                   tprob.outside=c(0, 1e-2),
+                   tprob.net=c(0, 1),
                    tprob.sp=c(0, 1))
 
 des <- sensitivity::parameterSets(par.ranges=par.ranges,
@@ -60,9 +59,7 @@ df$raster.cell.side <- raster.cell.side.grid[df$ag.ind]
 df$target.mean.deg <- target.mean.deg.grid[df$net.nbs.ind]
 df$lags.sel <- 1
 df$nstarters <- 1
-df$permutations <- 1000
-df$starting.grid.nx <- 10
-df$starting.grid.ny <- 2
+df$permutations <- 2
 Wrapper <- function(...) try(sds::SimulateAndSummarize(...))
 
 system.time(res <- parallel::mcMap(Wrapper,
@@ -75,10 +72,6 @@ system.time(res <- parallel::mcMap(Wrapper,
                                    rprob=df$rprob,
                                    size=df$size,
                                    seasonal.amplitude=df$seasonal.amplitude,
-                                   starting.grid.nx=df$starting.grid.nx,
-                                   starting.grid.ny=df$starting.grid.ny,
-                                   starting.grid.x=df$starting.grid.x,
-                                   starting.grid.y=df$starting.grid.y,
                                    tprob.net=df$tprob.net,
                                    tprob.outside=df$tprob.outside,
                                    tprob.sp=df$tprob.sp))

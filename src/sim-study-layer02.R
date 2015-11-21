@@ -6,6 +6,7 @@ set.seed(123, "L'Ecuyer")
 mc.cores <- ifelse(Sys.info()['sysname'] == "Linux",
                    parallel::detectCores() - 1, 1)
 mc.cores <- ifelse(mc.cores > 20, 20, mc.cores)
+mc.cores <- ifelse(mc.cores == 0, 1, mc.cores)
 options('mc.cores'=mc.cores)
 
 load('sim-study-checkpoint3.rda')
@@ -107,7 +108,7 @@ GetMetaModels <- function(resall, df){
 kms <- GetMetaModels(resall, df)
 save.image('sim-study-checkpoint4.rda')
 
-nmeta <- 1e5
+nmeta <- 1e3
 extra.par.ranges <- list(target.mean.deg=range(target.mean.deg.grid),
                          raster.cell.side=range(raster.cell.side.grid))
 all.par.ranges <- c(par.ranges, extra.par.ranges)
