@@ -15,8 +15,17 @@ accessions-premises-correlation.r.so: accessions-premises-correlation.r flagData
 sim-panel.pdf: cor-sim-study-plots.r flagSims1
 	$< >$(<F).so 2>$(<F).se
 
-flagSims: sim-study-layer02.R sim-study-checkpoint1.rda
+flagSims: sim-study-layer05.R sim-study-checkpoint4.rda
 	$< >$(<F).so 2>$(<F).se && touch $@
+
+sim-study-checkpoint4.rda: sim-study-layer04.R sim-study-checkpoint3.rda
+	$< >$(<F).so 2>$(<F).se
+
+sim-study-checkpoint3.rda: sim-study-layer03.R sim-study-checkpoint2.rda
+	$< >$(<F).so 2>$(<F).se
+
+sim-study-checkpoint2.rda: sim-study-layer02.R sim-study-checkpoint1.rda
+	$< >$(<F).so 2>$(<F).se
 
 sim-study-checkpoint1.rda: sim-study-layer01.R flagPackageInstalled
 	$< >$(<F).so 2>$(<F).se
