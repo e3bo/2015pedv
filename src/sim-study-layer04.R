@@ -48,7 +48,7 @@ GetMetaModels <- function(resall, df){
 
   km.train <- DiceEval::modelFit(X=X.train, Y=Y.train, type='Kriging', formula=Y~.,
                                  covtype='matern3_2', control=list(maxit=1e3, trace=FALSE),
-                                 nugget.estim=TRUE, multistart=mc.cores)
+                                 nugget.estim=TRUE, multistart=max(mc.cores, 5))
 
   Y.test.km <- DiceEval::modelPredict(km.train, X.test)
   val.km <- c(R2=DiceEval::R2(Y.test, Y.test.km), RMSE=DiceEval::RMSE(Y.test, Y.test.km))
@@ -72,12 +72,12 @@ GetMetaModels <- function(resall, df){
 
   km.m1 <- DiceEval::modelFit(X=X, Y=Y, type='Kriging', formula=Y~.,
                               covtype='matern3_2', control=list(maxit=1e3, trace=FALSE),
-                              noise.var=noise.var, multistart=mc.cores)
+                              noise.var=noise.var, multistart=max(mc.cores, 5))
 
   Y.km.m1 <- DiceEval::modelPredict(km.m1, newdata=X)
   Yres.m1 <- (Y - Y.km.m1)^2
   km.v1 <- DiceEval::modelFit(X=X, Y=Yres.m1, type='Kriging', formula=Y~1, covtype='matern3_2',
-                              control=list(maxit=1e3, trace=TRUE), multistart=mc.cores)
+                              control=list(maxit=1e3, trace=TRUE), multistart=max(mc.cores, 5))
 
   center <- apply(X, 2, median)
   pdf('section-views-km.v1.pdf', width=5, height=30)
@@ -95,12 +95,12 @@ GetMetaModels <- function(resall, df){
 
   km.m2 <- DiceEval::modelFit(X=X, Y=Y, type='Kriging', formula=Y~.,
                               covtype='matern3_2', control=list(maxit=1e3, trace=FALSE),
-                              noise.var=noise.var.km.v1, multistart=mc.cores)
+                              noise.var=noise.var.km.v1, multistart=max(mc.cores, 5))
 
   Y.km.m2 <- DiceEval::modelPredict(km.m2, newdata=X)
   Yres.m2 <- (Y - Y.km.m2)^2
   km.v2 <- DiceEval::modelFit(X=X, Y=Yres.m2, type='Kriging', formula=Y~1, covtype='matern3_2',
-                              control=list(maxit=1e3, trace=TRUE), multistart=mc.cores)
+                              control=list(maxit=1e3, trace=TRUE), multistart=max(mc.cores, 5))
 
   list(m1=km.m1, m2=km.m2, v1=km.v1, v2=km.v2, comparisons=mc, center=center)
 }

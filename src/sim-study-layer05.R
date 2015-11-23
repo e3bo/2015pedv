@@ -11,7 +11,7 @@ options('mc.cores'=mc.cores)
 
 load('sim-study-checkpoint4.rda')
 
-nmeta <- 1e3
+nmeta <- 1e5
 extra.par.ranges <- list(target.mean.deg=range(target.mean.deg.grid),
                          raster.cell.side=range(raster.cell.side.grid))
 all.par.ranges <- c(par.ranges, extra.par.ranges)
@@ -38,7 +38,7 @@ RunSobol <- function(nmeta, kmm2, kmv2, all.par.ranges, order=1){
   colnames(X1) <- colnames(X2) <- vars
   sob <- sensitivity::sobol(model=NULL, X1=X1, X2=X2, order=order, nboot=100)
   X <- sob$X
-  max.chunksize <- 1e4 ## approximate max, based on limitation in predict.km
+  max.chunksize <- 1e3 ## approximate max, based on limitation in predict.km and RAM available
   chunksize <- min(ceiling(nrow(X) / getOption('mc.cores')), max.chunksize)
   nchunks <- ceiling(nrow(X) / chunksize)
 
@@ -65,11 +65,11 @@ RunSobol <- function(nmeta, kmm2, kmv2, all.par.ranges, order=1){
   list(sob, sob.inds, sob.ind.rand)
 }
 
-(sob.out <- RunSobol(nmeta, kmm2=kms$m2$model, kmv2=kms$v2$model,
-                     all.par.ranges=all.par.ranges, order=2))
-
+sob.out <- RunSobol(nmeta, kmm2=kms$m2$model, kmv2=kms$v2$model,
+                     all.par.ranges=all.par.ranges, order=1)
 save.image('sim-study-checkpoint5.rda')
 
+sob.out
 tp.ind <- which(names(kms$center) == 'tprob.net')
 sa.ind <- which(names(kms$center) == 'seasonal.amplitude')
 DiceView::sectionview(kms$m2, axis=tp.ind, center=kms$center, mfrow=c(1,1))

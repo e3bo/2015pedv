@@ -15,8 +15,8 @@ nsim <- 1000
 par.ranges <- list(prep=c(0, 1),
                    rprob=c(0, 1),
                    seasonal.amplitude=c(0, 1),
-                   size=c(0.5, 100),
-                   tprob.outside=c(0, 1e-2),
+                   size=c(0.5, 10),
+                   tprob.outside=c(0, 1e-4),
                    tprob.net=c(0, 1),
                    tprob.sp=c(0, 1))
 
