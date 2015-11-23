@@ -72,5 +72,8 @@ save.image('sim-study-checkpoint5.rda')
 sob.out
 tp.ind <- which(names(kms$center) == 'tprob.net')
 sa.ind <- which(names(kms$center) == 'seasonal.amplitude')
+
+pdf('km-m2-views.pdf')
 DiceView::sectionview(kms$m2, axis=tp.ind, center=kms$center, mfrow=c(1,1))
 DiceView::contourview(kms$m2, axis=matrix(c(sa.ind, tp.ind), nrow=1), center=kms$center, mfrow=c(1, 1))
+dev.off()

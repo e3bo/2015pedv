@@ -61,8 +61,9 @@ GetMetaModels <- function(resall, df){
 
   #' The untuned kriging model also did better than any other model in
   #' terms of the cross validation.
-
+  pdf('km-training-model-diagnostics.pdf')
   DiceKriging::plot(km.train$model)
+  dev.off()
 
   #' The mean prediction errors in leave-one-out cross validation are
   #' somewhat overdispersed relative to a normal distribution, but no
@@ -86,7 +87,9 @@ GetMetaModels <- function(resall, df){
 
   #contourview.km(model=km.v1$model, center=center, axis=matrix(c(3, 8), nrow=1))
 
+  pdf('km-v1-model-diagnostics.pdf')
   DiceKriging::plot(km.v1$model)
+  dev.off()
 
   #' The leave-one-out errors are by no means gaussian, but still we
   #' should be capturing peaks and valleys in the variance.
