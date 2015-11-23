@@ -5,7 +5,7 @@ set -e
 file1=$(mktemp)
 file2=$(mktemp)
 outfile='state-hogBalanceSheetDec2011Dec2012.csv'
-archive='/root/data/usda01.library.cornell.edu_usda_current_MeatAnimPr_MeatAnimPr-04-25-2013.zip'
+archive='/home/docker/data/usda01.library.cornell.edu_usda_current_MeatAnimPr_MeatAnimPr-04-25-2013.zip'
 
 echo 'state,inventory2011,pigCrop,inshipments' > "${file1}" 
 

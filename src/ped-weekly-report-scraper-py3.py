@@ -87,7 +87,7 @@ def extract_limits(pages):
     lims['trash'] = set(trash)
     return lims
 
-root_dir = '/root/data/'
+root_dir = '/home/docker/data/'
 name = 'www.aasv.org_pedv_PEDV_weekly_report_140108.pdf'
 
 pdfpath = root_dir + name

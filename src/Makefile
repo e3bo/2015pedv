@@ -1,7 +1,7 @@
 RS = '/usr/bin/Rscript'
-WD = /root/work
-SD = /root/src
-DD = /root/data
+WD = /home/docker/work
+SD = /home/docker/src
+DD = /home/docker/data
 VPATH = $(SD):$(WD)
 
 all: accessions-premises-correlation.r.so flagMantelPlots flagAssocPlots flagTsirFigs sim-panel.pdf mapPlotSeries
