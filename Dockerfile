@@ -57,15 +57,14 @@ RUN install2.r --error \
   raster \
   rgdal \
   sensitivity \
-&& rm -rf /tmp/download_packages/ /tmp/*.rds
+  && rm -rf /tmp/download_packages/ /tmp/*.rds
 
 RUN install2.r --error R2admb \
-&& install2.r --repos http://glmmadmb.r-forge.r-project.org/repos --error glmmADMB \
-&& install2.r --repos http://www.math.mcmaster.ca/bolker/R --error coefplot2 \
-&& rm -rf /tmp/download_packages/ /tmp/*.rds
+  && install2.r --repos http://glmmadmb.r-forge.r-project.org/repos --error glmmADMB \
+  && install2.r --repos http://www.math.mcmaster.ca/bolker/R --error coefplot2 \
+  && rm -rf /tmp/download_packages/ /tmp/*.rds
 
-RUN mkdir /var/run/sshd && echo 'root:screencast' | chpasswd \
-  && sed -i 's/PermitRootLogin without-password/PermitRootLogin yes/' /etc/ssh/sshd_config \
+RUN mkdir /var/run/sshd && echo 'docker:screencast' | chpasswd \
   && sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
 EXPOSE 22
 
