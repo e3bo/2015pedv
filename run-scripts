@@ -8,9 +8,13 @@ rnd=$RANDOM
 wkdir="${topd}/work-${tstamp}-${rnd}"
 ddir="${topd}/data"
 sdir="${topd}/src"
-hdir="/root"
+hdir="/home/docker"
 
+mkdir ${wkdir}
+chmod 757 ${wkdir}
 docker run -v ${ddir}:${hdir}/data:ro \
        -v ${sdir}:${hdir}/src:ro \
        -v ${wkdir}:${hdir}/work \
-       eamon/2015pedv /bin/bash -c "cd /root/work && make -f /root/src/Makefile flagSims"
+       --user docker -w ${hdir} \
+       eamon/2015pedv /bin/bash -c "cd ~/work && make -f ../src/Makefile flagSims"
+chmod -R 755 ${wkdir}
