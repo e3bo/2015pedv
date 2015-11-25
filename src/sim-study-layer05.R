@@ -66,7 +66,7 @@ RunSobol <- function(nmeta, kmm2, kmv2, all.par.ranges, order=1){
 }
 
 sob.out <- RunSobol(nmeta, kmm2=kms$m2$model, kmv2=kms$v2$model,
-                     all.par.ranges=all.par.ranges, order=1)
+                     all.par.ranges=all.par.ranges, order=2)
 save.image('sim-study-checkpoint5.rda')
 
 sob.out
