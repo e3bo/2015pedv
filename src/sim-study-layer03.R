@@ -19,6 +19,8 @@ df$target.mean.deg <- target.mean.deg.grid[df$net.nbs.ind]
 df$lags.sel <- 1
 df$nstarters <- 1
 df$permutations <- 2
+df$starting.grid.nx <- 10
+df$starting.grid.ny <- 2
 Wrapper <- function(...) try(sds::SimulateAndSummarize(...))
 
 system.time(res <- parallel::mcMap(Wrapper,
@@ -31,7 +33,11 @@ system.time(res <- parallel::mcMap(Wrapper,
                                    rprob=df$rprob,
                                    size=df$size,
                                    seasonal.amplitude=df$seasonal.amplitude,
-                                   tprob.net=df$tprob.net,
+				   starting.grid.nx=df$starting.grid.nx,
+				   starting.grid.ny=df$starting.grid.ny,
+				   starting.grid.x=df$starting.grid.x,
+				   starting.grid.y=df$starting.grid.y,
+				   tprob.net=df$tprob.net,
                                    tprob.outside=df$tprob.outside,
                                    tprob.sp=df$tprob.sp))
 recs <- lapply(res, '[[', 'record')

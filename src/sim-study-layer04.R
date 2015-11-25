@@ -97,13 +97,13 @@ GetMetaModels <- function(resall, df){
   noise.var.km.v1 <- DiceEval::modelPredict(km.v1, newdata=X)
 
   km.m2 <- DiceEval::modelFit(X=X, Y=Y, type='Kriging', formula=Y~.,
-                              covtype='matern3_2', control=list(maxit=1e3, trace=FALSE),
-                              noise.var=noise.var.km.v1, multistart=max(mc.cores, 5))
+                              covtype='matern3_2', control=list(maxit=1e3, trace=TRUE),
+                              noise.var=noise.var.km.v1, multistart=1)
 
   Y.km.m2 <- DiceEval::modelPredict(km.m2, newdata=X)
   Yres.m2 <- (Y - Y.km.m2)^2
   km.v2 <- DiceEval::modelFit(X=X, Y=Yres.m2, type='Kriging', formula=Y~1, covtype='matern3_2',
-                              control=list(maxit=1e3, trace=TRUE), multistart=max(mc.cores, 5))
+                              control=list(maxit=1e3, trace=TRUE), multistart=1)
 
   list(m1=km.m1, m2=km.m2, v1=km.v1, v2=km.v2, comparisons=mc, center=center)
 }
