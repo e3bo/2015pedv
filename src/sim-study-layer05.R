@@ -51,7 +51,7 @@ RunSobol <- function(nmeta, kmm2, kmv2, all.par.ranges, order=1){
     chunks[[i - 1]] <- X[l:u, ]
   }
   Wrapper <- function(X){
-    predict(kmm2, newdata=X, type='UK')$m
+    predict(kmm2, newdata=X, type='UK', se.compute=FALSE, light.return=TRUE)$m
   }
   y <- unlist(parallel::mclapply(chunks, Wrapper))
   sensitivity::tell(sob, y=y)
