@@ -120,3 +120,14 @@ GetMetaModels <- function(resall, df, covtype='matern3_2'){
 
 kms <- GetMetaModels(resall, df)
 save.image('sim-study-checkpoint4.rda')
+saveRDS(kms$m2$model, "kmm2.rds")
+saveRDS(kms$v2$model, "kmv2.rds")
+saveRDS(kms$center, "center.rds")
+
+tp.ind <- which(names(kms$center) == 'tprob.net')
+sa.ind <- which(names(kms$center) == 'seasonal.amplitude')
+pdf('km-m2-views.pdf')
+DiceView::sectionview(kms$m2$model, axis=tp.ind, center=kms$center, mfrow=c(1,1))
+DiceView::sectionview(kms$m2, axis=tp.ind, center=kms$center, mfrow=c(1,1))
+DiceView::contourview(kms$m2, axis=matrix(c(sa.ind, tp.ind), nrow=1), center=kms$center, mfrow=c(1, 1))
+dev.off()
