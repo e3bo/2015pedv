@@ -36,3 +36,9 @@ GetDesignStats <- function(X){
 }
 (design.stats <- sapply(list(sobol=des, unif=desunif), GetDesignStats))
 save.image('sim-study-checkpoint2.rda')
+
+extra.par.ranges <- list(target.mean.deg=range(target.mean.deg.grid),
+                         raster.cell.side=range(raster.cell.side.grid))
+all.par.ranges <- c(par.ranges, extra.par.ranges)
+
+saveRDS(all.par.ranges, "all.par.ranges.rds")

@@ -9,12 +9,11 @@ mc.cores <- ifelse(mc.cores > 20, 20, mc.cores)
 mc.cores <- ifelse(mc.cores == 0, 1, mc.cores)
 options('mc.cores'=mc.cores)
 
-load('sim-study-checkpoint4.rda')
-
+kmm2 <- readRDS("kmm2.rds")
+kmv2 <- readRDS("kmv2.rds")
+center <- readRDS("center.rds")
+all.par.ranges <- readRDS("all.par.ranges.rds")
 nmeta <- 1e5
-extra.par.ranges <- list(target.mean.deg=range(target.mean.deg.grid),
-                         raster.cell.side=range(raster.cell.side.grid))
-all.par.ranges <- c(par.ranges, extra.par.ranges)
 
 GetRandLHSDes <- function(n, ranges){
   X <- lhs::randomLHS(n, length(ranges))
@@ -51,7 +50,7 @@ RunSobol <- function(nmeta, kmm2, kmv2, all.par.ranges, order=1){
     chunks[[i - 1]] <- X[l:u, ]
   }
   Wrapper <- function(X){
-    predict(kmm2, newdata=X, type='UK')$m
+    predict(kmm2, newdata=X, type='UK', se.compute=FALSE, light.return=TRUE)$m
   }
   y <- unlist(parallel::mclapply(chunks, Wrapper))
   sensitivity::tell(sob, y=y)
@@ -65,15 +64,8 @@ RunSobol <- function(nmeta, kmm2, kmv2, all.par.ranges, order=1){
   list(sob, sob.inds, sob.ind.rand)
 }
 
-sob.out <- RunSobol(nmeta, kmm2=kms$m2$model, kmv2=kms$v2$model,
-                     all.par.ranges=all.par.ranges, order=1)
+sob.out <- RunSobol(nmeta, kmm2=kmm2, kmv2=kmv2, all.par.ranges=all.par.ranges,
+                    order=2)
 save.image('sim-study-checkpoint5.rda')
 
 sob.out
-tp.ind <- which(names(kms$center) == 'tprob.net')
-sa.ind <- which(names(kms$center) == 'seasonal.amplitude')
-
-pdf('km-m2-views.pdf')
-DiceView::sectionview(kms$m2, axis=tp.ind, center=kms$center, mfrow=c(1,1))
-DiceView::contourview(kms$m2, axis=matrix(c(sa.ind, tp.ind), nrow=1), center=kms$center, mfrow=c(1, 1))
-dev.off()
