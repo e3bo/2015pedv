@@ -12,11 +12,8 @@ options('mc.cores'=mc.cores)
 kmm2 <- readRDS("kmm2.rds")
 kmv2 <- readRDS("kmv2.rds")
 center <- readRDS("center.rds")
-
+all.par.ranges <- readRDS("all.par.ranges.rds")
 nmeta <- 1e5
-extra.par.ranges <- list(target.mean.deg=range(target.mean.deg.grid),
-                         raster.cell.side=range(raster.cell.side.grid))
-all.par.ranges <- c(par.ranges, extra.par.ranges)
 
 GetRandLHSDes <- function(n, ranges){
   X <- lhs::randomLHS(n, length(ranges))

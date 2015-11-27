@@ -77,11 +77,12 @@ GetMetaModels <- function(resall, df, covtype='matern3_2'){
 
   GetPredNuggetAsNoise <- function(mod){
     noise.var <- rep(mod@covariance@nugget, len=nrow(mod@X))
-    mpred <- km(mod@trend.formula, design=mod@X, response=mod@y, covtype=mod@covariance@name,
-                coef.cov=covparam2vect(mod@covariance),
-                coef.trend=mod@trend.coef,
-                coef.var=mod@covariance@sd2,
-                noise.var=noise.var)
+    mpred <- DiceKriging::km(mod@trend.formula, design=mod@X, response=mod@y,
+                             covtype=mod@covariance@name,
+                             coef.cov=DiceKriging::covparam2vect(mod@covariance),
+                             coef.trend=mod@trend.coef,
+                             coef.var=mod@covariance@sd2,
+                             noise.var=noise.var)
     predict(mpred, newdata=mod@X, type='UK', se.fit=FALSE, light.return=TRUE)$mean
   }
   Y.km.m1 <- GetPredNuggetAsNoise(km.m1$model)
