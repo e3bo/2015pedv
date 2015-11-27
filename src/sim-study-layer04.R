@@ -11,7 +11,7 @@ options('mc.cores'=mc.cores)
 
 load('sim-study-checkpoint3.rda')
 
-GetMetaModels <- function(resall, df){
+GetMetaModels <- function(resall, df, covtype='matern3_2'){
   sub <- resall
   sub$r <- sub[ , paste0('mantel.r.lag1.shipment.spearman.TRUE.', df$permutations[1])]
 
@@ -35,7 +35,8 @@ GetMetaModels <- function(resall, df){
 
   pdf('modelComparison-plots.pdf')
   mc <- DiceEval::modelComparison(X.train, Y.train, K=10, type='all', test=testdf, penalty=2,
-                                  degree=2, gcv=4, covtype='matern3_2', formula=Y~.)
+                                  degree=2, gcv=4, covtype=covtype, formula=Y~.,
+                                  nugget.estim=TRUE)
   dev.off()
 
   #' The modelComparison function does not allow some important options
@@ -47,7 +48,7 @@ GetMetaModels <- function(resall, df){
   doParallel::registerDoParallel(cl)
 
   km.train <- DiceEval::modelFit(X=X.train, Y=Y.train, type='Kriging', formula=Y~.,
-                                 covtype='matern3_2', control=list(maxit=1e3, trace=FALSE),
+                                 covtype=covtype, control=list(maxit=1e3, trace=FALSE),
                                  nugget.estim=TRUE, multistart=max(mc.cores, 5))
 
   Y.test.km <- DiceEval::modelPredict(km.train, X.test)
@@ -69,41 +70,50 @@ GetMetaModels <- function(resall, df){
   #' somewhat overdispersed relative to a normal distribution, but no
   #' outliers are apparent.
 
-  noise.var <- rep(val.km['RMSE']^2, length(Y))
+  km.m1 <- DiceEval::modelFit(X=X, Y=Y, type='Kriging', formula=~.,
+                              covtype=covtype, control=list(maxit=1e3, trace=FALSE),
+                              nugget.estim=TRUE, multistart=max(mc.cores, 5),
+                              nugget=1e-7)
 
-  km.m1 <- DiceEval::modelFit(X=X, Y=Y, type='Kriging', formula=Y~.,
-                              covtype='matern3_2', control=list(maxit=1e3, trace=FALSE),
-                              noise.var=noise.var, multistart=max(mc.cores, 5))
-
-  Y.km.m1 <- DiceEval::modelPredict(km.m1, newdata=X)
-  Yres.m1 <- (Y - Y.km.m1)^2
-  km.v1 <- DiceEval::modelFit(X=X, Y=Yres.m1, type='Kriging', formula=Y~1, covtype='matern3_2',
-                              control=list(maxit=1e3, trace=TRUE), multistart=max(mc.cores, 5))
+  GetPredNuggetAsNoise <- function(mod){
+    noise.var <- rep(mod@covariance@nugget, len=nrow(mod@X))
+    mpred <- km(mod@trend.formula, design=mod@X, response=mod@y, covtype=mod@covariance@name,
+                coef.cov=covparam2vect(mod@covariance),
+                coef.trend=mod@trend.coef,
+                coef.var=mod@covariance@sd2,
+                noise.var=noise.var)
+    predict(mpred, newdata=mod@X, type='UK', se.fit=FALSE, light.return=TRUE)$mean
+  }
+  Y.km.m1 <- GetPredNuggetAsNoise(km.m1$model)
+  Yres2.m1 <- (Y - Y.km.m1)^2
+  km.v1 <- DiceEval::modelFit(X=X, Y=Yres2.m1, type='Kriging', formula=Y~1, covtype=covtype,
+                              control=list(maxit=1e3, trace=TRUE), multistart=max(mc.cores, 5),
+                              nugget.estim=TRUE)
 
   center <- apply(X, 2, median)
   pdf('section-views-km.v1.pdf', width=5, height=30)
   DiceView::sectionview.km(model=km.v1$model, center=center, mfrow=c(9, 1))
   dev.off()
 
-  #contourview.km(model=km.v1$model, center=center, axis=matrix(c(3, 8), nrow=1))
+  Y.km.v1 <- GetPredNuggetAsNoise(km.v1$model)
+  Yres.v1 <- Yres2.m1 - Y.km.v1
 
-  pdf('km-v1-model-diagnostics.pdf')
-  DiceKriging::plot(km.v1$model)
+  pdf('km-v1-model-residuals.pdf')
+  par(mfrow=c(3,1))
+  plot(Y.km.v1~Yres2.m1)
+  plot(Yres.v1/sd(Yres.v1))
+  qqnorm(Yres.v1)
   dev.off()
 
-  #' The leave-one-out errors are by no means gaussian, but still we
-  #' should be capturing peaks and valleys in the variance.
-
-  noise.var.km.v1 <- DiceEval::modelPredict(km.v1, newdata=X)
-
   km.m2 <- DiceEval::modelFit(X=X, Y=Y, type='Kriging', formula=Y~.,
-                              covtype='matern3_2', control=list(maxit=1e3, trace=FALSE),
-                              noise.var=noise.var.km.v1, multistart=max(mc.cores, 5))
+                              covtype=covtype, control=list(maxit=1e3, trace=FALSE),
+                              noise.var=Y.km.v1, multistart=max(mc.cores, 5))
 
   Y.km.m2 <- DiceEval::modelPredict(km.m2, newdata=X)
-  Yres.m2 <- (Y - Y.km.m2)^2
-  km.v2 <- DiceEval::modelFit(X=X, Y=Yres.m2, type='Kriging', formula=Y~1, covtype='matern3_2',
-                              control=list(maxit=1e3, trace=TRUE), multistart=max(mc.cores, 5))
+  Yres2.m2 <- (Y - Y.km.m2)^2
+  km.v2 <- DiceEval::modelFit(X=X, Y=Yres2.m2, type='Kriging', formula=Y~1, covtype=covtype,
+                              control=list(maxit=1e3, trace=TRUE), nugget.estim=TRUE,
+                              multistart=max(mc.cores, 5))
 
   list(m1=km.m1, m2=km.m2, v1=km.v1, v2=km.v2, comparisons=mc, center=center)
 }
