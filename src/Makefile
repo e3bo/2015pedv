@@ -4,15 +4,12 @@ SD = /home/docker/src
 DD = /home/docker/data
 VPATH = $(SD):$(WD)
 
-all: accessions-premises-correlation.r.so flagMantelPlots flagAssocPlots flagTsirFigs sim-panel.pdf mapPlotSeries
+all: accessions-premises-correlation.r.so flagMantelPlots flagAssocPlots flagTsirFigs flagSims mapPlotSeries
 
 mapPlotSeries: map-series.r flagData flagWeeklyReports
 	$< && touch $@
 
 accessions-premises-correlation.r.so: accessions-premises-correlation.r flagData
-	$< >$(<F).so 2>$(<F).se
-
-sim-panel.pdf: cor-sim-study-plots.r flagSims1
 	$< >$(<F).so 2>$(<F).se
 
 flagSims: sim-study-layer05.R sim-study-checkpoint4.rda

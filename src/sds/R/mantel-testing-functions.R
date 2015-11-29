@@ -78,16 +78,19 @@ DoDesignedPartialTests <- function(des, mat.list1, mat.list2, mat.list3){
   des
 }
 
+#' @export
 DoMantelTests <- function(mat.list1, mat.list2, ...){
   des <- MakeDesign(mat.list1, mat.list2, ...)
   DoDesignedTests(des, mat.list1, mat.list2)
 }
 
+#' @export
 DoPartialMantelTests <- function(mat.list1, mat.list2, mat.list3, ...){
   des <- MakeDesign(mat.list1, mat.list2, mat.list3, ...)
   DoDesignedPartialTests(des, mat.list1, mat.list2, mat.list3)
 }
 
+#' @export
 MakePopStructMats <- function(observed){
   nms <- colnames(observed)
   data('flows.matrix', envir=environment(), package='sds')
@@ -103,6 +106,7 @@ MakePopStructMats <- function(observed){
   list('shipment'=epl, 'gcd'=-centerDists, 'sharedBord'=nhood)
 }
 
+#' @export
 MakePopDynMats <- function(observed, lags.sel=1){
   CC <- lapply(lags.sel, GetCrossCorrs, obs=observed)
   names(CC) <- paste0('lag', lags.sel)
