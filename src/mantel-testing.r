@@ -1,6 +1,6 @@
 #!/usr/bin/Rscript
 
-library(aporkalypse)
+library(sds)
 library(Hmisc)
 library(pander)
 library(plyr)
