@@ -34,7 +34,7 @@ GetMetaModels <- function(resall, df, covtype='matern3_2'){
   testdf <- cbind(X.test, Y.test)
 
   pdf('modelComparison-plots.pdf')
-  mc <- DiceEval::modelComparison(X.train, Y.train, K=10, type='all', test=testdf, penalty=2,
+  mc <- DiceEval::modelComparison(X.train, Y.train, type='all', test=testdf, penalty=2,
                                   degree=2, gcv=4, covtype=covtype, formula=Y~.,
                                   nugget.estim=TRUE)
   dev.off()
@@ -43,9 +43,11 @@ GetMetaModels <- function(resall, df, covtype='matern3_2'){
   #' to the kriging model to be controlled, thus we'll train that model
   #' separately and compare it's performance with other models.
 
-  cl <- parallel::makeForkCluster()
-  on.exit(parallel::stopCluster(cl))
-  doParallel::registerDoParallel(cl)
+  if (getOption('mc.cores') > 1){
+    cl <- parallel::makeForkCluster()
+    on.exit(parallel::stopCluster(cl))
+    doParallel::registerDoParallel(cl)
+  }
 
   km.train <- DiceEval::modelFit(X=X.train, Y=Y.train, type='Kriging', formula=Y~.,
                                  covtype=covtype, control=list(maxit=1e3, trace=FALSE),
@@ -77,11 +79,12 @@ GetMetaModels <- function(resall, df, covtype='matern3_2'){
 
   GetPredNuggetAsNoise <- function(mod){
     noise.var <- rep(mod@covariance@nugget, len=nrow(mod@X))
-    mpred <- km(mod@trend.formula, design=mod@X, response=mod@y, covtype=mod@covariance@name,
-                coef.cov=covparam2vect(mod@covariance),
-                coef.trend=mod@trend.coef,
-                coef.var=mod@covariance@sd2,
-                noise.var=noise.var)
+    mpred <- DiceKriging::km(mod@trend.formula, design=mod@X, response=mod@y,
+                             covtype=mod@covariance@name,
+                             coef.cov=DiceKriging::covparam2vect(mod@covariance),
+                             coef.trend=mod@trend.coef,
+                             coef.var=mod@covariance@sd2,
+                             noise.var=noise.var)
     predict(mpred, newdata=mod@X, type='UK', se.fit=FALSE, light.return=TRUE)$mean
   }
   Y.km.m1 <- GetPredNuggetAsNoise(km.m1$model)

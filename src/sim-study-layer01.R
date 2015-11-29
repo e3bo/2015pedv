@@ -26,4 +26,5 @@ if(length(target.mean.deg.grid) > 1){
 }
 
 ag.data.inds <- expand.grid(ag.ind=seq_along(ag), net.nbs.ind=seq_along(net.nbs))
+
 save.image('sim-study-checkpoint1.rda')
