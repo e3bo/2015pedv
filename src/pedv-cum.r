@@ -872,34 +872,7 @@ plot(vg)
 likFit <- likfit(coords=locAvg, data=sEp, cov.model='exponential', ini.cov.pars=c(.01, 300))
 lines(likFit)
 
-#' Pig-litter--decrease model
-#'
-#+
-alphas <- 0:5/5
-mgAvg$largeDec <- mgAvg$percentDecrease > 2
-mgAvg$largeDec[is.na(mgAvg$largeDec)] <- FALSE
-tmpf <- function(alpha){
-    cv.glmnet(x=xf, y=mgAvg$largeDec, alpha=alpha, family='binomial')
-}
-cvsBinFD <- lapply(alphas, tmpf)
-plot3Alphas(cvsBinFD, alphas)
-coefplot(cvsBinFD, xf, which=4:6)
-m <- cvsBinFD[[6]]
-yhatb <- predict(m, type='link', new=xf)
-ldint <- as.integer(as.logical(mgAvg$largeDec))
-glmfit <- glm(ldint~0, offset=yhatb, family=binomial)
-layout(matrix(1:4, 2))
-plot(glmfit, which=1:3)
-Ep <- residuals(glmfit, type='pearson')
-sEp <- Ep/sd(Ep)
-vg <- variog(coords=locAvg, data=sEp, max.dist=2000)
-plot(vg)
-likFit <- likfit(coords=locAvg, data=sEp, cov.model='exponential',
-                 ini.cov.pars=c(.01, 300))
-lines(likFit)
-
-#' Same variables selected, same relative sizes.  Let's check deviance
-#' ratio to evaluate fit.
+#' Let's check deviance ratio to evaluate fit.
 #'
 #+
 getFitStats <- function(x){
@@ -916,7 +889,7 @@ getFitStats <- function(x){
     res$nobs <- ft$nobs
     res
 }
-mods <- list(loglog=cvsPosF, litter=cvsBinFD, presence=cvsBinF)
+mods <- list(loglog=cvsPosF, presence=cvsBinF)
 tmpf <- function(x){
     foo <- sapply(x[5:6], getFitStats)
     foo <- t(foo)
@@ -943,8 +916,7 @@ tmpff <- function(spec){
     names(alphas)=paste('alpha', format(alphas), sep='=')
     lapply(alphas, tmpf, y=spec$y, family=spec$family, x=spec$x)
 }
-specs <- list(litterRateDecrease=list(y=mgAvg$largeDec, family='binomial', x=xf),
-              cumCases=list(y=log(sub$cases), family='gaussian', x=subxf),
+specs <- list(cumCases=list(y=log(sub$cases), family='gaussian', x=subxf),
               anyCases=list(y=mgAvg$anyCases, family='binomial', x=xf))
 par(mfrow=c(3,5))
 res <- lapply(specs, tmpff)
@@ -954,7 +926,7 @@ lapply(stab, tmpfff)
 
 ## get Descriptive stats
 
-df1 <- data.frame(litterRate=specs$litterRateDecrease$y, anyCases=specs$anyCases$y, specs$anyCases$x)
+df1 <- data.frame(anyCases=specs$anyCases$y, specs$anyCases$x)
 invisible(latex(describe(df1), file='stability-describe-df1.tex'))
 
 df2 <- data.frame(cumCases=specs$cumCases$y, specs$cumCases$x)
