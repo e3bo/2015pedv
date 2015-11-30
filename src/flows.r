@@ -15,10 +15,83 @@ library(ggplot2)
 print(sessionInfo())
 
 #' ## Data prep
-source('regression-modeling-functions.R')
+iqr <- function(x) diff(quantile(x, probs=c(0.25, 0.75), na.rm=TRUE))
+scaleiqr <- function(x) scale(x, scale=iqr(x))
+clog <- function(x) log(x + 0.5)
 
-om <- GetRegressionData(case.data=real.case.data, flows=internal.flows,
-                        fiAll=farms.and.inventory, stateCty=state.summaries)
+ObservedMatchingInternalFlows <- function(flows, case.data) {
+    unwanted <- c('week', 'totalNumberSwineAccessions', 'Unk')
+    ind <- which(!colnames(case.data) %in% unwanted)
+    observed <- case.data[, ind]
+    avail <- rownames(flows)[!is.na(flows[, 'impInternalFlow'])]
+    zeros <- setdiff(avail, colnames(observed))
+    observed[, zeros] <- 0
+    observed
+}
+
+ReshapeAugmentObserved <- function(observed, fiAll, flows, stateCty) {
+  om <- reshape(observed, v.names='cases', varying=colnames(observed),
+                direction='long', timevar='state', times=colnames(observed),
+                idvar='week')
+  splt <- split(om, om$state)
+  tmpf <- function(x) {
+      ord <- order(x$week)
+      x <- x[ord, ]
+      x$cumCases <- cumsum(x$cases)
+      x
+  }
+  proc <- lapply(splt, tmpf)
+  om <- do.call(rbind, args=proc)
+  om$nFarms <- fiAll[om$state, ]$X2002.Farms
+  om$nSusc <- om$nFarms - om$cumCases
+  omprev <- om
+  omprev$week <- omprev$week + 1
+  omprev$nFarms <- NULL
+  omprev$cumCases <- NULL
+  c1 <- which(colnames(omprev) == 'cases')
+  c2 <- which(colnames(omprev) == 'nSusc')
+  colnames(omprev)[c1] <- 'cases1WksAgo'
+  colnames(omprev)[c2] <- 'nSusc1WksAgo'
+  om <- merge(om, omprev, by=c('week', 'state'), all.x=TRUE)
+  omprev$week <- omprev$week + 1
+  colnames(omprev)[c1] <- 'cases2WksAgo'
+  colnames(omprev)[c2] <- 'nSusc2WksAgo'
+  om <- merge(om, omprev, by=c('week', 'state'), all.x=TRUE)
+  omprev$week <- omprev$week + 1
+  colnames(omprev)[c1] <- 'cases3WksAgo'
+  colnames(omprev)[c2] <- 'nSusc3WksAgo'
+  om <- merge(om, omprev, by=c('week', 'state'), all.x=TRUE)
+  omprev$week <- omprev$week + 1
+  colnames(omprev)[c1] <- 'cases4WksAgo'
+  colnames(omprev)[c2] <- 'nSusc4WksAgo'
+  om <- merge(om, omprev, by=c('week', 'state'), all.x=TRUE)
+  om$internalFlow <- flows[om$state, "impInternalFlow"]
+  rownames(om) <- paste(om$week, om$state, sep='.')
+  test <- !is.na(om$internalFlow)
+  om <- om[test, ]
+  om <- merge(om, stateCty, by='state')
+  rownames(om) <- paste(om$week, om$state, sep='.')
+  om$logInternalFlowScaled <- scaleiqr(log(2 * om$internalFlow))
+  om$weekCent <- scale(om$week, center=TRUE, scale=FALSE)
+  om$logCmedDenseScaled <- scaleiqr(log(om$cmedDense * om$nFarms * om$nFarms))
+  om$logMDenseScaled <- scaleiqr(log(om$mDense * om$nFarms * om$nFarms))
+  om$clogCases1wa <- clog(om$cases1WksAgo)
+  om$clogCases2wa <- clog(om$cases2WksAgo)
+  om$clogCases3wa <- clog(om$cases3WksAgo)
+  om$clogCases4wa <- clog(om$cases4WksAgo)
+  om$clogCases1wa05 <- log(om$cases1WksAgo + 0.05)
+  om$clogCases1wa005 <- log(om$cases1WksAgo + 0.005)
+  om
+}
+
+data('real.case.data', package='sds')
+data('internal.flows', package='sds')
+data('farms.and.inventory', package='sds')
+data('state.summaries', package='sds')
+
+observed <- ObservedMatchingInternalFlows(flows=internal.flows, case.data=real.case.data)
+om <- ReshapeAugmentObserved(observed=observed, fiAll=farms.and.inventory,
+                             flows=internal.flows, stateCty=state.summaries)
 
 #' ## Model fitting
 #'
@@ -125,7 +198,7 @@ likRatio(m$nbN, m$nb)
 #' The current choice is highly correlated with flows on the log scale
 #' as shown next, but we'll try another one to be safe.
 
-tmpf <- function(stateCty) {
+tmpf <- function(stateCty, fiAll, flows) {
     sel <- unique(om$state)
     rownames(stateCty) <- stateCty$state
     den <- stateCty[sel, c('mDense', 'cmDense', 'medDense', 'cmedDense')]
@@ -138,7 +211,7 @@ tmpf <- function(stateCty) {
     }
     lapply(c(pearson='pearson', spearman='spearman'), tmpff)
 }
-tmpf(stateCty=state.summaries)
+tmpf(stateCty=state.summaries, fiAll=farms.and.inventory, flows=internal.flows)
 
 m$nbmDense <- update(m$nb, . ~ . - logMedDenseScaled + logMDenseScaled)
 m$nbmDenseN <- update(m$nbmDense, . ~ . - logInternalFlowScaled, control=glm.control(maxit=60))
@@ -472,10 +545,11 @@ tmpf <- function(rel='directed', flowMat, flows, fiAll, observed) {
     Wobs <- W %*% t(observed)
     list(ts=t(Wobs), Fsum=Fsum)
 }
+data('flows.matrix', package='sds')
 wcDir <- tmpf('directed', flowMat=t(flows.matrix), flows=internal.flows,
               fiAll=farms.and.inventory, observed=observed)
 wcUnd <- tmpf('undirected', flowMat=t(flows.matrix), flows=internal.flows,
-              fiAll=farms.and.inventory, observed=observed))
+              fiAll=farms.and.inventory, observed=observed)
 
 par(mfrow=c(3,1))
 plot.ts(wcDir$ts, plot.type='single')
