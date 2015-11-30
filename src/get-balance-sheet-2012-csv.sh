@@ -10,7 +10,7 @@ archive='/home/docker/data/usda01.library.cornell.edu_usda_current_MeatAnimPr_Me
 echo 'state,inventory2011,pigCrop,inshipments' > "${file1}" 
 
 unzip -c "${archive}" meat_p14_t014.csv \
-  | grep ,\"d\" \
+  | grep -a ,\"d\" \
   | cut -d',' -f3- \
   | grep -v ^\"\" \
   | grep -v ^\"Idaho \
@@ -19,7 +19,7 @@ unzip -c "${archive}" meat_p14_t014.csv \
 
 echo 'state2,marketings,slaughter,deaths,inventory2012' > "${file2}"
 unzip -c "${archive}" meat_p15_t015.csv \
-  | grep ,\"d\" \
+  | grep -a ,\"d\" \
   | cut -d',' -f3- \
   | grep -v ^\"\" \
   | grep -v ^\"Idaho \

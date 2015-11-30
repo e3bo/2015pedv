@@ -10,7 +10,7 @@ archive='/home/docker/data/usda.mannlib.cornell.edu_usda_nass_MeatAnimPr__2000s_
 echo 'state,inventory2000,pigCrop,inshipments' > "${file1}" 
 
 unzip -c "${archive}" meat_014.csv \
-  | grep ,\"d\" \
+  | grep -a ,\"d\" \
   | cut -d',' -f3- \
   | grep -v ^\"\" \
   | grep -v ^\"Idaho \
@@ -19,7 +19,7 @@ unzip -c "${archive}" meat_014.csv \
 
 echo 'state2,marketings,slaughter,deaths,inventory2001' > "${file2}"
 unzip -c "${archive}" meat_015.csv \
-  | grep ,\"d\" \
+  | grep -a ,\"d\" \
   | cut -d',' -f3- \
   | grep -v ^\"\" \
   | grep -v ^\"Idaho \
