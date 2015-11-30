@@ -390,11 +390,15 @@ makePlotMat <- function(dfl, type=c('directed', 'undirected'),
         for(j in (i+1):length(mats2)){
             sel <- data.frame(M1=names(mats2[i]), M2=names(mats2[j]),
                               method=method, symmetrize=symmetrize)
-            mg <- merge(sel, des.data, all.y=FALSE)
+            mg <- merge(sel, des.data,
+                        by.x=c('M2', 'M1', 'method', 'symmetrize'),
+                        by.y=c('mat2.name', 'mat1.name', 'method', 'symmetrize'),
+                        all.y=FALSE)
             if(nrow(mg) == 0){
-              sel <- data.frame(M2=names(mats2[i]), M1=names(mats2[j]),
-                                method=method, symmetrize=symmetrize)
-              mg <- merge(sel, des.data, all.y=FALSE)
+              mg <- merge(sel, des.data,
+                          by.x=c('M1', 'M2', 'method', 'symmetrize'),
+                          by.y=c('mat2.name', 'mat1.name', 'method', 'symmetrize'),
+                          all.y=FALSE)
             }
             symp <- symnum(mg$pValues, corr = FALSE,
                            cutpoints = c(0, .001,.01,.05, .1, 1),

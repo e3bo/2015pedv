@@ -24,10 +24,12 @@ orientation <- c(30.82,-98.57,0)
 #scale of 1 does not allow good edge-bundling with this projection
 scale <- 100
 
+data('flows.matrix', package='sds')
 adjmatrix <- data.matrix(flows.matrix[state.abb, state.abb])
 diag(adjmatrix) <- 0
 g <- graph.adjacency(adjmatrix, mode='directed', weighted='flow')
 stopifnot(colnames(adjmatrix) == V(g)$name)
+CC <- pop.dyn.mats$lag1
 V(g)$PEDVpositive <- V(g)$name %in% colnames(CC)
 key <- match(V(g)$name, state.abb)
 proj <- mapproject(x=state.center$x[key], y=state.center$y[key],
@@ -153,7 +155,7 @@ theme_update(panel.grid.major=element_blank(), panel.grid.minor=element_blank(),
              axis.ticks=element_blank(), panel.border=element_blank(),
              axis.line=element_blank())
 
-des.data <- rbind(des.dyn.vs.struct, des)
+des.data <- rbind(dyn.v.struct.tests, struct.v.struct.tests)
 pm <- makePlotMat(dfl=matData, type='directed', transform='ranked',
                   des.data=des.data)
 pdf(file='ggpairs-spearman-directed.pdf', width=8.6/2.54, height=8.6/2.54)
@@ -223,6 +225,7 @@ dev.off()
 
 ### time series
 
+data('real.case.data', package='sds')
 mts <- melt(real.case.data, id='week')
 keepers <- c('MN', 'KS',
              'IL', 'OK',
@@ -252,7 +255,6 @@ tmpf <- function(df){
     g <- g + theme(text = element_text(size=10))
     g <- g + theme(line = element_line(size=0.25))
 }
-
 g <- tmpf(mts)
 
 
