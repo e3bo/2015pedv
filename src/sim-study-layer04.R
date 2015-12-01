@@ -73,7 +73,7 @@ GetMetaModels <- function(resall, df, covtype='matern3_2'){
   #' outliers are apparent.
 
   km.m1 <- DiceEval::modelFit(X=X, Y=Y, type='Kriging', formula=~.,
-                              covtype=covtype, control=list(maxit=1e3, trace=FALSE),
+                              covtype=covtype, control=list(maxit=1e3, trace=TRUE),
                               nugget.estim=TRUE, multistart=max(mc.cores, 5),
                               nugget=1e-7)
 
@@ -108,9 +108,17 @@ GetMetaModels <- function(resall, df, covtype='matern3_2'){
   qqnorm(Yres.v1)
   dev.off()
 
+  noise.var <- ifelse(Y.km.v1 < 0, 0, Y.km.v1)
+  pdf('noise-var-distribution.pdf')
+  par(mfrow=c(3, 1))
+  hist(Y.km.v1)
+  hist(noise.var)
+  qqnorm(noise.var)
+  dev.off()
+
   km.m2 <- DiceEval::modelFit(X=X, Y=Y, type='Kriging', formula=Y~.,
                               covtype=covtype, control=list(maxit=1e3, trace=FALSE),
-                              noise.var=Y.km.v1, multistart=max(mc.cores, 5))
+                              noise.var=noise.var, multistart=max(mc.cores, 5))
 
   Y.km.m2 <- DiceEval::modelPredict(km.m2, newdata=X)
   Yres2.m2 <- (Y - Y.km.m2)^2
