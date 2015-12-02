@@ -3,11 +3,7 @@ library(methods) #for raster
 
 set.seed(121, "L'Ecuyer")
 
-mc.cores <- ifelse(Sys.info()['sysname'] == "Linux",
-                   parallel::detectCores() - 1, 1)
-mc.cores <- ifelse(mc.cores > 20, 20, mc.cores)
-mc.cores <- ifelse(mc.cores == 0, 1, mc.cores)
-options('mc.cores'=mc.cores)
+options('mc.cores'=GetCores())
 
 target.mean.deg.grid <- 10 #seq(0.1, 10.1, by=10)
 raster.cell.side.grid <- 3200 # c(1600, 3200, 4800)
