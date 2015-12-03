@@ -3,7 +3,7 @@ library(methods) #for raster
 
 set.seed(121, "L'Ecuyer")
 
-options('mc.cores'=GetCores())
+options('mc.cores'=sds::GetCores())
 
 target.mean.deg.grid <- 10 #seq(0.1, 10.1, by=10)
 raster.cell.side.grid <- 3200 # c(1600, 3200, 4800)

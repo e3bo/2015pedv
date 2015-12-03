@@ -3,7 +3,7 @@ library(methods) #for raster
 
 set.seed(122, "L'Ecuyer")
 
-options('mc.cores'=GetCores())
+options('mc.cores'=sds::GetCores())
 
 load('sim-study-checkpoint1.rda')
 
