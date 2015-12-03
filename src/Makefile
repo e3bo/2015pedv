@@ -12,11 +12,11 @@ mapPlotSeries: map-series.r flagData flagWeeklyReports
 accessions-premises-correlation.r.so: accessions-premises-correlation.r flagData
 	$< >$(<F).so 2>$(<F).se
 
-flagSims: sim-study-layer05.R sim-study-checkpoint4.rda
-	$< >$(<F).so 2>$(<F).se && touch $@
+flagSimsGcd: sim-study-layer05.R sim-study-checkpoint4.rda
+	var2=gcd && $< >$(<F)"-${var2}.so" 2>$(<F)"-${var2}.se" && touch $@
 
 sim-study-checkpoint4.rda: sim-study-layer04.R sim-study-checkpoint3.rda
-	$< >$(<F).so 2>$(<F).se
+	var2=gcd $< >$(<F)"-${var2}.so" 2>$(<F)"-${var2}.se"
 
 sim-study-checkpoint3.rda: sim-study-layer03.R sim-study-checkpoint2.rda
 	$< >$(<F).so 2>$(<F).se
