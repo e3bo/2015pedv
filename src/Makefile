@@ -12,11 +12,17 @@ mapPlotSeries: map-series.r flagData flagWeeklyReports
 accessions-premises-correlation.r.so: accessions-premises-correlation.r flagData
 	$< >$(<F).so 2>$(<F).se
 
-flagSimsGcd: sim-study-layer05.R sim-study-checkpoint4.rda
-	var2=gcd && $< >$(<F)"-${var2}.so" 2>$(<F)"-${var2}.se" && touch $@
+flagSimsSharedBord: sim-study-layer05.R sim-study-checkpoint4-sharedBord.rda
+	var2=sharedBord && $< >$(<F)-sharedBord.so 2>$(<F)-sharedBord.se && touch $@
 
-sim-study-checkpoint4.rda: sim-study-layer04.R sim-study-checkpoint3.rda
-	var2=gcd $< >$(<F)"-${var2}.so" 2>$(<F)"-${var2}.se"
+sim-study-checkpoint4-sharedBord.rda: sim-study-layer04.R sim-study-checkpoint3.rda
+	var2=sharedBord $< >$(<F)-sharedBord.so 2>$(<F)-sharedBord.se
+
+flagSimsGcd: sim-study-layer05.R sim-study-checkpoint4-gcd.rda
+	var2=gcd && $< >$(<F)-gcd.so 2>$(<F)-gcd.se && touch $@
+
+sim-study-checkpoint4-gcd.rda: sim-study-layer04.R sim-study-checkpoint3.rda
+	var2=gcd $< >$(<F)-gcd.so 2>$(<F)-gcd.se
 
 sim-study-checkpoint3.rda: sim-study-layer03.R sim-study-checkpoint2.rda
 	$< >$(<F).so 2>$(<F).se
