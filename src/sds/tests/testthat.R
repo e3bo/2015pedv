@@ -1,4 +1,4 @@
 library(testthat)
-library(aporkalypse)
+library(sds)
 
-test_check("aporkalypse")
+test_check("sds")
