@@ -12,6 +12,14 @@ mapPlotSeries: map-series.r flagData flagWeeklyReports
 accessions-premises-correlation.r.so: accessions-premises-correlation.r flagData
 	$< >$(<F).so 2>$(<F).se
 
+flagSims: flagSimsSharedBord flagSimsGcd flagSimsShipment
+
+flagSimsShipment: sim-study-layer05.R sim-study-checkpoint4-shipment.rda
+	var2=shipment && $< >$(<F)-shipment.so 2>$(<F)-shipment.se && touch $@
+
+sim-study-checkpoint4-shipment.rda: sim-study-layer04.R sim-study-checkpoint3.rda
+	var2=shipment $< >$(<F)-shipment.so 2>$(<F)-shipment.se
+
 flagSimsSharedBord: sim-study-layer05.R sim-study-checkpoint4-sharedBord.rda
 	var2=sharedBord && $< >$(<F)-sharedBord.so 2>$(<F)-sharedBord.se && touch $@
 

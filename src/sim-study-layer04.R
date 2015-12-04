@@ -10,7 +10,7 @@ var2 <- Sys.getenv('var2')
 if (nchar(var2) == 0) {
   var2 <- 'gcd'
 }
-kms <- sds::GetMetaModels(resall, df, var2=var2)
+kms <- sds::GetMetaModels(resall, df, var2=var2, cortype="pearson")
 save.image(paste0('sim-study-checkpoint4-', var2, '.rda'))
 saveRDS(kms$m2$model, paste0("kmm2-", var2, ".rds"))
 saveRDS(kms$v2$model, paste0("kmv2-", var2, ".rds"))
