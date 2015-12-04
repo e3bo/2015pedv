@@ -10,11 +10,13 @@ mc.cores <- ifelse(mc.cores == 0, 1, mc.cores)
 options('mc.cores'=mc.cores)
 
 target.mean.deg.grid <- 10 #seq(0.1, 10.1, by=10)
-raster.cell.side.grid <- 3200 # c(1600, 3200, 4800)
+raster.ncol.grid <- 2850 / 2 # 285 x 178 corresponds to roughly 16 km^2 square cells
+raster.nrow.grid <- 1780 / 2
 
 ag <- parallel::mcMap(sds::CreateAgents,
                       target.mean.deg=target.mean.deg.grid[1],
-                      raster.cell.side.meters=raster.cell.side.grid,
+                      raster.ncol=raster.ncol.grid,
+                      raster.nrow=raster.nrow.grid,
                       census.dilation=1)
 
 if(length(target.mean.deg.grid) > 1){
