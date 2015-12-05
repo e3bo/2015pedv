@@ -1,18 +1,17 @@
 context("agent generation")
 
 data('county.hogs.pigs.02.map', package='sds')
-r <- raster::raster(county.hogs.pigs.02.map)
-raster::res(r) <- 16000
+r <- raster::raster(county.hogs.pigs.02.map, ncol=285, nrow=178)
+set.seed(123)
 
 test_that("List of neighboring raster cells is correct", {
             ncell <- raster::ncell(r)
             ncol <- raster::ncol(r)
-            nrow <- raster::nrow(r)
+            nrow <- raster::nrow(r)            
             cell.samps <- c(1, ncol, ncell - ncol + 1, ncell, sample.int(ncell, size=100))
             for(cell in cell.samps){
               nbs <- Get8nbs(r=r, cell=cell, ncells=ncell, nc=ncol, nr=nrow)
               expect_true(cell %in% nbs)
-browser()
               nadj <- nrow(raster::adjacent(r, nbs, target=cell, directions=8))
               expect_equal(nadj, length(nbs) - 1)
             }
@@ -52,7 +51,8 @@ test_that("Cell to county mappings are correct", {
               coord.cell <- raster::cellFromXY(r, agents$adf[id, c('x', 'y')])
               expect_equal(agents$adf$cell[id], coord.cell)
               poly <- GetCountySPDF(agents$adf$stfips[id],
-                                    agents$adf$cofips[id])
+                                    agents$adf$cofips[id],
+                                    county.hogs.pigs.02.map)
               pt <- sp::SpatialPoints(agents$adf[id, c('x', 'y')],
                                       proj4string=sp::CRS(sp::proj4string(poly)))
               over.out <- sp::over(pt, poly)
@@ -61,16 +61,16 @@ test_that("Cell to county mappings are correct", {
           })
 
 test_that("Farm density map looks reasonable", {
-            if(FALSE){
+          if(FALSE){
               foo <- CreateAgents(census.dilation=1)
               bar <- raster::rasterize(foo$adf[, c('x', 'y')], y=r, fun='count')
-              png('farms-per-16000-km2-cell.png', width=1000, height=800) ## For sanity check
+              png('farms-per-approx-16000-km-side-cell.png', width=1000, height=800) ## For sanity check
               sp::plot(county.hogs.pigs.02.map, col='grey')
               sp::plot(bar, add=TRUE)
               dev.off()
               target.raster <- bar
               save(target.raster, file='sysdata.rda')
-            }
+          }
             current.raster <- raster::rasterize(agents$adf[, c('x', 'y')],
                                               y=r, fun='count')
             v1 <- raster::values(target.raster)
@@ -82,23 +82,25 @@ test_that("Farm density map looks reasonable", {
         })
 
 test_that("Simulation output is sane", {
+            nsteps <- 38
             adf.out <- RunSim(adf=agents$adf, net.nbs=agents$net.nbs, sp.nbs=agents$sp.nbs,
-                              tprob.net=1, tprob.sp=1, rprob=1)
+                              tprob.net=1, tprob.sp=1, rprob=1, nsteps=nsteps)
             expect_true(all(adf.out$infection.time < adf.out$recovery.time, na.rm=TRUE))
-            tsl <- GetTimeSeries(adf.out)
+            tsl <- GetTimeSeries(adf.out, nsteps=nsteps)
             expect_true(all(rowSums(tsl$new.cases) == rowSums(tsl$no.infected)))
 
             cases <- sample.int(n=nrow(agents$adf), size=100)
             adf.out <- RunSim(adf=agents$adf, net.nbs=agents$net.nbs, sp.nbs=agents$sp.nbs,
-                              tprob.net=1, tprob.sp=1, rprob=1, cases=cases)
+                              tprob.net=1, tprob.sp=1, rprob=1, cases=cases, nsteps=nsteps)
             expect_true(all(adf.out$infection.time < adf.out$recovery.time, na.rm=TRUE))
             expect_true(all(adf.out$infection.time[cases] == 0))
-            tsl <- GetTimeSeries(adf.out)
+            tsl <- GetTimeSeries(adf.out, nsteps=nsteps)
             expect_true(all(rowSums(tsl$new.cases) == rowSums(tsl$no.infected)))
 
             cases <- sample.int(n=nrow(agents$adf), size=100)
             adf.out <- RunSim(adf=agents$adf, net.nbs=agents$net.nbs, sp.nbs=agents$sp.nbs,
-                              tprob.net=.1, tprob.sp=.1, rprob=0.5, cases=cases, seasonal.amplitude=1)
+                              tprob.net=.1, tprob.sp=.1, rprob=0.5, cases=cases, seasonal.amplitude=1,
+                              nsteps=nsteps)
             ip <- adf.out$recovery.time - adf.out$infection.time
             tt <- t.test(ip[adf.out$infection.time == 0], mu=2)
             expect_true(tt$p.value > 1e-4)
@@ -110,6 +112,6 @@ test_that("Simulation output is sane", {
             abs(tt$null.value - tt$estimate)
             expect_true(all(adf.out$infection.time < adf.out$recovery.time, na.rm=TRUE))
             expect_true(all(adf.out$infection.time[cases] == 0))
-            tsl <- GetTimeSeries(adf.out)
+            tsl <- GetTimeSeries(adf.out, nsteps=nsteps)
             expect_true(all(rowSums(tsl$new.cases) <= rowSums(tsl$no.infected) | rowSums(tsl$new.cases ==0)))
        })
