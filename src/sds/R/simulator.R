@@ -265,7 +265,7 @@ events.by.state <- function(x, df, what) {
 }
 
 GetTimeSeries <- function(adf, nsteps) {
-  step <- seq(1, nsteps + 1)
+  step <- seq(1, nsteps)
   cum.infections <- sapply(step, events.by.state, df=adf, what='infection.time')
   cum.recoveries <- sapply(step, events.by.state, df=adf, what='recovery.time')
   no.infected <- cum.infections - cum.recoveries
