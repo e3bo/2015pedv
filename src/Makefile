@@ -4,7 +4,12 @@ SD = /home/docker/src
 DD = /home/docker/data
 VPATH = $(SD):$(WD)
 
-all: accessions-premises-correlation.r.so flagMantelPlots flagAssocPlots flagTsirFigs flagSims mapPlotSeries
+simflags := flagSims-sharedBord flagSims-shipment flagSims-gcd
+metamodels := sim-study-checkpoint4-sharedBord.rda \
+sim-study-checkpoint4-shipment.rda \
+sim-study-checkpoint4-gdc.rda
+
+all: accessions-premises-correlation.r.so flagMantelPlots flagAssocPlots flagTsirFigs $(simflags) mapPlotSeries
 
 mapPlotSeries: map-series.r flagData flagWeeklyReports
 	$< && touch $@
@@ -12,25 +17,13 @@ mapPlotSeries: map-series.r flagData flagWeeklyReports
 accessions-premises-correlation.r.so: accessions-premises-correlation.r flagData
 	$< >$(<F).so 2>$(<F).se
 
-flagSims: flagSimsSharedBord flagSimsGcd flagSimsShipment
+flagSims: $(simflags)
 
-flagSimsShipment: sim-study-layer05.R sim-study-checkpoint4-shipment.rda
-	var2=shipment && $< >$(<F)-shipment.so 2>$(<F)-shipment.se && touch $@
+$(simflags): flagSims-%: sim-study-layer05.R sim-study-checkpoint4-%.rda
+	var2=$* $< >$(<F)-$*.so 2>$(<F)-$*.se && touch $@
 
-sim-study-checkpoint4-shipment.rda: sim-study-layer04.R sim-study-checkpoint3.rda
-	var2=shipment $< >$(<F)-shipment.so 2>$(<F)-shipment.se
-
-flagSimsSharedBord: sim-study-layer05.R sim-study-checkpoint4-sharedBord.rda
-	var2=sharedBord && $< >$(<F)-sharedBord.so 2>$(<F)-sharedBord.se && touch $@
-
-sim-study-checkpoint4-sharedBord.rda: sim-study-layer04.R sim-study-checkpoint3.rda
-	var2=sharedBord $< >$(<F)-sharedBord.so 2>$(<F)-sharedBord.se
-
-flagSimsGcd: sim-study-layer05.R sim-study-checkpoint4-gcd.rda
-	var2=gcd && $< >$(<F)-gcd.so 2>$(<F)-gcd.se && touch $@
-
-sim-study-checkpoint4-gcd.rda: sim-study-layer04.R sim-study-checkpoint3.rda
-	var2=gcd $< >$(<F)-gcd.so 2>$(<F)-gcd.se
+$(metamodels): sim-study-checkpoint4-%.rda: sim-study-layer04.R sim-study-checkpoint3.rda
+	var2=$* $< >$(<F)-$*.so 2>$(<F)-$*.se
 
 sim-study-checkpoint3.rda: sim-study-layer03.R sim-study-checkpoint2.rda
 	$< >$(<F).so 2>$(<F).se
