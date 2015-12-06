@@ -4,12 +4,14 @@ SD = /home/docker/src
 DD = /home/docker/data
 VPATH = $(SD):$(WD)
 
-all: accessions-premises-correlation.r.so flagMantelPlots flagAssocPlots flagTsirFigs flagSims mapPlotSeries
+all: accessions-premises-correlation.r.so flagMantelPlots flagAssocPlots \
+flagTsirFigs flagSims mapPlotSeries
 
 mapPlotSeries: map-series.r flagData flagWeeklyReports
 	$< && touch $@
 
-accessions-premises-correlation.r.so: accessions-premises-correlation.r flagData
+accessions-premises-correlation.r.so: accessions-premises-correlation.r \
+flagData
 	$< >$(<F).so 2>$(<F).se
 
 flagSims: sim-study-layer05.R sim-study-checkpoint4.rda
@@ -27,26 +29,39 @@ sim-study-checkpoint2.rda: sim-study-layer02.R sim-study-checkpoint1.rda
 sim-study-checkpoint1.rda: sim-study-layer01.R flagPackageInstalled
 	$< >$(<F).so 2>$(<F).se
 
-flagPackageInstalled: $(shell find $(SD)/sds) flagWeeklyReports shipment-flows-origins-on-rows-dests-on-columns.csv state-hogBalanceSheetDec2011Dec2012.csv  state-hogBalanceSheetDec2000Dec2001.csv flagData
-	cp -r $(SD)/sds . && cp sds/data-raw/data-prep.R . && $(RS) -e "library(knitr); spin(\"data-prep.R\")"  && mv data sds/data && R CMD build ./sds && R CMD INSTALL sds_0.0.0.9000.tar.gz && touch $@
+flagPackageInstalled: $(shell find $(SD)/sds) flagWeeklyReports \
+shipment-flows-origins-on-rows-dests-on-columns.csv \
+state-hogBalanceSheetDec2011Dec2012.csv \
+state-hogBalanceSheetDec2000Dec2001.csv \
+flagData
+	cp -r $(SD)/sds . && cp sds/data-raw/data-prep.R . \
+	&& $(RS) -e "library(knitr); spin(\"data-prep.R\")" \
+	&& mv data sds/data && R CMD build ./sds \
+        && R CMD check --no-manual --no-vignettes sds_*.tar.gz >check.so \
+	&& R CMD INSTALL sds_0.0.0.9000.tar.gz && touch $@
 
 flagMantelPlots: mantel-plots.r custom-plot-functions.r flagMantel
-	cp $(SD)/custom-plot-functions.r . && $< >$(<F).so 2>$(<F).se && touch $@
+	cp $(SD)/custom-plot-functions.r . && $< >$(<F).so 2>$(<F).se \
+	&& touch $@
 
-flagMantel: mantel-testing.r flagData flagWeeklyReports flagPedvCum flagPackageInstalled
+flagMantel: mantel-testing.r flagData flagWeeklyReports flagPedvCum \
+	flagPackageInstalled
 	$< >$(<F).so 2>$(<F).se && touch $@
 
 flagAssocPlots: make-assoc-plots.r flagPedvCum
-	cp $< . && $(RS) -e "library(knitr); spin(\"make-assoc-plots.r\")" >$(<F).so 2>$(<F).se && touch $@
+	cp $< . && $(RS) -e "library(knitr); spin(\"make-assoc-plots.r\")" \
+	>$(<F).so 2>$(<F).se && touch $@
 
 flagPedvCum: pedv-cum.r flagPackageInstalled
-	cp $< . && $(RS) -e "library(knitr); spin(\"pedv-cum.r\")" >$(<F).so 2>$(<F).se && touch $@
+	cp $< . && $(RS) -e "library(knitr); spin(\"pedv-cum.r\")" \
+	>$(<F).so 2>$(<F).se && touch $@
 
 flagTsirFigs: make-regression-results-figs.r flows.html
 	$< >$(<F).so 2>$(<F).se && touch $@
 
 flows.html: flows.r flagPackageInstalled
-	cp $< . && $(RS) -e "library(knitr); spin(\"flows.r\")" >$(<F).so 2>$(<F).se
+	cp $< . && $(RS) -e "library(knitr); spin(\"flows.r\")" >$(<F).so \
+	2>$(<F).se
 
 state-hogBalanceSheetDec2000Dec2001.csv: get-balance-sheet-csv.sh
 	$<

@@ -126,7 +126,7 @@ GetNetNbs <- function(block.labels, target.mean.deg){
 
 #' Create agent data structures
 #' @export
-CreateAgents <- function(raster.cell.side.meters=16000, census.dilation=1,
+CreateAgents <- function(raster.ncol=285, raster.nrow=178, census.dilation=1,
                          target.mean.deg=1){
 
   state.fips <- maps::state.fips
@@ -163,8 +163,7 @@ CreateAgents <- function(raster.cell.side.meters=16000, census.dilation=1,
   coord.df <- do.call(rbind, coord.mats)
 
   ## Convert coordinates to cell membership in raster layer------------
-  raster.map <- raster::raster(map)
-  raster::res(raster.map) <- raster.cell.side.meters
+  raster.map <- raster::raster(map, ncol=raster.ncol, nrow=raster.nrow)
 
   GetCell <- function(xy, r=raster.map) {
     if(is.null(xy)) {
@@ -266,7 +265,7 @@ events.by.state <- function(x, df, what) {
 }
 
 GetTimeSeries <- function(adf, nsteps) {
-  step <- seq(1, nsteps + 1)
+  step <- seq(1, nsteps)
   cum.infections <- sapply(step, events.by.state, df=adf, what='infection.time')
   cum.recoveries <- sapply(step, events.by.state, df=adf, what='recovery.time')
   no.infected <- cum.infections - cum.recoveries

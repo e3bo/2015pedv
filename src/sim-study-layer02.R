@@ -38,7 +38,8 @@ GetDesignStats <- function(X){
 save.image('sim-study-checkpoint2.rda')
 
 extra.par.ranges <- list(target.mean.deg=range(target.mean.deg.grid),
-                         raster.cell.side=range(raster.cell.side.grid))
+                         raster.ncol=range(raster.ncol.grid),
+                         raster.nrow=range(raster.nrow.grid))
 all.par.ranges <- c(par.ranges, extra.par.ranges)
 
 saveRDS(all.par.ranges, "all.par.ranges.rds")

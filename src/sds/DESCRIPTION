@@ -11,4 +11,5 @@ Imports: igraph (>= 0.7.1),
   methods,
   raster (>= 2.4-20),
   sp (>= 1.2.0),
+  testthat (>= 0.11.0),
   vegan (>= 2.3-0)

@@ -32,6 +32,7 @@ RUN apt-get update && apt-get install -y -q --no-install-recommends \
   r-cran-scales \
   r-cran-sp \
   r-cran-surveillance \
+  r-cran-testthat \
   r-cran-vcd \
   r-cran-vegan \
   r-cran-xml
@@ -43,6 +44,7 @@ RUN install2.r --error \
   DiceKriging \
   DiceView \
   DescTools \
+  devtools \
   fields \
   geoR \
   GGally \

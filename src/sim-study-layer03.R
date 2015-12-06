@@ -14,7 +14,8 @@ load('sim-study-checkpoint2.rda')
 df <- do.call(cbind, c(list(des), as.list(ag.data.inds)))
 df <- as.data.frame(df)
 
-df$raster.cell.side <- raster.cell.side.grid[df$ag.ind]
+df$raster.ncol <- raster.ncol.grid[df$ag.ind]
+#df$raster.nrow <- raster.nrow.grid[df$ag.ind] , ## commented out because don't expect to vary nrow independently of ncol
 df$target.mean.deg <- target.mean.deg.grid[df$net.nbs.ind]
 df$lags.sel <- 1
 df$nstarters <- 1
