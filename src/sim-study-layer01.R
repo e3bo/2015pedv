@@ -5,8 +5,8 @@ set.seed(121, "L'Ecuyer")
 
 options('mc.cores'=sds::GetCores())
 
-target.mean.deg.grid <- 10 #seq(0.1, 10.1, by=10)
-raster.cell.side.grid <- 3200 # c(1600, 3200, 4800)
+target.mean.deg.grid <- c(1, 10)  #seq(0.1, 10.1, by=10)
+raster.cell.side.grid <- c(3200, 16000) # c(1600, 3200, 4800)
 
 ag <- parallel::mcMap(sds::CreateAgents,
                       target.mean.deg=target.mean.deg.grid[1],

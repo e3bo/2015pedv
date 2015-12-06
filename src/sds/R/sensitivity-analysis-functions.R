@@ -144,7 +144,7 @@ GetMetaModels <- function(resall, df, covtype='matern3_2', var1='lag1', var2='sh
   center <- apply(X, 2, median)
   file <- paste0('section-views-km-', var1, '-', var2, '.v1.pdf')
   pdf(file, width=5, height=30)
-  DiceView::sectionview.km(model=km.v1$model, center=center, mfrow=c(9, 1))
+  DiceView::sectionview.km(model=km.v1$model, center=center, mfrow=c(length(center), 1))
   dev.off()
 
   Y.km.v1 <- GetPredNuggetAsNoise(km.v1$model)
