@@ -3,15 +3,11 @@ library(methods) #for raster
 
 set.seed(121, "L'Ecuyer")
 
-mc.cores <- ifelse(Sys.info()['sysname'] == "Linux",
-                   parallel::detectCores() - 1, 1)
-mc.cores <- ifelse(mc.cores > 20, 20, mc.cores)
-mc.cores <- ifelse(mc.cores == 0, 1, mc.cores)
-options('mc.cores'=mc.cores)
+options('mc.cores'=sds::GetCores())
 
-target.mean.deg.grid <- 10 #seq(0.1, 10.1, by=10)
-raster.ncol.grid <- 2850 / 2 # 285 x 178 corresponds to roughly 16 km^2 square cells
-raster.nrow.grid <- 1780 / 2
+target.mean.deg.grid <- c(5, 10) #seq(0.1, 10.1, by=10)
+raster.ncol.grid <- c(2850 / 2, 285) # 285 x 178 corresponds to roughly (16 km)^2 square cells
+raster.nrow.grid <- c(1780 / 2, 178)
 
 ag <- parallel::mcMap(sds::CreateAgents,
                       target.mean.deg=target.mean.deg.grid[1],
