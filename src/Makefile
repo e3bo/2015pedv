@@ -7,7 +7,7 @@ VPATH = $(SD):$(WD)
 simflags := flagSims-sharedBord flagSims-shipment flagSims-gcd
 metamodels := sim-study-checkpoint4-sharedBord.rda \
 sim-study-checkpoint4-shipment.rda \
-sim-study-checkpoint4-gdc.rda
+sim-study-checkpoint4-gcd.rda
 
 all: accessions-premises-correlation.r.so flagMantelPlots flagAssocPlots flagTsirFigs $(simflags) mapPlotSeries
 
