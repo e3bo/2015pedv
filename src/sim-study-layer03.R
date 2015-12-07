@@ -19,7 +19,7 @@ df$raster.ncol <- raster.ncol.grid[df$ag.ind]
 df$target.mean.deg <- target.mean.deg.grid[df$net.nbs.ind]
 df$lags.sel <- 1
 df$nstarters <- 1
-df$permutations <- 2
+df$permutations <- 1000
 df$starting.grid.nx <- 10
 df$starting.grid.ny <- 2
 Wrapper <- function(...) try(sds::SimulateAndSummarize(...))

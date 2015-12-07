@@ -57,9 +57,12 @@ RunSobol <- function(nmeta, kmm2, kmv2, all.par.ranges, order=1){
 }
 
 #' @export
-GetMetaModels <- function(resall, df, covtype='matern3_2', var1='lag1', var2='shipment', cortype='spearman', is.symmetric='TRUE'){
+GetMetaModels <- function(resall, df, covtype='matern3_2', var1='lag1',
+                          var2='shipment', cortype='spearman',
+                          is.symmetric='TRUE', statistic='r'){
   sub <- resall
-  sub$r <- sub[ , paste('mantel.r', var1, var2, cortype, is.symmetric, df$permutations[1], sep='.')]
+  Y <- sub[ , paste('mantel', statisic, var1, var2, cortype, is.symmetric,
+                        df$permutations[1], sep='.')]
 
   GetVaryingInputs <- function(df){
     rngs <- apply(df, 2, range)
@@ -70,7 +73,7 @@ GetMetaModels <- function(resall, df, covtype='matern3_2', var1='lag1', var2='sh
   }
 
   X <- sub[, GetVaryingInputs(df)]
-  Y <- sub$r
+
   ntest <- 0.5 * nrow(X)
   test.ind <- seq_len(ntest)
   X.test <- X[test.ind, ]
@@ -79,7 +82,7 @@ GetMetaModels <- function(resall, df, covtype='matern3_2', var1='lag1', var2='sh
   Y.train <- Y[-test.ind]
   testdf <- cbind(X.test, Y.test)
 
-  file <- paste0('modelComparison-plots-', var1, '-', var2, '.pdf')
+  file <- paste0('modelComparison-plots-', statistic, '-', var2, '.pdf')
   pdf(file)
   mc <- DiceEval::modelComparison(X.train, Y.train,
                                   type=c('StepLinear', 'Additive', 'PolyMARS', 'MARS'),
@@ -107,7 +110,7 @@ GetMetaModels <- function(resall, df, covtype='matern3_2', var1='lag1', var2='sh
 
   print(mc$CV)
 
-  file <- paste0('km-training-model-diagnostics-', var1, '-', var2, '.pdf')
+  file <- paste0('km-training-model-diagnostics-', statistic, '-', var2, '.pdf')
   pdf(file)
   DiceKriging::plot(km.train$model)
   dev.off()
@@ -134,7 +137,7 @@ GetMetaModels <- function(resall, df, covtype='matern3_2', var1='lag1', var2='sh
                               nugget.estim=TRUE)
 
   center <- apply(X, 2, median)
-  file <- paste0('section-views-km-', var1, '-', var2, '.v1.pdf')
+  file <- paste0('section-views-km-', statistic, '-', var2, '.v1.pdf')
   pdf(file, width=5, height=30)
   DiceView::sectionview.km(model=km.v1$model, center=center, mfrow=c(length(center), 1))
   dev.off()
@@ -142,7 +145,7 @@ GetMetaModels <- function(resall, df, covtype='matern3_2', var1='lag1', var2='sh
   Y.km.v1 <- GetPredNuggetAsNoise(km.v1$model)
   Yres.v1 <- Yres2.m1 - Y.km.v1
 
-  file <- paste0('km-v1-model-residuals-', var1, '-', var2, '.pdf')
+  file <- paste0('km-v1-model-residuals-', statistic, '-', var2, '.pdf')
   pdf(file)
   par(mfrow=c(3,1))
   plot(Y.km.v1~Yres2.m1)
@@ -151,7 +154,7 @@ GetMetaModels <- function(resall, df, covtype='matern3_2', var1='lag1', var2='sh
   dev.off()
 
   noise.var <- ifelse(Y.km.v1 < 0, 0, Y.km.v1)
-  file <- paste0('noise-var-distribution-', var1, '-', var2, '.pdf')
+  file <- paste0('noise-var-distribution-', statistic, '-', var2, '.pdf')
   pdf(file)
   par(mfrow=c(3, 1))
   hist(Y.km.v1)

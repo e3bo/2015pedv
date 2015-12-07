@@ -8,14 +8,19 @@ var2 <- Sys.getenv('var2')
 if (nchar(var2) == 0) {
   var2 <- 'gcd'
 }
-kmm2 <- readRDS(paste0("kmm2-", var2, ".rds"))
-kmv2 <- readRDS(paste0("kmv2-", var2, ".rds"))
+stat <- Sys.getenv('stat')
+if (nchar(stat) == 0) {
+  stat <- 'r'
+}
+
+kmm2 <- readRDS(paste0("kmm2-", stat, "-", var2, ".rds"))
+kmv2 <- readRDS(paste0("kmv2-", stat, "-", var2, ".rds"))
 all.par.ranges <- readRDS("all.par.ranges.rds")
 nmeta <- 1e5
 
 sob.out <- sds::RunSobol(nmeta, kmm2=kmm2, kmv2=kmv2, all.par.ranges=all.par.ranges,
                          order=2)
-save.image(paste0('sim-study-checkpoint5-', var2, '.rda'))
+save.image(paste0('sim-study-checkpoint5-', stat, "-", var2, '.rda'))
 
 sob.out
-saveRDS(sob.out, paste0("sob.out-", var2, ".rds"))
+saveRDS(sob.out, paste0("sob.out-", stat, "-", var2, ".rds"))
