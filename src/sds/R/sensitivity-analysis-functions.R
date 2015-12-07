@@ -98,7 +98,7 @@ GetMetaModels <- function(resall, df, covtype='matern3_2', var1='lag1', var2='sh
   }
 
   km.train <- DiceEval::modelFit(X=X.train, Y=Y.train, type='Kriging', formula=Y~.,
-                                 covtype=covtype, control=list(maxit=1e3, trace=FALSE),
+                                 covtype=covtype, control=list(maxit=1e3, trace=TRUE),
                                  nugget.estim=TRUE, multistart=max(mc.cores, 5))
 
   Y.test.km <- DiceEval::modelPredict(km.train, X.test)
