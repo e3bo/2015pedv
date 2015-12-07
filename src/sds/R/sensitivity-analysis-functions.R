@@ -27,7 +27,7 @@ RunSobol <- function(nmeta, kmm2, kmv2, all.par.ranges, order=1){
   X1 <- GetRandLHSDes(nmeta, rngs)
   X2 <- GetRandLHSDes(nmeta, rngs)
   colnames(X1) <- colnames(X2) <- vars
-  sob <- sensitivity::sobol(model=NULL, X1=X1, X2=X2, order=order, nboot=100)
+  sob <- sensitivity::sobol(model=NULL, X1=X1, X2=X2, order=order, nboot=1000)
   X <- sob$X
   max.chunksize <- 1e3 ## approximate max, based on limitation in predict.km and RAM available
   chunksize <- min(ceiling(nrow(X) / getOption('mc.cores')), max.chunksize)
@@ -50,7 +50,7 @@ RunSobol <- function(nmeta, kmm2, kmv2, all.par.ranges, order=1){
   vym <- sob$V['global', 'original']
   vyd <- DiceKriging::coef(kmv2)$trend
   vy <- vym + vyd
-  sob.inds <- sob$S[, 'original'] * vym / vy
+  sob.inds <- sob$S[, c("original", "min. c.i.", "max. c.i.")] * vym / vy
   names(sob.inds) <- rownames(sob$S)
   sob.ind.rand <- vyd / vy
   list(sob, sob.inds, sob.ind.rand)
