@@ -81,9 +81,10 @@ GetMetaModels <- function(resall, df, covtype='matern3_2', var1='lag1', var2='sh
 
   file <- paste0('modelComparison-plots-', var1, '-', var2, '.pdf')
   pdf(file)
-  mc <- DiceEval::modelComparison(X.train, Y.train, type='all', test=testdf, penalty=2,
-                                  degree=2, gcv=4, covtype=covtype, formula=Y~.,
-                                  nugget.estim=TRUE)
+  mc <- DiceEval::modelComparison(X.train, Y.train,
+                                  type=c('StepLinear', 'Additive', 'PolyMARS', 'MARS'),
+                                  test=testdf, penalty=2, degree=2,
+                                  gcv=4, formula=Y~.)
   dev.off()
 
   # The modelComparison function does not allow some important options
@@ -104,21 +105,12 @@ GetMetaModels <- function(resall, df, covtype='matern3_2', var1='lag1', var2='sh
   val.km <- c(R2=DiceEval::R2(Y.test, Y.test.km), RMSE=DiceEval::RMSE(Y.test, Y.test.km))
   print(cbind(mc$Test, val.km))
 
-  # Both kriging models have superior predictive performance on the
-  # test set.
-
   print(mc$CV)
 
-  # The untuned kriging model also did better than any other model in
-  # terms of the cross validation.
   file <- paste0('km-training-model-diagnostics-', var1, '-', var2, '.pdf')
   pdf(file)
   DiceKriging::plot(km.train$model)
   dev.off()
-
-  # The mean prediction errors in leave-one-out cross validation are
-  # somewhat overdispersed relative to a normal distribution, but no
-  # outliers are apparent.
 
   km.m1 <- DiceEval::modelFit(X=X, Y=Y, type='Kriging', formula=~.,
                               covtype=covtype, control=list(maxit=1e3, trace=TRUE),
