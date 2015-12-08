@@ -327,7 +327,7 @@ SimulateAndSummarize <- function(agent.data,
     pop.dyn.mats <- MakePopDynMats(observed, lags.sel=lags.sel)
     mantel.tests <- DoMantelTests(pop.dyn.mats, pop.struct.mats,
                                   permutations=permutations,
-                                  methods=c('spearman', 'kendall'))
+                                  methods=c('spearman'))
     record <- SpreadMantelTestsDf(mantel.tests)
     list(mantel.tests=mantel.tests, mantel.observed=observed, record=record)
   }
