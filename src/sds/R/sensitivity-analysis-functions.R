@@ -61,7 +61,7 @@ GetMetaModels <- function(resall, df, covtype='matern3_2', var1='lag1',
                           var2='shipment', cortype='spearman',
                           is.symmetric='TRUE', statistic='r'){
   sub <- resall
-  Y <- sub[ , paste('mantel', statisic, var1, var2, cortype, is.symmetric,
+  Y <- sub[ , paste('mantel', statistic, var1, var2, cortype, is.symmetric,
                         df$permutations[1], sep='.')]
 
   GetVaryingInputs <- function(df){

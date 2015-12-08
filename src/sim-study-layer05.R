@@ -4,13 +4,14 @@ library(methods) #for raster
 set.seed(125, "L'Ecuyer")
 options('mc.cores'=1)
 
-var2 <- Sys.getenv('var2')
-if (nchar(var2) == 0) {
+vars <- Sys.getenv('vars')
+if (nchar(vars) == 0) {
   var2 <- 'gcd'
-}
-stat <- Sys.getenv('stat')
-if (nchar(stat) == 0) {
   stat <- 'r'
+} else {
+  vars <- strsplit(vars, split='-')[[1]]
+  var2 <- vars[2]
+  stat <- vars[1]
 }
 
 kmm2 <- readRDS(paste0("kmm2-", stat, "-", var2, ".rds"))

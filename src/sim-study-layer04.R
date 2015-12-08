@@ -6,14 +6,16 @@ options('mc.cores'=1)
 
 load('sim-study-checkpoint3.rda')
 
-var2 <- Sys.getenv('var2')
-if (nchar(var2) == 0) {
+vars <- Sys.getenv('vars')
+if (nchar(vars) == 0) {
   var2 <- 'gcd'
+  stat <- 'r'
+} else {
+  vars <- strsplit(vars, split='-')[[1]]
+  var2 <- vars[2]
+  stat <- vars[1]
 }
-stat <- Sys.getenv('stat')
-if (nchar(stat) == 0) {
-  stat <- r
-}
+
 kms <- sds::GetMetaModels(resall, df, var2=var2, statistic=stat, cortype="kendall")
 save.image(paste0('sim-study-checkpoint4-', stat, '-', var2, '.rda'))
 saveRDS(kms$m2$model, paste0("kmm2-", stat, "-", var2, ".rds"))
