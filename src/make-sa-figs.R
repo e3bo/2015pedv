@@ -2,12 +2,11 @@
 
 library(ggplot2)
 
-var2levs <- c('shipment', 'gcd', 'sharedBord')
+var2levs <- c('shipment', 'sharedBord')
 
 GetSobInds <- function(var2, stat='r'){
-  file <- paste0('sim-study-checkpoint5-', var2, '.rda')
-  load(file)
-  sob.out[[1]]$S
+  file <- paste0('sob.out-', stat, "-", var2, '.rds')
+  readRDS(file)[[1]]$S
 }
 S <- lapply(var2levs, GetSobInds)
 
@@ -16,11 +15,19 @@ Joiner <- function(x, y) cbind(Input=rownames(x), x, var2=y, stat='r')
 data <- Map(Joiner, data, as.list(var2levs))
 data <- do.call(rbind, data)
 
-test <- data$original > 0.05
+pal <- c("#4477AA", "#DDCC77", "#CC6677")
+test <- data$`min. c.i.` > 0
 dt <- data[test, ]
+dt$pretty.var <- factor(dt$var2, levels=c('gcd', 'shipment', 'sharedBord'),
+                        labels=c('distance (km)', 'transport flows', 'shared border'))
 g <- ggplot(data=dt,
             aes(x=Input, y=original, ymin=`min. c.i.`, ymax=`max. c.i.`))
-g <- g + geom_pointrange(aes(colour=var2, shape=var2),
-                        position=position_dodge(width=0.2))
+g <- g + geom_pointrange(aes(colour=pretty.var, shape=pretty.var),
+                         position=position_dodge(width=0.2))
+g <- g + scale_shape(name='Matrix')
+g <- g + scale_color_manual(name='Matrix', values=pal)
 g <- g + coord_flip()
-ggsave('sobol-indices.pdf')
+g <- g + theme_classic()
+g <- g + ylab("Global sensitivity index\nfor mean Spearman correlation with cross-correlation matrix")
+g <- g + xlab("Input")
+ggsave('sobol-indices.pdf', width=18/2.54, height=6)
