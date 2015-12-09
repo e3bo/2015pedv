@@ -1,3 +1,5 @@
+library(ggplot2)
+load('sim-study-checkpoint3.rda')
 
 test <- resall$season < .5 & resall$raster > 600
 cols <- grep('mantel\\.[rp]\\.lag1\\..*spearman.TRUE\\.1000', colnames(resall))
@@ -12,10 +14,12 @@ m$Matrix[test] <- 'distance (km)'
 test <- grepl('sharedBord', m$variable)
 m$Matrix[test] <- 'shared border'
 
-g <- ggplot2::ggplot(data=m, aes(x=tprob.net, y=value))
+
+g <- ggplot(data=m, aes(x=tprob.net, y=value))
 g <- g + geom_point(alpha=0.5)
 g <- g + facet_grid(Response~Matrix, scales='free_y', labeller='label_both')
 g <- g + xlab('Transmission probability for a transport contact')
 g <- g + ylab('Response value')
+g <- g + scale_x_continuous(labels=as.character)
 g <- g + theme_classic()
-ggplot2::ggsave('scatter-plots-facetted.pdf', width=18/2.54, height=6)
+ggsave('scatter-plots-facetted.pdf', plot=g, width=18/2.54, height=6)
