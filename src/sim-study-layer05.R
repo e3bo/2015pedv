@@ -24,4 +24,4 @@ sob.out <- sds::RunSobol(nmeta, kmm2=kmm2, kmv2=kmv2, all.par.ranges=all.par.ran
 save.image(paste0('sim-study-checkpoint5-', stat, "-", var2, '.rda'))
 
 sob.out
-saveRDS(sob.out, paste0("sob.out-", stat, "-", var2, ".rds"))
+saveRDS(sob.out[[1]]$S, paste0("sobol-indices-", stat, "-", var2, ".rds"))

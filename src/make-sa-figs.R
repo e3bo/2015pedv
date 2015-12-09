@@ -2,11 +2,11 @@
 
 library(ggplot2)
 
-var2levs <- c('shipment', 'sharedBord')
+var2levs <- c('shipment', 'sharedBord', 'gcd')
 
 GetSobInds <- function(var2, stat='r'){
-  file <- paste0('sob.out-', stat, "-", var2, '.rds')
-  readRDS(file)[[1]]$S
+  file <- paste0('sobol-indices-', stat, "-", var2, '.rds')
+  readRDS(file)
 }
 S <- lapply(var2levs, GetSobInds)
 
@@ -28,6 +28,6 @@ g <- g + scale_shape(name='Matrix')
 g <- g + scale_color_manual(name='Matrix', values=pal)
 g <- g + coord_flip()
 g <- g + theme_classic()
-g <- g + ylab("Global sensitivity index\nfor mean Spearman correlation with cross-correlation matrix")
-g <- g + xlab("Input")
+g <- g + ylab("\nGlobal sensitivity index\nfor mean Spearman correlation with cross-correlation matrix")
+g <- g + xlab("Input\n")
 ggsave('sobol-indices.pdf', width=18/2.54, height=6)
