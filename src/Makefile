@@ -4,15 +4,10 @@ SD = /home/docker/src
 DD = /home/docker/data
 VPATH = $(SD):$(WD)
 
-simflags := flagSims-r-sharedBord flagSims-p-sharedBord \
-flagSims-r-shipment flagSims-p-shipment \
-flagSims-r-gcd flagSims-p-gcd
+simflags := flagSims-r-sharedBord flagSims-r-shipment flagSims-r-gcd
 metamodels := sim-study-checkpoint4-r-sharedBord.rda \
-sim-study-checkpoint4-p-sharedBord.rda \
 sim-study-checkpoint4-r-shipment.rda \
-sim-study-checkpoint4-p-shipment.rda \
-sim-study-checkpoint4-r-gcd.rda \
-sim-study-checkpoint4-p-gcd.rda
+sim-study-checkpoint4-r-gcd.rda
 
 all: accessions-premises-correlation.r.so flagMantelPlots flagAssocPlots \
 flagTsirFigs $(simflags) mapPlotSeries
