@@ -6,7 +6,8 @@ Description: Support for a research project on modeling livestock diseases, with
 Depends: R (>= 3.2.1)
 License: CC0
 LazyData: true
-Imports: igraph (>= 0.7.1),
+Imports: ff (>= 2.2-13),
+  igraph (>= 0.7.1),
   maps (>= 2.3-9),
   methods,
   raster (>= 2.4-20),

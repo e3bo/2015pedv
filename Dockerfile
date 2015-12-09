@@ -45,6 +45,7 @@ RUN install2.r --error \
   DiceView \
   DescTools \
   devtools \
+  ff \
   fields \
   geoR \
   GGally \

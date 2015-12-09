@@ -28,8 +28,9 @@ RunSobol <- function(nmeta, kmm2, kmv2, all.par.ranges, order=1){
   X2 <- GetRandLHSDes(nmeta, rngs)
   colnames(X1) <- colnames(X2) <- vars
   sob <- sensitivity::sobol(model=NULL, X1=X1, X2=X2, order=order, nboot=1000)
-  X <- sob$X
-  max.chunksize <- 1e3 ## approximate max, based on limitation in predict.km and RAM available
+  X <- ff::as.ff(sob$X)
+  sob$X <- NULL        ## Conserve memory here, X can easily be regenerated from X1 and X2
+  max.chunksize <- 1e3 ## approximate max, based on complexity of predict.km and RAM available
   chunksize <- min(ceiling(nrow(X) / getOption('mc.cores')), max.chunksize)
   nchunks <- ceiling(nrow(X) / chunksize)
 
