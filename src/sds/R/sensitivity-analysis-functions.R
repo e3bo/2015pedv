@@ -51,7 +51,7 @@ RunSobol <- function(nmeta, kmm2, kmv2, all.par.ranges, order=1){
   vyd <- DiceKriging::coef(kmv2)$trend
   vy <- vym + vyd
   sob.inds <- sob$S[, c("original", "min. c.i.", "max. c.i.")] * vym / vy
-  names(sob.inds) <- rownames(sob$S)
+  rownames(sob.inds) <- rownames(sob$S)
   sob.ind.rand <- vyd / vy
   list(sob, sob.inds, sob.ind.rand)
 }
