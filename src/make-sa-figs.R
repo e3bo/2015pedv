@@ -1,6 +1,6 @@
 #!/usr/bin/Rscript
 
-library(ggplot2)
+library('ggplot2')
 
 var2levs <- c('shipment', 'sharedBord', 'gcd')
 
