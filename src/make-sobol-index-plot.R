@@ -20,7 +20,7 @@ test <- data$`min. c.i.` > 0
 dt <- data[test, ]
 
 dt$pretty.var <- factor(dt$var2, levels=c('gcd', 'shipment', 'sharedBord'),
-                        labels=c('distance (km)', 'transport\nflows', 'shared\nborder'))
+                        labels=c('distance\n(km)', 'transport\nflows', 'shared\nborder'))
 
 levs <- names(sort(tapply(dt$original, dt$Input, mean, na.rm=TRUE)))
 stopifnot(levs == c("seasonal.amplitude*tprob.net", "tprob.sp*raster.ncol", "prep",
