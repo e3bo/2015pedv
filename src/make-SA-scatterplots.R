@@ -8,6 +8,11 @@ response.cols <- grep('mantel\\.[rp]\\.lag1\\..*spearman.TRUE\\.1000', colnames(
 input.cols <- c('tprob.net', 'tprob.sp', 'seasonal.amplitude', 'raster.ncol', 'prep')
 sel <- cbind(resall[, input.cols], resall[, response.cols])
 
+SavePlots <- function(var, ...){
+  stem <- 'scatter-plots-faceted-'
+  ggsave(paste0(stem, var, '.pdf'), ...)
+  ggsave(paste0(stem, var, '.eps'), ..., device=cairo_ps) #cairo for alpha shading
+}
 
 m <- reshape2::melt(sel, id=input.cols)
 test <- grepl('mantel\\.r', m$variable)
@@ -26,7 +31,7 @@ g <- g + ylab('Response value\n')
 g <- g + scale_x_continuous(labels=as.character)
 g <- g + scale_color_manual(name='Seasonal\namplitude', values=pal)
 g <- g + theme_classic()
-ggsave('scatter-plots-facetted-tprob.net.pdf', plot=g, width=18/2.54, height=6)
+SavePlots(var='tprob.net', plot=g, width=18/2.54, height=6)
 
 g <- ggplot(data=m, aes(x=tprob.sp, y=value))
 g <- g + geom_point(alpha=0.5, aes(colour=as.factor(raster.ncol)))
@@ -36,7 +41,7 @@ g <- g + ylab('Response value\n')
 g <- g + scale_x_continuous(labels=as.character)
 g <- g + scale_color_manual(name='Raster\ncolumns', values=pal)
 g <- g + theme_classic()
-ggsave('scatter-plots-facetted-tprob.sp.pdf', plot=g, width=18/2.54, height=6)
+SavePlots(var='tprob.sp', plot=g, width=18/2.54, height=6)
 
 g <- ggplot(data=m, aes(x=as.factor(raster.ncol), y=value))
 g <- g + geom_jitter(alpha=0.5, aes(colour=cut(seasonal.amplitude, breaks=c(0, 0.5, 1))))
@@ -45,16 +50,7 @@ g <- g + xlab('# raster columns')
 g <- g + ylab('Response value')
 g <- g + scale_color_manual(name='Seasonal\namplitude', values=pal)
 g <- g + theme_classic()
-ggsave('scatter-plots-facetted-raster.ncol.sp.pdf', plot=g, width=18/2.54, height=6)
-
-g <- ggplot(data=m, aes(x=as.factor(raster.ncol), y=value))
-g <- g + geom_jitter(alpha=0.5, aes(colour=cut(seasonal.amplitude, breaks=c(0, 0.5, 1))))
-g <- g + facet_grid(Response~Matrix, scales='free_y', labeller='label_both')
-g <- g + xlab('# raster columns')
-g <- g + ylab('Response value')
-g <- g + scale_color_manual(name='Seasonal\namplitude', values=pal)
-g <- g + theme_classic()
-ggsave('scatter-plots-facetted-raster.ncol.sp.pdf', plot=g, width=18/2.54, height=6)
+SavePlots(var='raster.ncol', plot=g, width=18/2.54, height=6)
 
 g <- ggplot(data=m, aes(x=prep, y=value))
 g <- g + geom_point(alpha=0.5)
@@ -63,4 +59,5 @@ g <- g + xlab('\nP(reporting | outbreak)')
 g <- g + ylab('Response value\n')
 g <- g + scale_x_continuous(labels=as.character)
 g <- g + theme_classic()
-ggsave('scatter-plots-facetted-prep.pdf', plot=g, width=18/2.54, height=6)
+SavePlots(var='prep', plot=g, width=18/2.54, height=6)
+
