@@ -20,7 +20,7 @@ test <- data$`min. c.i.` > 0
 dt <- data[test, ]
 
 dt$pretty.var <- factor(dt$var2, levels=c('gcd', 'shipment', 'sharedBord'),
-                        labels=c('distance (km)', 'transport flows', 'shared border'))
+                        labels=c('distance (km)', 'transport\nflows', 'shared\nborder'))
 
 levs <- names(sort(tapply(dt$original, dt$Input, mean, na.rm=TRUE)))
 stopifnot(levs == c("seasonal.amplitude*tprob.net", "tprob.sp*raster.ncol", "prep",
@@ -28,11 +28,11 @@ stopifnot(levs == c("seasonal.amplitude*tprob.net", "tprob.sp*raster.ncol", "pre
               "raster.ncol", "tprob.net"))
 labs <- levs
 labs <- gsub('seasonal.amplitude', 'Seasonal amplitude', labs)
-labs <- gsub('tprob.net', 'P(trans. | tranport contact)', labs)
-labs <- gsub('tprob.sp', 'P(trans. | spatial contact)', labs)
+labs <- gsub('tprob.net', 'P(trans. | transport edge)', labs)
+labs <- gsub('tprob.sp', 'P(trans. | spatial edge)', labs)
 labs <- gsub('raster.ncol', 'No. raster columns', labs)
 labs <- gsub('prep', 'P(reporting | infection)', labs)
-labs <- gsub('\\*', ' \\* ', labs)
+labs <- gsub('\\*', ' \\*\n  ', labs)
 dt$Input <- factor(dt$Input, levels=levs, labels=labs)
 
 g <- ggplot(data=dt,
@@ -43,6 +43,8 @@ g <- g + scale_shape(name='Matrix')
 g <- g + scale_color_manual(name='Matrix', values=pal)
 g <- g + coord_flip()
 g <- g + theme_classic()
-g <- g + ylab("\nGlobal sensitivity index\nfor mean Spearman correlation with cross-correlation matrix")
-g <- g + xlab("Input\n")
-ggsave('sobol-indices.pdf', width=18/2.54, height=4)
+g <- g + theme(legend.position='top', plot.margin = grid::unit(c(-4, 1, 0, 0), "mm"))
+g <- g + ylab("\nGlobal sensitivity index")
+
+ggsave('sobol-indices.pdf', width=13.5/2.54, height=4)
+ggsave('sobol-indices.eps', width=13.5/2.54, height=4)
