@@ -30,8 +30,8 @@ labs <- levs
 labs <- gsub('seasonal.amplitude', 'Seasonal amplitude', labs)
 labs <- gsub('tprob.net', 'P(trans. | transport edge)', labs)
 labs <- gsub('tprob.sp', 'P(trans. | spatial edge)', labs)
-labs <- gsub('raster.ncol', 'No. raster columns', labs)
-labs <- gsub('prep', 'P(reporting | infection)', labs)
+labs <- gsub('raster.ncol', '# raster columns', labs)
+labs <- gsub('prep', 'P(reporting | outbreak)', labs)
 labs <- gsub('\\*', ' \\*\n  ', labs)
 dt$Input <- factor(dt$Input, levels=levs, labels=labs)
 
