@@ -10,16 +10,20 @@ sim-study-checkpoint4-r-shipment.rda \
 sim-study-checkpoint4-r-gcd.rda
 
 all: accessions-premises-correlation.r.so flagMantelPlots flagAssocPlots \
-flagTsirFigs $(simflags) mapPlotSeries
+flagTsirFigs flagSimScatterPlots sobol-indices.pdf flagMapPlotSeries
 
-mapPlotSeries: map-series.r flagData flagWeeklyReports
+flagMapPlotSeries: map-series.r flagData flagWeeklyReports
 	$< && touch $@
 
 accessions-premises-correlation.r.so: accessions-premises-correlation.r \
 flagData
 	$< >$(<F).so 2>$(<F).se
 
-flagSims: $(simflags)
+flagSimScatterPlots : make-SA-scatterplots.R $(simflags)
+	$< >$(<F)-$*.so 2>$(<F)-$*.se && touch $@
+
+sobol-indices.pdf: make-sobol-index-plot.R $(simflags)
+	$< >$(<F).so 2>$(<F).se
 
 $(simflags): flagSims-%: sim-study-layer05.R sim-study-checkpoint4-%.rda
 	vars=$* $< >$(<F)-$*.so 2>$(<F)-$*.se && touch $@
