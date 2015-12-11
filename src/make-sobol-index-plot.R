@@ -23,15 +23,13 @@ dt$pretty.var <- factor(dt$var2, levels=c('gcd', 'shipment', 'sharedBord'),
                         labels=c('distance\n(km)', 'transport\nflows', 'shared\nborder'))
 
 levs <- names(sort(tapply(dt$original, dt$Input, mean, na.rm=TRUE)))
-stopifnot(levs == c("seasonal.amplitude*tprob.net", "tprob.sp*raster.ncol", "prep",
-              "seasonal.amplitude*raster.ncol", "tprob.sp", "seasonal.amplitude",
-              "raster.ncol", "tprob.net"))
 labs <- levs
 labs <- gsub('seasonal.amplitude', 'Seasonal amplitude', labs)
 labs <- gsub('tprob.net', 'P(trans. | transport edge)', labs)
 labs <- gsub('tprob.sp', 'P(trans. | spatial edge)', labs)
 labs <- gsub('raster.ncol', '# raster columns', labs)
 labs <- gsub('prep', 'P(reporting | outbreak)', labs)
+labs <- gsub('rprob', 'P(recovery)', labs)
 labs <- gsub('\\*', ' \\*\n  ', labs)
 dt$Input <- factor(dt$Input, levels=levs, labels=labs)
 
