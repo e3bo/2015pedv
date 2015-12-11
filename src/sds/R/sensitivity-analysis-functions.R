@@ -95,7 +95,8 @@ GetMetaModels <- function(resall, df, covtype='matern3_2', var1='lag1',
   # to the kriging model to be controlled, thus we'll train that model
   # separately and compare it's performance with other models.
 
-  if (getOption('mc.cores') > 1){
+  mc.cores <- getOption('mc.cores')
+  if (mc.cores > 1){
     cl <- parallel::makeForkCluster()
     on.exit(parallel::stopCluster(cl))
     doParallel::registerDoParallel(cl)

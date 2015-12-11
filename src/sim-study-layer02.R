@@ -7,7 +7,7 @@ options('mc.cores'=sds::GetCores())
 
 load('sim-study-checkpoint1.rda')
 
-nsim <- 1000
+nsim <- 2000
 par.ranges <- list(prep=c(0, 1),
                    rprob=c(0, 1),
                    seasonal.amplitude=c(0, 1),

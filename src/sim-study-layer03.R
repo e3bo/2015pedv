@@ -1,13 +1,9 @@
 #!/usr/bin/Rscript
 library(methods) #for raster
 
-set.seed(123, "L'Ecuyer")
+set.seed(1232, "L'Ecuyer")
 
-mc.cores <- ifelse(Sys.info()['sysname'] == "Linux",
-                   parallel::detectCores() - 1, 1)
-mc.cores <- ifelse(mc.cores > 20, 20, mc.cores)
-mc.cores <- ifelse(mc.cores == 0, 1, mc.cores)
-options('mc.cores'=mc.cores)
+options('mc.cores'=sds::GetCores())
 
 load('sim-study-checkpoint2.rda')
 
