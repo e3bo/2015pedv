@@ -165,7 +165,7 @@ GetMetaModels <- function(resall, df, covtype='matern3_2', var1='lag1',
   dev.off()
 
   km.m2 <- DiceEval::modelFit(X=X, Y=Y, type='Kriging', formula=Y~.,
-                              covtype=covtype, control=list(maxit=1e3, trace=FALSE),
+                              covtype=covtype, control=list(maxit=1e3, trace=TRUE),
                               noise.var=noise.var, multistart=max(mc.cores, 5))
 
   Y.km.m2 <- DiceEval::modelPredict(km.m2, newdata=X)
