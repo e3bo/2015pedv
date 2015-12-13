@@ -1,19 +1,13 @@
 #!/usr/bin/Rscript
 library(methods) #for raster
-
-set.seed(122, "L'Ecuyer")
-
 options('mc.cores'=sds::GetCores())
-
 load('sim-study-checkpoint1.rda')
+set.seed(122, "L'Ecuyer", "Inversion")
 
-nsim <- 2000
-par.ranges <- list(prep=c(0, 1),
-                   rprob=c(0, 1),
-                   seasonal.amplitude=c(0, 1),
-                   size=c(0.5, 10),
+nsim <- 1000
+par.ranges <- list(seasonal.amplitude=c(0, 1),
 		   starting.grid.x=c(0, 1),
-		   starting.grid.y=c(0, 1),
+                   starting.grid.y=c(0, 1),
                    tprob.outside=c(0, 1e-4),
                    tprob.net=c(0, 1),
                    tprob.sp=c(0, 1))

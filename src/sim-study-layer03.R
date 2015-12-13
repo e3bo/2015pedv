@@ -1,17 +1,19 @@
 #!/usr/bin/Rscript
 library(methods) #for raster
 
-set.seed(1232, "L'Ecuyer")
-
 options('mc.cores'=sds::GetCores())
-
 load('sim-study-checkpoint2.rda')
+set.seed(123, "L'Ecuyer-CMRG", "Inversion")
 
 df <- do.call(cbind, c(list(des), as.list(ag.data.inds)))
 df <- as.data.frame(df)
 
+df$prep <- 0.1
+
 df$raster.ncol <- raster.ncol.grid[df$ag.ind]
-#df$raster.nrow <- raster.nrow.grid[df$ag.ind] , ## commented out because don't expect to vary nrow independently of ncol
+df$rprob <- 0.5
+                                        #df$raster.nrow <- raster.nrow.grid[df$ag.ind] , ## commented out because don't expect to vary nrow independently of ncol
+df$size <- 0.57
 df$target.mean.deg <- target.mean.deg.grid[df$net.nbs.ind]
 df$lags.sel <- 1
 df$nstarters <- 1

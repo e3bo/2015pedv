@@ -1,11 +1,9 @@
 #!/usr/bin/Rscript
 library(methods) #for raster
-
-set.seed(121, "L'Ecuyer")
-
 options('mc.cores'=sds::GetCores())
+set.seed(121, "L'Ecuyer", "Inversion")
 
-target.mean.deg.grid <- 1:10
+target.mean.deg.grid <- 10
 raster.ncol.grid <- c(1425, 570) # 285 x 178 corresponds to roughly (16 km)^2 square cells
 raster.nrow.grid <- c(890, 356)
 

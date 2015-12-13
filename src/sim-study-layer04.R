@@ -1,10 +1,9 @@
 #!/usr/bin/Rscript
 library(methods) #for raster
 
-set.seed(124, "L'Ecuyer")
 options('mc.cores'=1)
-
 load('sim-study-checkpoint3.rda')
+set.seed(124, "L'Ecuyer", "Inversion")
 
 vars <- Sys.getenv('vars')
 if (nchar(vars) == 0) {

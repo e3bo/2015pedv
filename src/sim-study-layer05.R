@@ -1,7 +1,7 @@
 #!/usr/bin/Rscript
 library(methods) #for raster
 
-set.seed(125, "L'Ecuyer")
+set.seed(125, "L'Ecuyer", "Inversion")
 options('mc.cores'=1)
 
 vars <- Sys.getenv('vars')
