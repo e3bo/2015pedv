@@ -60,7 +60,7 @@ RunSobol <- function(nmeta, kmm2, kmv2, all.par.ranges, order=1){
 #' @export
 GetMetaModels <- function(resall, df, covtype='matern3_2', var1='lag1',
                           var2='shipment', cortype='spearman',
-                          is.symmetric='TRUE', statistic='r'){
+                          is.symmetric='TRUE', statistic='r', make.plots=FALSE){
   sub <- resall
   Y <- sub[ , paste('mantel', statistic, var1, var2, cortype, is.symmetric,
                         df$permutations[1], sep='.')]
@@ -95,16 +95,13 @@ GetMetaModels <- function(resall, df, covtype='matern3_2', var1='lag1',
   # to the kriging model to be controlled, thus we'll train that model
   # separately and compare it's performance with other models.
 
-  mc.cores <- getOption('mc.cores')
-  if (mc.cores > 1){
-    cl <- parallel::makeForkCluster()
-    on.exit(parallel::stopCluster(cl))
-    doParallel::registerDoParallel(cl)
+  GetKm <- function(X, Y, ...){
+    control <- list(max.generations=100, control=list(maxit=1e3))
+    DiceEval::modelFit(X=X, Y=Y, type='Kriging', ..., covtype=covtype,
+                       control=control, optim.method='gen')
   }
-
-  km.train <- DiceEval::modelFit(X=X.train, Y=Y.train, type='Kriging', formula=Y~.,
-                                 covtype=covtype, control=list(maxit=1e3, trace=TRUE),
-                                 nugget.estim=TRUE, multistart=max(mc.cores, 5))
+  km.train <- GetKm(X=X.train, Y=Y.train, formula=~.,
+                    nugget.estim=TRUE, nugget=1e-7)
 
   Y.test.km <- DiceEval::modelPredict(km.train, X.test)
   val.km <- c(R2=DiceEval::R2(Y.test, Y.test.km), RMSE=DiceEval::RMSE(Y.test, Y.test.km))
@@ -112,15 +109,7 @@ GetMetaModels <- function(resall, df, covtype='matern3_2', var1='lag1',
 
   print(mc$CV)
 
-  file <- paste0('km-training-model-diagnostics-', statistic, '-', var2, '.pdf')
-  pdf(file)
-  DiceKriging::plot(km.train$model)
-  dev.off()
-
-  km.m1 <- DiceEval::modelFit(X=X, Y=Y, type='Kriging', formula=~.,
-                              covtype=covtype, control=list(maxit=1e3, trace=TRUE),
-                              nugget.estim=TRUE, multistart=max(mc.cores, 5),
-                              nugget=1e-7)
+  km.m1 <- GetKm(X=X, Y=Y, formula=~., nugget.estim=TRUE, nugget=1e-7)
 
   GetPredNuggetAsNoise <- function(mod){
     noise.var <- rep(mod@covariance@nugget, len=nrow(mod@X))
@@ -134,45 +123,45 @@ GetMetaModels <- function(resall, df, covtype='matern3_2', var1='lag1',
   }
   Y.km.m1 <- GetPredNuggetAsNoise(km.m1$model)
   Yres2.m1 <- (Y - Y.km.m1)^2
-  km.v1 <- DiceEval::modelFit(X=X, Y=Yres2.m1, type='Kriging', formula=Y~1, covtype=covtype,
-                              control=list(maxit=1e3, trace=TRUE), multistart=max(mc.cores, 5),
-                              nugget.estim=TRUE)
-
-  center <- apply(X, 2, median)
-  file <- paste0('section-views-km-', statistic, '-', var2, '.v1.pdf')
-  pdf(file, width=5, height=30)
-  DiceView::sectionview.km(model=km.v1$model, center=center, mfrow=c(length(center), 1))
-  dev.off()
+  km.v1 <- GetKm(X=X, Y=Yres2.m1, formula=~1, nugget.estim=TRUE)
 
   Y.km.v1 <- GetPredNuggetAsNoise(km.v1$model)
   Yres.v1 <- Yres2.m1 - Y.km.v1
-
-  file <- paste0('km-v1-model-residuals-', statistic, '-', var2, '.pdf')
-  pdf(file)
-  par(mfrow=c(3,1))
-  plot(Y.km.v1~Yres2.m1)
-  plot(Yres.v1/sd(Yres.v1))
-  qqnorm(Yres.v1)
-  dev.off()
-
   noise.var <- ifelse(Y.km.v1 < 0, 0, Y.km.v1)
-  file <- paste0('noise-var-distribution-', statistic, '-', var2, '.pdf')
-  pdf(file)
-  par(mfrow=c(3, 1))
-  hist(Y.km.v1)
-  hist(noise.var)
-  qqnorm(noise.var)
-  dev.off()
 
-  km.m2 <- DiceEval::modelFit(X=X, Y=Y, type='Kriging', formula=Y~.,
-                              covtype=covtype, control=list(maxit=1e3, trace=TRUE),
-                              noise.var=noise.var, multistart=max(mc.cores, 5))
-
+  km.m2 <- GetKm(X=X, Y=Y, formula=~., noise.var=noise.var)
   Y.km.m2 <- DiceEval::modelPredict(km.m2, newdata=X)
   Yres2.m2 <- (Y - Y.km.m2)^2
-  km.v2 <- DiceEval::modelFit(X=X, Y=Yres2.m2, type='Kriging', formula=Y~1, covtype=covtype,
-                              control=list(maxit=1e3, trace=TRUE), nugget.estim=TRUE,
-                              multistart=max(mc.cores, 5))
+  km.v2 <- GetKm(X=X, Y=Yres2.m2, formula=~1, nugget.estim=TRUE)
+
+  center <- apply(X, 2, median)
+  if(make.plots){
+    file <- paste0('section-views-km-', statistic, '-', var2, '.v1.pdf')
+    pdf(file, width=5, height=30)
+    DiceView::sectionview.km(model=km.v1$model, center=center, mfrow=c(length(center), 1))
+    dev.off()
+
+    file <- paste0('km-training-model-diagnostics-', statistic, '-', var2, '.pdf')
+    pdf(file)
+    DiceKriging::plot(km.train$model)
+    dev.off()
+
+    file <- paste0('noise-var-distribution-', statistic, '-', var2, '.pdf')
+    pdf(file)
+    par(mfrow=c(3, 1))
+    hist(Y.km.v1)
+    hist(noise.var)
+    qqnorm(noise.var)
+    dev.off()
+
+    file <- paste0('km-v1-model-residuals-', statistic, '-', var2, '.pdf')
+    pdf(file)
+    par(mfrow=c(3,1))
+    plot(Y.km.v1~Yres2.m1)
+    plot(Yres.v1/sd(Yres.v1))
+    qqnorm(Yres.v1)
+    dev.off()
+  }
 
   list(m1=km.m1, m2=km.m2, v1=km.v1, v2=km.v2, comparisons=mc, center=center)
 }
