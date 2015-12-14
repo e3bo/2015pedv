@@ -20,7 +20,7 @@ flagData
 	$< >$(<F).so 2>$(<F).se
 
 flagSimScatterPlots : make-SA-scatterplots.R $(simflags)
-	$< >$(<F)-$*.so 2>$(<F)-$*.se && touch $@
+	$< >$(<F).so 2>$(<F).se && touch $@
 
 sobol-indices.pdf: make-sobol-index-plot.R $(simflags)
 	$< >$(<F).so 2>$(<F).se
