@@ -1,5 +1,6 @@
 #!/usr/bin/Rscript
 library(methods) #for raster
+library(rgenoud) #for optim.method='gen' to work in GetMetaModels
 
 options('mc.cores'=1)
 load('sim-study-checkpoint3.rda')

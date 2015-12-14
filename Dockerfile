@@ -15,8 +15,8 @@ RUN apt-get update && apt-get install -y -q --no-install-recommends \
   r-cran-car \
   r-cran-coda \
   r-cran-doparallel \
-  r-cran-hmisc \
   r-cran-ggplot2 \
+  r-cran-hmisc \
   r-cran-igraph \
   r-cran-lme4 \
   r-cran-maps \
@@ -59,6 +59,7 @@ RUN install2.r --error \
   randtoolbox \
   raster \
   rgdal \
+  rgenoud \
   sensitivity \
   && rm -rf /tmp/download_packages/ /tmp/*.rds
 
