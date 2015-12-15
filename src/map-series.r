@@ -67,9 +67,11 @@ make.plot <- function(){
     grid.newpage()
     vp.grid <- viewport(layout=grid.layout(3,1))
     pushViewport(vp.grid)
+    pal <- ggplot2::scale_fill_gradient(high="#4477AA", low="#DDCC77")$palette(1:13/13)
     plot.panel <- function(tps, row, col){
         pushViewport(viewport(layout.pos.col=col, layout.pos.row=row))
-        p <- plot(pedv.sts, type=observed ~ unit, tps=tps, labels=list(labels=lab.obs, cex=.7, font=3))
+        p <- plot(pedv.sts, type=observed ~ unit, tps=tps, labels=list(labels=lab.obs, cex=.7, font=3),
+                  col.regions=pal)
         print(p, newpage=FALSE)
         popViewport()
     }
