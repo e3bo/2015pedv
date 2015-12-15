@@ -19,7 +19,7 @@ if (nchar(vars) == 0) {
 kms <- sds::GetMetaModels(resall, df, var2=var2, statistic=stat, cortype="spearman")
 save.image(paste0('sim-study-checkpoint4-', stat, '-', var2, '.rda'))
 saveRDS(kms$m2$model, paste0("kmm2-", stat, "-", var2, ".rds"))
-saveRDS(kms$v2$model, paste0("kmv2-", stat, "-", var2, ".rds"))
+saveRDS(kms$var.m2, paste0("var.m2-", stat, "-", var2, ".rds"))
 
 tp.ind <- which(names(kms$center) == 'tprob.net')
 tp.sp.ind <- which(names(kms$center) == 'tprob.sp')

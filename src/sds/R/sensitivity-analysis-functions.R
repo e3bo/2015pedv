@@ -21,7 +21,7 @@ GetRandLHSDes <- function(n, ranges){
 }
 
 #' @export
-RunSobol <- function(nmeta, kmm2, kmv2, all.par.ranges, order=1){
+RunSobol <- function(nmeta, kmm2, var.m2, all.par.ranges, order=1){
   vars <- kmm2@covariance@var.names
   rngs <- all.par.ranges[vars]
   X1 <- GetRandLHSDes(nmeta, rngs)
@@ -49,7 +49,7 @@ RunSobol <- function(nmeta, kmm2, kmv2, all.par.ranges, order=1){
   sensitivity::tell(sob, y=y)
 
   vym <- sob$V['global', 'original']
-  vyd <- DiceKriging::coef(kmv2)$trend
+  vyd <- var.m2
   vy <- vym + vyd
   sob.inds <- sob$S[, c("original", "min. c.i.", "max. c.i.")] * vym / vy
   rownames(sob.inds) <- rownames(sob$S)
@@ -60,7 +60,8 @@ RunSobol <- function(nmeta, kmm2, kmv2, all.par.ranges, order=1){
 #' @export
 GetMetaModels <- function(resall, df, covtype='matern3_2', var1='lag1',
                           var2='shipment', cortype='spearman',
-                          is.symmetric='TRUE', statistic='r', make.plots=FALSE){
+                          is.symmetric='TRUE', statistic='r', make.plots=TRUE,
+                          est.v2=FALSE){
   sub <- resall
   Y <- sub[ , paste('mantel', statistic, var1, var2, cortype, is.symmetric,
                         df$permutations[1], sep='.')]
@@ -132,7 +133,10 @@ GetMetaModels <- function(resall, df, covtype='matern3_2', var1='lag1',
   km.m2 <- GetKm(X=X, Y=Y, formula=~., noise.var=noise.var)
   Y.km.m2 <- DiceEval::modelPredict(km.m2, newdata=X)
   Yres2.m2 <- (Y - Y.km.m2)^2
-  km.v2 <- GetKm(X=X, Y=Yres2.m2, formula=~1, nugget.estim=TRUE)
+  var.m2 <- mean(Yres2.m2)
+  if (est.v2){
+    km.v2 <- GetKm(X=X, Y=Yres2.m2, formula=~1, nugget.estim=TRUE)
+  }
 
   center <- apply(X, 2, median)
   if(make.plots){
@@ -163,5 +167,9 @@ GetMetaModels <- function(resall, df, covtype='matern3_2', var1='lag1',
     dev.off()
   }
 
-  list(m1=km.m1, m2=km.m2, v1=km.v1, v2=km.v2, comparisons=mc, center=center)
+  ret <- list(m1=km.m1, m2=km.m2, v1=km.v1, comparisons=mc, center=center, var.m2=var.m2)
+  if (est.v2){
+    ret$v2 <- km.v2
+  }
+  ret
 }
