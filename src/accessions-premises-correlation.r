@@ -282,7 +282,7 @@ g <- g + theme_classic()
 g <- g + scale_colour_manual(
     values = c(confPresum="#4477AA", confirmed="#DDCC77", accessions="#CC6677"),
     name='Count type',
-    labels=c(confPresum='Confirmed + presumed\npremises', confirmed='Confirmed premises',
+    labels=c(confPresum='Confirmed + presumptive\npositive premises', confirmed='Confirmed premises',
         accessions='Positive accessions'))
 g <- g + scale_shape(name='Count type',
                      labels=c(confPresum='Confirmed + presumed\npremises',
