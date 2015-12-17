@@ -57,7 +57,8 @@ sink()
 #' Get descriptive stats
 
 getDesc <- function(M) {
-  M[upper.tri(M)]
+  non.diag <- as.logical(upper.tri(M) + lower.tri(M))
+  M[non.diag]
 }
 desc <- sapply(c(pop.dyn.mats['lag1'], pop.struct.mats), getDesc)
 invisible(latex(describe(desc), file='mantel-describe.tex'))
