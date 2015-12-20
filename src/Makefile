@@ -10,7 +10,10 @@ sim-study-checkpoint4-r-shipment.rda \
 sim-study-checkpoint4-r-gcd.rda
 
 all: accessions-premises-correlation.r.so flagMantelPlots flagAssocPlots \
-flagTsirFigs flagSimScatterPlots sobol-indices.pdf flagMapPlotSeries
+flagTsirFigs flagSimScatterPlots sobol-indices.pdf flagMapPlotSeries flows-tab.tex
+
+flows-tab.tex: make-transport-flows-tab.R flagPackageInstalled
+	$< && cat flows-tab-*.tex >flows-tab.tex
 
 flagMapPlotSeries: map-series.r flagData flagWeeklyReports
 	$< && touch $@
