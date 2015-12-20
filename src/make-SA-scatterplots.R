@@ -51,13 +51,3 @@ g <- g + ylab('Response value')
 g <- g + scale_color_manual(name='Seasonal\namplitude', values=pal)
 g <- g + theme_classic()
 SavePlots(var='raster.ncol', plot=g, width=18/2.54, height=6)
-
-g <- ggplot(data=m, aes(x=prep, y=value))
-g <- g + geom_point(alpha=0.5)
-g <- g + facet_grid(Response~Matrix, scales='free_y', labeller='label_both')
-g <- g + xlab('\nP(reporting | outbreak)')
-g <- g + ylab('Response value\n')
-g <- g + scale_x_continuous(labels=as.character)
-g <- g + theme_classic()
-SavePlots(var='prep', plot=g, width=18/2.54, height=6)
-
