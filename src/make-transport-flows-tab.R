@@ -2,8 +2,10 @@
 
 data(flows.matrix, package='sds')
 
-M <- round(flows.matrix)
+M <- flows.matrix
+M[M == 0] <- NA
 rownames(M)[54] <- colnames(M)[54] <- 'Other states'
+
 for(i in 1:6){
   inds <- seq((i - 1) * 9 + 1, i * 9)
   cap1 <- "USDA ERS estimates of number of swine moved between states in 2001"
